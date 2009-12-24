@@ -1,0 +1,8 @@
+[Totem Plugin]
+Module=arteplus7
+IAge=1
+Name=Arte+7 Streams
+Description=Watch video streams from Arte.tv
+Authors=Simon Wenner <simon@wenner.ch>
+Copyright=Copyright © 2009 Simon Wenner
+Website=http://www.gnome.org/projects/totem/
