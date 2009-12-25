@@ -222,6 +222,7 @@ public class ArteParser : GLib.Object {
 class ArtePlugin: Totem.Plugin {
     private Totem.Object t;
     private Gtk.Widget main_widget;
+    private Gtk.TreeView tree_view;
     private ArteParser p;
 
     public override bool activate (Totem.Object totem) throws GLib.Error
@@ -237,17 +238,30 @@ class ArtePlugin: Totem.Plugin {
             t.action_error ("Markup parser error", "Could not parse the Arte RSS feed.");
         }
 
-        var tree_view = new Gtk.TreeView();
+        tree_view = new Gtk.TreeView();
         setup_treeview (tree_view);
         tree_view.row_activated.connect (callback_select_video_in_tree_view);
 
-        main_widget = new Gtk.ScrolledWindow (null, null);
-        ((Gtk.ScrolledWindow) main_widget).set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
-        ((Gtk.ScrolledWindow) main_widget).add_with_viewport (tree_view);
+        var scroll_win = new Gtk.ScrolledWindow (null, null);
+        scroll_win.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+        scroll_win.add_with_viewport (tree_view);
+
+        var button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
+        button.clicked.connect (callback_refresh_feed);
+
+        var tbar = new Gtk.Toolbar ();
+        tbar.insert (button, 0);
+        tbar.set_style (Gtk.ToolbarStyle.ICONS);
+        //var bbox = new Gtk.HButtonBox ();
+        //bbox.set_layout (Gtk.ButtonBoxStyle.START);
+        //bbox.pack_start (button, false, false, 0);
+
+        main_widget = new Gtk.VBox (false, 4);
+        ((Gtk.Box) main_widget).pack_start (tbar, false, false, 0);
+        ((Gtk.Box) main_widget).pack_start (scroll_win, true, true, 0);
         main_widget.show_all ();
 
         totem.add_sidebar_page ("arte", "Arte+7", main_widget);
-
         return true;
     }
 
@@ -291,6 +305,17 @@ class ArtePlugin: Totem.Plugin {
         t.action_set_mrl_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), null);
         //t.add_to_playlist_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), v.title, false);
         GLib.debug ("Video Loaded: %s", title);
+    }
+
+    private void callback_refresh_feed (Gtk.ToolButton toolbutton)
+    {
+        try {
+            p.parse(Language.GERMAN);
+        } catch (MarkupError e) {
+            GLib.critical ("Error: %s\n", e.message);
+            t.action_error ("Markup parser error", "Could not parse the Arte RSS feed.");
+        }
+        setup_treeview (tree_view);
     }
 }
 
