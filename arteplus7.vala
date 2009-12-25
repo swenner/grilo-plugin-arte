@@ -215,7 +215,7 @@ public class ArteParser : GLib.Object {
         context.parse (msg.response_body.data, (long) msg.response_body.length);
         context.end_parse ();
 
-        GLib.message ("Arte RSS parsing done: %i videos available.", videos.size);
+        GLib.debug ("RSS parsing done: %i videos available.", videos.size);
     }
 }
 
@@ -225,6 +225,7 @@ class ArtePlugin: Totem.Plugin {
     private Gtk.TreeView tree_view;
     private ArteParser p;
     private Language language = Language.FRENCH;
+    private VideoQuality quality = VideoQuality.WMV_HQ;
 
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
@@ -252,9 +253,19 @@ class ArtePlugin: Totem.Plugin {
         var langs_item = new Gtk.ToolItem ();
         langs_item.add (langs);
 
+        var quali = new Gtk.ComboBox.text ();
+        quali.append_text ("MQ");
+        quali.append_text ("HQ");
+        quali.set_active (1); // HQ is the default quality
+        quali.changed.connect (callback_quality_changed);
+
+        var quali_item = new Gtk.ToolItem ();
+        quali_item.add (quali);
+
         var tbar = new Gtk.Toolbar ();
         tbar.insert (button, 0);
         tbar.insert (langs_item, 1);
+        tbar.insert (quali_item, 2);
         tbar.set_style (Gtk.ToolbarStyle.ICONS);
 
         main_box = new Gtk.VBox (false, 4);
@@ -314,7 +325,7 @@ class ArtePlugin: Totem.Plugin {
         model.get(iter, 0, out title);
         model.get(iter, 1, out v);
 
-        t.action_set_mrl_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), null);
+        t.action_set_mrl_and_play (v.get_stream_uri(quality), null);
         //t.add_to_playlist_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), v.title, false);
         GLib.debug ("Video Loaded: %s", title);
     }
@@ -335,6 +346,16 @@ class ArtePlugin: Totem.Plugin {
         }
         if (last != language) {
             refresh_rss_feed ();
+        }
+    }
+
+    private void callback_quality_changed (Gtk.ComboBox box)
+    {
+        string text = box.get_active_text ();
+        if (text == "MQ") {
+            quality = VideoQuality.WMV_MQ;
+        } else {
+            quality = VideoQuality.WMV_HQ;
         }
     }
 }
