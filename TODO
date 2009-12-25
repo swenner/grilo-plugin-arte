@@ -1,0 +1,6 @@
+TODO:
+ * parse and display preview images
+ * display descriptions
+ * sort videos (needed?)
+ * show time until removal
+ * save plugin state in gconf/dconf
