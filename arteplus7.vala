@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA.
- * 
+ *
  */
 
 using GLib;
@@ -42,194 +42,200 @@ public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.1.5) Gecko/20091123 Iceweasel/3.5.5 (like Firefox/3.5.5; Debian-3.5.5-1) ";
 
 public class Video : GLib.Object {
-	public string title = null;
-	public string link = null;
-	public string desc = null;
-	public string category = null;
-	public GLib.TimeVal pub_date;
+    public string title = null;
+    public string link = null;
+    public string desc = null;
+    public string category = null;
+    public GLib.TimeVal pub_date;
 
     private string mq_stream_fake_uri = null;
     private string hq_stream_fake_uri = null;
 
-	public Video() {
-	}
+    public Video() {
+    }
 
-	public void print () {
-		stdout.printf ("Video: %s: %s, %s\n", title, pub_date.to_iso8601 (), link);
-	}
+    public void print () {
+        stdout.printf ("Video: %s: %s, %s\n", title, pub_date.to_iso8601 (), link);
+    }
 
-    public string get_stream_uri (VideoQuality q) 
-	{
+    public string get_stream_uri (VideoQuality q)
+    {
+        Soup.SessionAsync session = new Soup.SessionAsync ();
+        session.user_agent = USER_AGENT;
+        // A bug in the vala bindings:
+        //Soup.SessionAsync session = new Soup.SessionAsync.with_options(Soup.SESSION_USER_AGENT, USER_AGENT, null);
+
         if (mq_stream_fake_uri == null) {
-			try {
-            	extract_fake_stream_uris_from_html ();
-			} catch (RegexError e) {
-	        	GLib.warning ("%s", e.message);
-	    	}
+            try {
+                extract_fake_stream_uris_from_html (session);
+            } catch (RegexError e) {
+                GLib.warning ("%s", e.message);
+            }
         }
 
         string stream_uri = "";
-        
-        Soup.Message msg = new Soup.Message ("GET", this.hq_stream_fake_uri); // FIXME
-        Soup.SessionAsync session = new Soup.SessionAsync ();
-        session.user_agent = USER_AGENT;
-		// A bug in the vala bindings
-        //Soup.SessionAsync session = new Soup.SessionAsync.with_options(Soup.SESSION_USER_AGENT, USER_AGENT, null);
-	    session.send_message(msg); // FIXME: use callback
+        Soup.Message msg;
+        if (q == VideoQuality.WMV_HQ) {
+            msg = new Soup.Message ("GET", this.hq_stream_fake_uri);
+        } else {
+            msg = new Soup.Message ("GET", this.mq_stream_fake_uri);
+        }
+        session.send_message(msg);
 
-	    try {
-		    MatchInfo match;
-		    var regex = new Regex ("HREF=\"(mms://.*)\"");
-		    regex.match(msg.response_body.data, 0, out match);
-		    string res = match.fetch(1);
-		    if (res != null) {
-			    stream_uri = res;
-		    }
-	    } catch (RegexError e) {
-	        GLib.warning ("%s", e.message);
-	    }
+        try {
+            MatchInfo match;
+            var regex = new Regex ("HREF=\"(mms://.*)\"");
+            regex.match(msg.response_body.data, 0, out match);
+            string res = match.fetch(1);
+            if (res != null) {
+                stream_uri = res;
+            }
+        } catch (RegexError e) {
+            GLib.warning ("%s", e.message);
+        }
 
         return stream_uri;
     }
 
-	private void extract_fake_stream_uris_from_html () 
-			throws RegexError 
-	{
-		Soup.Message msg = new Soup.Message ("GET", this.link);
-		Soup.SessionAsync session = new Soup.SessionAsync();
-        session.user_agent = USER_AGENT;
-		session.send_message(msg); // FIXME: use callback
+    private void extract_fake_stream_uris_from_html (Soup.SessionAsync session)
+            throws RegexError
+    {
+        Soup.Message msg = new Soup.Message ("GET", this.link);
+        session.send_message(msg);
 
-		MatchInfo match;
-		var regex = new Regex ("\"(http://.*_MQ_[\\w]{2}.wmv)\"");
-		regex.match(msg.response_body.data, 0, out match);
-		string res = match.fetch(1);
-		if (res != null) {
-			this.mq_stream_fake_uri = res;
-		}
-		regex = new Regex ("\"(http://.*_HQ_[\\w]{2}.wmv)\"");
-		regex.match(msg.response_body.data, 0, out match);
-		res = match.fetch(1);
-		if (res != null) {
-			this.hq_stream_fake_uri = res;
-		}
-	}
+        MatchInfo match;
+        var regex = new Regex ("\"(http://.*_MQ_[\\w]{2}.wmv)\"");
+        regex.match(msg.response_body.data, 0, out match);
+        string res = match.fetch(1);
+        if (res != null) {
+            this.mq_stream_fake_uri = res;
+        }
+        regex = new Regex ("\"(http://.*_HQ_[\\w]{2}.wmv)\"");
+        regex.match(msg.response_body.data, 0, out match);
+        res = match.fetch(1);
+        if (res != null) {
+            this.hq_stream_fake_uri = res;
+        }
+    }
 }
 
 public class ArteParser : GLib.Object {
-    private const string rss_fr = 
+    private const string rss_fr =
         "http://plus7.arte.tv/fr/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
         //"http://plus7.arte.tv/fr/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml
-    private const string rss_de = 
+    private const string rss_de =
         "http://plus7.arte.tv/de/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
         //"http://plus7.arte.tv/de/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml"
-	private Video current_video = null;
-	private string current_data = null;
+    private Video current_video = null;
+    private string current_data = null;
 
-	public ArrayList<Video> videos;
+    public ArrayList<Video> videos;
 
-	public ArteParser () {
-		videos = new ArrayList<Video>();
-	}
+    public ArteParser () {
+        videos = new ArrayList<Video>();
+    }
 
-	private void open_tag (MarkupParseContext ctx,
-			string elem,
-			string[] attribute_names,
-			string[] attribute_values) throws MarkupError
-	{
-		switch (elem) {
-			case "item":
-				current_video = new Video();
-				break;
-			default:
-				current_data = elem;
-				break;
-		}
-	}
+    private void open_tag (MarkupParseContext ctx,
+            string elem,
+            string[] attribute_names,
+            string[] attribute_values) throws MarkupError
+    {
+        switch (elem) {
+            case "item":
+                current_video = new Video();
+                break;
+            default:
+                current_data = elem;
+                break;
+        }
+    }
 
-	private void close_tag (MarkupParseContext ctx,
-			string elem) throws MarkupError
-	{
-		switch (elem) {
-			case "item":
-				if (current_video != null) {
-					videos.add (current_video);
-					current_video = null;
-				}
-				break;
-			default:
-				current_data = null;
-				break;
-		}
-	}
+    private void close_tag (MarkupParseContext ctx,
+            string elem) throws MarkupError
+    {
+        switch (elem) {
+            case "item":
+                if (current_video != null) {
+                    videos.add (current_video);
+                    current_video = null;
+                }
+                break;
+            default:
+                current_data = null;
+                break;
+        }
+    }
 
-	private void proc_text (MarkupParseContext ctx,
-			string text,
-			ulong text_len) throws MarkupError
-	{
-		if (current_video != null) {
-			switch (current_data) {
-				case "title":
-					current_video.title = text;
-					break;
-				case "link":
-					current_video.link = text;
-					break;
-				case "description":
-					current_video.desc = text;
-					break;
-				case "category":
-					current_video.category = text;
-					break;
-				case "pubDate":
-					current_video.pub_date.from_iso8601 (text);
-					break;
-			}
-		}
-	}
-        
-	public void parse (Language lang)
-	{
-		Soup.Message msg;
-        if (lang == Language.GERMAN)
+    private void proc_text (MarkupParseContext ctx,
+            string text,
+            ulong text_len) throws MarkupError
+    {
+        if (current_video != null) {
+            switch (current_data) {
+                case "title":
+                    current_video.title = text;
+                    break;
+                case "link":
+                    current_video.link = text;
+                    break;
+                case "description":
+                    current_video.desc = text;
+                    break;
+                case "category":
+                    current_video.category = text;
+                    break;
+                case "pubDate":
+                    current_video.pub_date.from_iso8601 (text);
+                    break;
+            }
+        }
+    }
+
+    public void parse (Language lang) throws MarkupError
+    {
+        Soup.Message msg;
+        if (lang == Language.GERMAN) {
             msg = new Soup.Message ("GET", rss_de);
-        else
+        } else {
             msg = new Soup.Message ("GET", rss_fr);
+        }
 
-		Soup.SessionAsync session = new Soup.SessionAsync();
+        Soup.SessionAsync session = new Soup.SessionAsync();
         session.user_agent = USER_AGENT;
-		session.send_message(msg); // FIXME: use callback
+        session.send_message(msg);
 
-		stdout.printf("RSS download done.\n");
-
-		MarkupParser parser = {open_tag, close_tag, proc_text, null, null};
-
-		var context = new MarkupParseContext (parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null); 
-        // BUG in vala bindings?! MarkupParseContext: No data should be allowed
+        GLib.debug ("RSS download done.");
 
         videos.clear();
 
-		try {
-		    context.parse (msg.response_body.data, (long) msg.response_body.length);
-		    context.end_parse ();
-		} catch (MarkupError e) {
-		    GLib.warning ("Error: %s\n", e.message);
-		}
+        MarkupParser parser = {open_tag, close_tag, proc_text, null, null};
+        var context = new MarkupParseContext (parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
+        // BUG in vala bindings?! MarkupParseContext: No user data should be allowed
 
-		GLib.debug ("RSS parsing done: %i videos available.\n", videos.size);
-	}
+        context.parse (msg.response_body.data, (long) msg.response_body.length);
+        context.end_parse ();
+
+        GLib.message ("Arte RSS parsing done: %i videos available.", videos.size);
+    }
 }
 
 class ArtePlugin: Totem.Plugin {
     private Totem.Object t;
-	private Gtk.Widget main_widget;
+    private Gtk.Widget main_widget;
     private ArteParser p;
 
-	public override bool activate (Totem.Object totem) throws GLib.Error {
-		stdout.printf ("Activating Plugin.\n");
+    public override bool activate (Totem.Object totem) throws GLib.Error
+    {
+        GLib.debug ("Activating Plugin.");
 
+        t = totem;
         p = new ArteParser();
-        p.parse(Language.GERMAN);
+        try {
+            p.parse(Language.GERMAN);
+        } catch (MarkupError e) {
+            GLib.critical ("Error: %s\n", e.message);
+            t.action_error ("Markup parser error", "Could not parse the Arte RSS feed.");
+        }
 
         var tree_view = new Gtk.TreeView();
         setup_treeview (tree_view);
@@ -241,16 +247,18 @@ class ArtePlugin: Totem.Plugin {
         main_widget.show_all ();
 
         totem.add_sidebar_page ("arte", "Arte+7", main_widget);
-        t = totem;
-		return true;
-	}
 
-	public override void deactivate (Totem.Object totem) {
-		stdout.printf ("Deactivating Plugin.\n");
+        return true;
+    }
+
+    public override void deactivate (Totem.Object totem)
+    {
+        GLib.debug ("Deactivating Plugin.");
         totem.remove_sidebar_page ("arte");
-	}
+    }
 
-    private void setup_treeview (TreeView view) {
+    private void setup_treeview (TreeView view)
+    {
         var listmodel = new ListStore (2, typeof (string), typeof (Video));
         view.set_model (listmodel);
 
@@ -282,14 +290,15 @@ class ArtePlugin: Totem.Plugin {
 
         t.action_set_mrl_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), null);
         //t.add_to_playlist_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), v.title, false);
-		stdout.printf ("Video Loaded: %s\n", title);
+        GLib.debug ("Video Loaded: %s", title);
     }
 }
 
 [ModuleInit]
 public GLib.Type register_totem_plugin (GLib.TypeModule module)
 {
-	stdout.printf ("Registering plugin %s\n", "ArtePlugin");
+    GLib.debug ("Registering plugin: ArtePlugin");
 
-	return typeof (ArtePlugin);
+    return typeof (ArtePlugin);
 }
+
