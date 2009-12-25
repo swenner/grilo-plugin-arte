@@ -1,6 +1,6 @@
 all:
 	valac -C arteplus7.vala --thread --pkg libsoup-2.4 --pkg gee-1.0 --pkg totem --vapidir=./deps
-	gcc -shared -fPIC `pkg-config --cflags --libs glib-2.0 libsoup-2.4 gee-1.0 gtk+-2.0 totem-plparser` -o libarteplus7.so arteplus7.c -I./deps
+	gcc -shared -fPIC `pkg-config --cflags --libs glib-2.0 libsoup-2.4 gee-1.0 gtk+-2.0 totem-plparser` -o libarteplus7.so arteplus7.c -I./deps -DGETTEXT_PACKAGE="\"totem-arte\""
 
 install:
 	mkdir -p ~/.local/share/totem/plugins/

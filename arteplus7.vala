@@ -219,13 +219,16 @@ public class ArteParser : GLib.Object {
     }
 }
 
-class ArtePlugin: Totem.Plugin {
+class ArtePlugin : Totem.Plugin {
     private Totem.Object t;
     private Gtk.Box main_box;
     private Gtk.TreeView tree_view;
     private ArteParser p;
     private Language language = Language.FRENCH;
     private VideoQuality quality = VideoQuality.WMV_HQ;
+
+    public ArtePlugin () {
+    }
 
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
@@ -245,8 +248,8 @@ class ArtePlugin: Totem.Plugin {
         button.clicked.connect (callback_refresh_rss_feed);
 
         var langs = new Gtk.ComboBox.text ();
-        langs.append_text ("German");
-        langs.append_text ("French");
+        langs.append_text (_("German"));
+        langs.append_text (_("French"));
         langs.set_active (1); // French is the default language
         langs.changed.connect (callback_language_changed);
 
@@ -254,8 +257,8 @@ class ArtePlugin: Totem.Plugin {
         langs_item.add (langs);
 
         var quali = new Gtk.ComboBox.text ();
-        quali.append_text ("MQ");
-        quali.append_text ("HQ");
+        quali.append_text (_("MQ"));
+        quali.append_text (_("HQ"));
         quali.set_active (1); // HQ is the default quality
         quali.changed.connect (callback_quality_changed);
 
@@ -273,7 +276,7 @@ class ArtePlugin: Totem.Plugin {
         main_box.pack_start (scroll_win, true, true, 0);
         main_box.show_all ();
 
-        totem.add_sidebar_page ("arte", "Arte+7", main_box);
+        totem.add_sidebar_page ("arte", _("Arte+7"), main_box);
         return true;
     }
 
@@ -288,8 +291,8 @@ class ArtePlugin: Totem.Plugin {
         var listmodel = new ListStore (2, typeof (string), typeof (Video));
         view.set_model (listmodel);
 
-        view.insert_column_with_attributes (-1, "Title", new CellRendererText (), "text", 0, null);
-        //view.insert_column_with_attributes (-1, "Date", new CellRendererText (), "text", 1, null);
+        view.insert_column_with_attributes (-1, _("Title"), new CellRendererText (), "text", 0, null);
+        //view.insert_column_with_attributes (-1, _("Date"), new CellRendererText (), "text", 1, null);
 
         TreeIter iter;
         foreach (Video v in p.videos) {
@@ -305,7 +308,7 @@ class ArtePlugin: Totem.Plugin {
             p.parse(language);
         } catch (MarkupError e) {
             GLib.critical ("Error: %s\n", e.message);
-            t.action_error ("Markup parser error", "Could not parse the Arte RSS feed.");
+            t.action_error (_("Markup parser error"), _("Could not parse the Arte RSS feed."));
         }
         setup_treeview (tree_view);
     }
@@ -339,7 +342,7 @@ class ArtePlugin: Totem.Plugin {
     {
         Language last = language;
         string text = box.get_active_text ();
-        if (text == "German") {
+        if (text == _("German")) {
             language = Language.GERMAN;
         } else {
             language = Language.FRENCH;
@@ -352,7 +355,7 @@ class ArtePlugin: Totem.Plugin {
     private void callback_quality_changed (Gtk.ComboBox box)
     {
         string text = box.get_active_text ();
-        if (text == "MQ") {
+        if (text == _("MQ")) {
             quality = VideoQuality.WMV_MQ;
         } else {
             quality = VideoQuality.WMV_HQ;
