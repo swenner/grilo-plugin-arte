@@ -221,9 +221,10 @@ public class ArteParser : GLib.Object {
 
 class ArtePlugin: Totem.Plugin {
     private Totem.Object t;
-    private Gtk.Widget main_widget;
+    private Gtk.Box main_box;
     private Gtk.TreeView tree_view;
     private ArteParser p;
+    private Language language = Language.FRENCH;
 
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
@@ -231,37 +232,37 @@ class ArtePlugin: Totem.Plugin {
 
         t = totem;
         p = new ArteParser();
-        try {
-            p.parse(Language.GERMAN);
-        } catch (MarkupError e) {
-            GLib.critical ("Error: %s\n", e.message);
-            t.action_error ("Markup parser error", "Could not parse the Arte RSS feed.");
-        }
-
         tree_view = new Gtk.TreeView();
-        setup_treeview (tree_view);
         tree_view.row_activated.connect (callback_select_video_in_tree_view);
+        refresh_rss_feed ();
 
         var scroll_win = new Gtk.ScrolledWindow (null, null);
         scroll_win.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
         scroll_win.add_with_viewport (tree_view);
 
         var button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
-        button.clicked.connect (callback_refresh_feed);
+        button.clicked.connect (callback_refresh_rss_feed);
+
+        var langs = new Gtk.ComboBox.text ();
+        langs.append_text ("German");
+        langs.append_text ("French");
+        langs.set_active (1); // French is the default language
+        langs.changed.connect (callback_language_changed);
+
+        var langs_item = new Gtk.ToolItem ();
+        langs_item.add (langs);
 
         var tbar = new Gtk.Toolbar ();
         tbar.insert (button, 0);
+        tbar.insert (langs_item, 1);
         tbar.set_style (Gtk.ToolbarStyle.ICONS);
-        //var bbox = new Gtk.HButtonBox ();
-        //bbox.set_layout (Gtk.ButtonBoxStyle.START);
-        //bbox.pack_start (button, false, false, 0);
 
-        main_widget = new Gtk.VBox (false, 4);
-        ((Gtk.Box) main_widget).pack_start (tbar, false, false, 0);
-        ((Gtk.Box) main_widget).pack_start (scroll_win, true, true, 0);
-        main_widget.show_all ();
+        main_box = new Gtk.VBox (false, 4);
+        main_box.pack_start (tbar, false, false, 0);
+        main_box.pack_start (scroll_win, true, true, 0);
+        main_box.show_all ();
 
-        totem.add_sidebar_page ("arte", "Arte+7", main_widget);
+        totem.add_sidebar_page ("arte", "Arte+7", main_box);
         return true;
     }
 
@@ -284,7 +285,18 @@ class ArtePlugin: Totem.Plugin {
             listmodel.append (out iter);
             listmodel.set (iter, 0, v.title, 1, v, -1);
         }
-        // TODO: sort by date
+        // TODO: sort by date?
+    }
+
+    public void refresh_rss_feed ()
+    {
+        try {
+            p.parse(language);
+        } catch (MarkupError e) {
+            GLib.critical ("Error: %s\n", e.message);
+            t.action_error ("Markup parser error", "Could not parse the Arte RSS feed.");
+        }
+        setup_treeview (tree_view);
     }
 
     private void callback_select_video_in_tree_view (Gtk.Widget sender,
@@ -307,15 +319,23 @@ class ArtePlugin: Totem.Plugin {
         GLib.debug ("Video Loaded: %s", title);
     }
 
-    private void callback_refresh_feed (Gtk.ToolButton toolbutton)
+    private void callback_refresh_rss_feed (Gtk.ToolButton toolbutton)
     {
-        try {
-            p.parse(Language.GERMAN);
-        } catch (MarkupError e) {
-            GLib.critical ("Error: %s\n", e.message);
-            t.action_error ("Markup parser error", "Could not parse the Arte RSS feed.");
+        refresh_rss_feed ();
+    }
+
+    private void callback_language_changed (Gtk.ComboBox box)
+    {
+        Language last = language;
+        string text = box.get_active_text ();
+        if (text == "German") {
+            language = Language.GERMAN;
+        } else {
+            language = Language.FRENCH;
         }
-        setup_treeview (tree_view);
+        if (last != language) {
+            refresh_rss_feed ();
+        }
     }
 }
 
