@@ -62,9 +62,8 @@ public class Video : GLib.Object {
     {
         Soup.SessionAsync session = new Soup.SessionAsync ();
         session.user_agent = USER_AGENT;
-        // A bug in the vala bindings:
+        // A bug in the vala bindings: BGO #605383
         //Soup.SessionAsync session = new Soup.SessionAsync.with_options(Soup.SESSION_USER_AGENT, USER_AGENT, null);
-
         if (mq_stream_fake_uri == null) {
             try {
                 extract_fake_stream_uris_from_html (session);
@@ -299,7 +298,6 @@ class ArtePlugin : Totem.Plugin {
             listmodel.append (out iter);
             listmodel.set (iter, 0, v.title, 1, v, -1);
         }
-        // TODO: sort by date?
     }
 
     public void refresh_rss_feed ()
@@ -328,8 +326,7 @@ class ArtePlugin : Totem.Plugin {
         model.get(iter, 0, out title);
         model.get(iter, 1, out v);
 
-        t.action_set_mrl_and_play (v.get_stream_uri(quality), null);
-        //t.add_to_playlist_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), v.title, false);
+        t.add_to_playlist_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), v.title, false);
         GLib.debug ("Video Loaded: %s", title);
     }
 
