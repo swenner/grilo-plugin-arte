@@ -3,3 +3,24 @@ TV Channel Arte. http://plus7.arte.tv/
 
 Sadly, this service is only available for IPs within France, Germany, Belgium
 or Switzerland.
+
+---------------
+Dependencies:
+---------------
+Vala >= 0.7.8
+libgee
+Gtk+2.0
+libsoup2.4
+libtotem-plparser
+
+On Debian or Ubuntu:
+# aptitude install valac libgee-dev libgtk2.0-dev libtotem-plparser-dev \
+libsoup2.4-dev
+
+---------------
+Installation:
+---------------
+No root access is needed.
+
+$ make
+$ make install
