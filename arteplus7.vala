@@ -218,6 +218,13 @@ public class ArteParser : GLib.Object {
     }
 }
 
+public enum Col {
+    IMAGE,
+    NAME,
+    VIDEO_OBJECT,
+    N
+}
+
 class ArtePlugin : Totem.Plugin {
     private Totem.Object t;
     private Gtk.Box main_box;
@@ -235,7 +242,13 @@ class ArtePlugin : Totem.Plugin {
 
         t = totem;
         p = new ArteParser();
-        tree_view = new Gtk.TreeView();
+        tree_view = new Gtk.TreeView ();
+
+        var renderer = new Totem.CellRendererVideo (true);
+        tree_view.insert_column_with_attributes (0, "", renderer,
+                "thumbnail", Col.IMAGE,
+                "title", Col.NAME, null);
+        tree_view.set_headers_visible (false);
         tree_view.row_activated.connect (callback_select_video_in_tree_view);
         refresh_rss_feed ();
 
@@ -285,18 +298,17 @@ class ArtePlugin : Totem.Plugin {
         totem.remove_sidebar_page ("arte");
     }
 
-    private void setup_treeview (TreeView view)
+    private void populate_tree_view ()
     {
-        var listmodel = new ListStore (2, typeof (string), typeof (Video));
-        view.set_model (listmodel);
-
-        view.insert_column_with_attributes (-1, _("Title"), new CellRendererText (), "text", 0, null);
-        //view.insert_column_with_attributes (-1, _("Date"), new CellRendererText (), "text", 1, null);
+        var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
+                typeof (string), typeof (Video));
+        tree_view.set_model (listmodel);
 
         TreeIter iter;
         foreach (Video v in p.videos) {
             listmodel.append (out iter);
-            listmodel.set (iter, 0, v.title, 1, v, -1);
+            listmodel.set (iter, Col.IMAGE, null, Col.NAME, v.title,
+                    Col.VIDEO_OBJECT, v, -1);
         }
     }
 
@@ -308,7 +320,7 @@ class ArtePlugin : Totem.Plugin {
             GLib.critical ("Error: %s\n", e.message);
             t.action_error (_("Markup parser error"), _("Could not parse the Arte RSS feed."));
         }
-        setup_treeview (tree_view);
+        populate_tree_view ();
     }
 
     private void callback_select_video_in_tree_view (Gtk.Widget sender,
@@ -319,15 +331,13 @@ class ArtePlugin : Totem.Plugin {
         var model = tree_view.get_model ();
 
         Gtk.TreeIter iter;
-        string title;
         Video v;
 
         model.get_iter(out iter, path);
-        model.get(iter, 0, out title);
-        model.get(iter, 1, out v);
+        model.get(iter, Col.VIDEO_OBJECT, out v);
 
         t.add_to_playlist_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), v.title, false);
-        GLib.debug ("Video Loaded: %s", title);
+        GLib.debug ("Video Loaded: %s", v.title);
     }
 
     private void callback_refresh_rss_feed (Gtk.ToolButton toolbutton)

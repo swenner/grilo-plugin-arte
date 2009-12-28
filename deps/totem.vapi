@@ -35,6 +35,26 @@ namespace Totem {
 		public void remove_sidebar_page (string page_id);
 	}
 
+	[CCode (cheader_filename = "totem-cell-renderer-video.h")]
+	public class CellRendererVideo : Gtk.CellRenderer {
+		[CCode (cname = "totem_cell_renderer_video_get_type")]
+		public static GLib.Type get_type ();
+		[CCode (cname = "totem_cell_renderer_video_new")]
+		public CellRendererVideo (bool use_placeholder);
+	}
+
+	[CCode (cheader_filename = "totem-video-list.h")]
+	public class VideoList : Gtk.TreeView {
+		[CCode (cname = "totem_video_list_get_type")]
+		public static GLib.Type get_type ();
+		[CCode (cname = "totem_video_list_new")]
+		public VideoList ();
+		[CCode (cname = "totem_video_list_get_ui_manager")]
+		public Gtk.UIManager get_ui_manager ();
+
+		public virtual bool starting_video (Gtk.TreePath path);
+	}
+
 	[CCode (cheader_filename = "totem-plugin.h")]
 	public abstract class Plugin : GLib.Object {
 		[CCode (has_construct_function = false)]
