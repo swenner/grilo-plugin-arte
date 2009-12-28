@@ -43,7 +43,8 @@ public const string USER_AGENT =
 
 public class Video : GLib.Object {
     public string title = null;
-    public string link = null;
+    public string page_url = null;
+    public string image_url = null;
     public string desc = null;
     public string category = null;
     public GLib.TimeVal pub_date;
@@ -55,7 +56,7 @@ public class Video : GLib.Object {
     }
 
     public void print () {
-        stdout.printf ("Video: %s: %s, %s\n", title, pub_date.to_iso8601 (), link);
+        stdout.printf ("Video: %s: %s, %s\n", title, pub_date.to_iso8601 (), page_url);
     }
 
     public string get_stream_uri (VideoQuality q)
@@ -99,7 +100,7 @@ public class Video : GLib.Object {
     private void extract_fake_stream_uris_from_html (Soup.SessionAsync session)
             throws RegexError
     {
-        Soup.Message msg = new Soup.Message ("GET", this.link);
+        Soup.Message msg = new Soup.Message ("GET", this.page_url);
         session.send_message(msg);
 
         MatchInfo match;
@@ -118,85 +119,22 @@ public class Video : GLib.Object {
     }
 }
 
-public class ArteParser : GLib.Object {
-    private const string rss_fr =
-        "http://plus7.arte.tv/fr/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
-        //"http://plus7.arte.tv/fr/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml
-    private const string rss_de =
-        "http://plus7.arte.tv/de/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
-        //"http://plus7.arte.tv/de/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml"
-    private Video current_video = null;
-    private string current_data = null;
-
+public abstract class ArteParser : GLib.Object {
+    public string xml_fr;
+    public string xml_de;
     public ArrayList<Video> videos;
 
     public ArteParser () {
         videos = new ArrayList<Video>();
     }
 
-    private void open_tag (MarkupParseContext ctx,
-            string elem,
-            string[] attribute_names,
-            string[] attribute_values) throws MarkupError
-    {
-        switch (elem) {
-            case "item":
-                current_video = new Video();
-                break;
-            default:
-                current_data = elem;
-                break;
-        }
-    }
-
-    private void close_tag (MarkupParseContext ctx,
-            string elem) throws MarkupError
-    {
-        switch (elem) {
-            case "item":
-                if (current_video != null) {
-                    videos.add (current_video);
-                    current_video = null;
-                }
-                break;
-            default:
-                current_data = null;
-                break;
-        }
-    }
-
-    private void proc_text (MarkupParseContext ctx,
-            string text,
-            ulong text_len) throws MarkupError
-    {
-        if (current_video != null) {
-            switch (current_data) {
-                case "title":
-                    current_video.title = text;
-                    break;
-                case "link":
-                    current_video.link = text;
-                    break;
-                case "description":
-                    current_video.desc = text;
-                    break;
-                case "category":
-                    current_video.category = text;
-                    break;
-                case "pubDate":
-                    current_video.pub_date.from_iso8601 (text);
-                    break;
-            }
-        }
-    }
-
     public void parse (Language lang) throws MarkupError
     {
         Soup.Message msg;
         if (lang == Language.GERMAN) {
-            msg = new Soup.Message ("GET", rss_de);
+            msg = new Soup.Message ("GET", xml_de);
         } else {
-            msg = new Soup.Message ("GET", rss_fr);
+            msg = new Soup.Message ("GET", xml_fr);
         }
 
         Soup.SessionAsync session = new Soup.SessionAsync();
@@ -216,7 +154,156 @@ public class ArteParser : GLib.Object {
 
         GLib.debug ("RSS parsing done: %i videos available.", videos.size);
     }
+
+    protected virtual void open_tag (MarkupParseContext ctx,
+            string elem,
+            string[] attribute_names,
+            string[] attribute_values) throws MarkupError {}
+
+    protected virtual void close_tag (MarkupParseContext ctx,
+            string elem) throws MarkupError {}
+
+    protected virtual void proc_text (MarkupParseContext ctx,
+            string text,
+            ulong text_len) throws MarkupError {}
+
 }
+
+public class ArteRSSParser : ArteParser {
+    private Video current_video = null;
+    private string current_data = null;
+
+    public ArteRSSParser () {
+        /* Parses the official RSS feed */
+        xml_fr =
+            "http://plus7.arte.tv/fr/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
+        xml_de =
+            "http://plus7.arte.tv/de/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
+    }
+
+    private override void open_tag (MarkupParseContext ctx,
+            string elem,
+            string[] attribute_names,
+            string[] attribute_values) throws MarkupError
+    {
+        switch (elem) {
+            case "item":
+                current_video = new Video();
+                break;
+            default:
+                current_data = elem;
+                break;
+        }
+    }
+
+    private override void close_tag (MarkupParseContext ctx,
+            string elem) throws MarkupError
+    {
+        switch (elem) {
+            case "item":
+                if (current_video != null) {
+                    videos.add (current_video);
+                    current_video = null;
+                }
+                break;
+            default:
+                current_data = null;
+                break;
+        }
+    }
+
+    private override void proc_text (MarkupParseContext ctx,
+            string text,
+            ulong text_len) throws MarkupError
+    {
+        if (current_video != null) {
+            switch (current_data) {
+                case "title":
+                    current_video.title = text;
+                    break;
+                case "link":
+                    current_video.page_url = text;
+                    break;
+                case "description":
+                    current_video.desc = text;
+                    break;
+                case "category":
+                    current_video.category = text;
+                    break;
+                case "pubDate":
+                    current_video.pub_date.from_iso8601 (text);
+                    break;
+            }
+        }
+    }
+}
+
+public class ArteXMLParser : ArteParser {
+    private Video current_video = null;
+    private string current_data = null;
+
+    public ArteXMLParser () {
+        /* Parses the XML feed of the Flash preview plugin */
+        xml_fr =
+            "http://plus7.arte.tv/fr/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
+        xml_de =
+            "http://plus7.arte.tv/de/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
+    }
+
+    private override void open_tag (MarkupParseContext ctx,
+            string elem,
+            string[] attribute_names,
+            string[] attribute_values) throws MarkupError
+    {
+        switch (elem) {
+            case "video":
+                current_video = new Video();
+                break;
+            default:
+                current_data = elem;
+                break;
+        }
+    }
+
+    private override void close_tag (MarkupParseContext ctx,
+            string elem) throws MarkupError
+    {
+        switch (elem) {
+            case "video":
+                if (current_video != null) {
+                    videos.add (current_video);
+                    current_video = null;
+                }
+                break;
+            default:
+                current_data = null;
+                break;
+        }
+    }
+
+    private override void proc_text (MarkupParseContext ctx,
+            string text,
+            ulong text_len) throws MarkupError
+    {
+        if (current_video != null) {
+            switch (current_data) {
+                case "title":
+                    current_video.title = text;
+                    break;
+                case "targetURL":
+                    current_video.page_url = text;
+                    break;
+                case "previewPictureURL":
+                    current_video.image_url = text;
+                    break;
+                case "startDate":
+                    current_video.pub_date.from_iso8601 (text);
+                    break;
+            }
+        }
+    }
+}
+
 
 public enum Col {
     IMAGE,
@@ -241,7 +328,7 @@ class ArtePlugin : Totem.Plugin {
         GLib.debug ("Activating Plugin.");
 
         t = totem;
-        p = new ArteParser();
+        p = new ArteXMLParser();
         tree_view = new Gtk.TreeView ();
 
         var renderer = new Totem.CellRendererVideo (true);
