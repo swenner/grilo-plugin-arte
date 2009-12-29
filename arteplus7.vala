@@ -166,7 +166,6 @@ public abstract class ArteParser : GLib.Object {
     protected virtual void proc_text (MarkupParseContext ctx,
             string text,
             ulong text_len) throws MarkupError {}
-
 }
 
 public class ArteRSSParser : ArteParser {
@@ -304,7 +303,6 @@ public class ArteXMLParser : ArteParser {
     }
 }
 
-
 public enum Col {
     IMAGE,
     NAME,
@@ -319,6 +317,7 @@ class ArtePlugin : Totem.Plugin {
     private ArteParser p;
     private Language language = Language.FRENCH;
     private VideoQuality quality = VideoQuality.WMV_HQ;
+    private GLib.Mutex tree_lock;
 
     public ArtePlugin () {
     }
@@ -330,6 +329,7 @@ class ArtePlugin : Totem.Plugin {
         t = totem;
         p = new ArteXMLParser();
         tree_view = new Gtk.TreeView ();
+        tree_lock = new Mutex ();
 
         var renderer = new Totem.CellRendererVideo (true);
         tree_view.insert_column_with_attributes (0, "", renderer,
@@ -337,7 +337,6 @@ class ArtePlugin : Totem.Plugin {
                 "title", Col.NAME, null);
         tree_view.set_headers_visible (false);
         tree_view.row_activated.connect (callback_select_video_in_tree_view);
-        refresh_rss_feed ();
 
         var scroll_win = new Gtk.ScrolledWindow (null, null);
         scroll_win.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
@@ -376,6 +375,7 @@ class ArtePlugin : Totem.Plugin {
         main_box.show_all ();
 
         totem.add_sidebar_page ("arte", _("Arte+7"), main_box);
+        GLib.Idle.add (refresh_rss_feed);
         return true;
     }
 
@@ -385,8 +385,18 @@ class ArtePlugin : Totem.Plugin {
         totem.remove_sidebar_page ("arte");
     }
 
-    private void populate_tree_view ()
+    public bool refresh_rss_feed ()
     {
+        if (!tree_lock.trylock ())
+            return false;
+
+        try {
+            p.parse(language);
+        } catch (MarkupError e) {
+            GLib.critical ("Error: %s\n", e.message);
+            t.action_error (_("Markup parser error"), _("Could not parse the Arte RSS feed."));
+        }
+
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
                 typeof (string), typeof (Video));
         tree_view.set_model (listmodel);
@@ -394,20 +404,31 @@ class ArtePlugin : Totem.Plugin {
         TreeIter iter;
         foreach (Video v in p.videos) {
             listmodel.append (out iter);
-            listmodel.set (iter, Col.IMAGE, null, Col.NAME, v.title,
+            listmodel.set (iter, Col.IMAGE, get_thumbnail (v), Col.NAME, v.title,
                     Col.VIDEO_OBJECT, v, -1);
         }
+
+        tree_lock.unlock ();
+        return false;
     }
 
-    public void refresh_rss_feed ()
+    private Gdk.Pixbuf? get_thumbnail (Video v)
     {
+        Soup.SessionAsync session = new Soup.SessionAsync();
+        session.user_agent = USER_AGENT;
+        Soup.Message msg = new Soup.Message ("GET", v.image_url);
+        session.send_message (msg);
+
+        InputStream imgStream = new MemoryInputStream.from_data (msg.response_body.data, (long) msg.response_body.length, null);
+        Gdk.Pixbuf pbs = null;
         try {
-            p.parse(language);
-        } catch (MarkupError e) {
+            var pb = new Gdk.Pixbuf.from_stream (imgStream, null);
+            pbs = pb.scale_simple (120, 90, Gdk.InterpType.BILINEAR); // original size: 240px × 180px
+        } catch (GLib.Error e) {
             GLib.critical ("Error: %s\n", e.message);
-            t.action_error (_("Markup parser error"), _("Could not parse the Arte RSS feed."));
         }
-        populate_tree_view ();
+
+        return pbs;
     }
 
     private void callback_select_video_in_tree_view (Gtk.Widget sender,
@@ -429,7 +450,7 @@ class ArtePlugin : Totem.Plugin {
 
     private void callback_refresh_rss_feed (Gtk.ToolButton toolbutton)
     {
-        refresh_rss_feed ();
+        GLib.Idle.add (refresh_rss_feed);
     }
 
     private void callback_language_changed (Gtk.ComboBox box)
@@ -442,7 +463,7 @@ class ArtePlugin : Totem.Plugin {
             language = Language.FRENCH;
         }
         if (last != language) {
-            refresh_rss_feed ();
+            GLib.Idle.add (refresh_rss_feed);
         }
     }
 
