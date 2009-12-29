@@ -13,12 +13,6 @@ namespace Totem {
 		[CCode (cname = "totem_metadata_updated")]
 		public void metadata_updated (string artist, string title, string album, uint track_num);
 
-		[CCode (cname = "totem_action_set_mrl")]
-		public bool action_set_mrl (string? mrl, string? subtitle);
-		[CCode (cname = "totem_action_set_mrl_and_play")]
-		public void action_set_mrl_and_play (string? mrl, string? subtitle);
-		[CCode (cname = "totem_action_set_mrl_with_warning")]
-		public bool action_set_mrl_with_warning (string? mrl, string? subtitle, bool warn);
 		[CCode (cname = "totem_action_fullscreen_toggle")]
 		public void action_fullscreen_toggle ();
 		[CCode (cname = "totem_action_error", instance_pos = 3)]
