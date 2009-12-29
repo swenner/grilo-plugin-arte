@@ -120,6 +120,9 @@ public class Video : GLib.Object {
 
     public Gdk.Pixbuf? get_thumbnail ()
     {
+        if (image_url == null)
+            return null;
+
         Soup.SessionAsync session = new Soup.SessionAsync();
         session.user_agent = USER_AGENT;
         Soup.Message msg = new Soup.Message ("GET", image_url);
@@ -151,7 +154,7 @@ public abstract class ArteParser : GLib.Object {
         videos = new ArrayList<Video>();
     }
 
-    public void parse (Language lang) throws MarkupError
+    public void parse (Language lang) throws MarkupError, IOError
     {
         Soup.Message msg;
         if (lang == Language.GERMAN) {
@@ -163,6 +166,10 @@ public abstract class ArteParser : GLib.Object {
         Soup.SessionAsync session = new Soup.SessionAsync();
         session.user_agent = USER_AGENT;
         session.send_message(msg);
+
+        if (msg.status_code != 200) {
+            throw new IOError.HOST_NOT_FOUND ("plus7.arte.tv could not be accessed.");
+        }
 
         videos.clear();
 
@@ -338,6 +345,7 @@ class ArtePlugin : Totem.Plugin {
     private Language language = Language.FRENCH;
     private VideoQuality quality = VideoQuality.WMV_HQ;
     private GLib.Mutex tree_lock;
+    private bool use_fallback_feed = false;
 
     public ArtePlugin () {
     }
@@ -345,7 +353,7 @@ class ArtePlugin : Totem.Plugin {
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
         t = totem;
-        p = new ArteXMLParser();
+        p = new ArteXMLParser ();
         tree_view = new Gtk.TreeView ();
         tree_lock = new Mutex ();
 
@@ -410,8 +418,28 @@ class ArtePlugin : Totem.Plugin {
         try {
             p.parse(language);
         } catch (MarkupError e) {
-            GLib.critical ("Error: %s", e.message);
-            t.action_error (_("Markup parser error"), _("Could not parse the Arte RSS feed."));
+            GLib.critical ("XML Parse Error: %s", e.message);
+            if (!use_fallback_feed) {
+                /* The default XML feed parser failed.
+                 * Switch to the RSS fallback feed without thumbnails. */
+                p = new ArteRSSParser();
+                use_fallback_feed = true;
+                tree_lock.unlock ();
+                /* ... and try again. */
+                refresh_rss_feed ();
+            } else {
+                /* We are screwed! */
+                t.action_error (_("Markup Parser Error"),
+                    _("Sorry, the plugin could not parse the Arte video feed."));
+                tree_lock.unlock ();
+            }
+            return false;
+        } catch (IOError e) {
+            /* Network problems */
+            t.action_error (_("IO Error"),
+                _("Sorry, the plugin could not download the Arte video feed."));
+            tree_lock.unlock ();
+            return false;
         }
 
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
@@ -420,12 +448,13 @@ class ArtePlugin : Totem.Plugin {
 
         TreeIter iter;
         foreach (Video v in p.videos) {
-            if (p.feed_is_inverted)
+            if (p.feed_is_inverted) {
                 listmodel.prepend (out iter);
-            else
+            } else {
                 listmodel.append (out iter);
-            listmodel.set (iter, Col.IMAGE, v.get_thumbnail (), Col.NAME, v.title,
-                    Col.VIDEO_OBJECT, v, -1);
+            }
+            listmodel.set (iter, Col.IMAGE, v.get_thumbnail (),
+                    Col.NAME, v.title, Col.VIDEO_OBJECT, v, -1);
         }
 
         tree_lock.unlock ();
@@ -450,6 +479,7 @@ class ArtePlugin : Totem.Plugin {
 
     private void callback_refresh_rss_feed (Gtk.ToolButton toolbutton)
     {
+        use_fallback_feed = false;
         GLib.Idle.add (refresh_rss_feed);
     }
 
