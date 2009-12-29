@@ -442,11 +442,18 @@ class ArtePlugin : Totem.Plugin {
             return false;
         }
 
+        TreeIter iter;
+
+        /* loading line */
+        var tmp_ls = new ListStore (2, typeof (Gdk.Pixbuf), typeof (string));
+        tmp_ls.prepend (out iter);
+        tmp_ls.set (iter, Col.IMAGE, null, Col.NAME, _("Loading..."), -1);
+        tree_view.set_model (tmp_ls);
+
+        /* load the content */
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
                 typeof (string), typeof (Video));
-        tree_view.set_model (listmodel);
 
-        TreeIter iter;
         foreach (Video v in p.videos) {
             if (p.feed_is_inverted) {
                 listmodel.prepend (out iter);
@@ -456,6 +463,8 @@ class ArtePlugin : Totem.Plugin {
             listmodel.set (iter, Col.IMAGE, v.get_thumbnail (),
                     Col.NAME, v.title, Col.VIDEO_OBJECT, v, -1);
         }
+
+        tree_view.set_model (listmodel);
 
         tree_lock.unlock ();
         return false;

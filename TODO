@@ -2,3 +2,4 @@ TODO:
  * display descriptions
  * show time until removal
  * save plugin state in gconf/dconf
+ * thumbnail caching
