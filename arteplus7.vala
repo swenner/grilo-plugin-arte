@@ -117,6 +117,28 @@ public class Video : GLib.Object {
             this.hq_stream_fake_uri = res;
         }
     }
+
+    public Gdk.Pixbuf? get_thumbnail ()
+    {
+        Soup.SessionAsync session = new Soup.SessionAsync();
+        session.user_agent = USER_AGENT;
+        Soup.Message msg = new Soup.Message ("GET", image_url);
+        session.send_message (msg);
+
+        InputStream imgStream = new MemoryInputStream.from_data (msg.response_body.data,
+                (long) msg.response_body.length, null);
+
+        Gdk.Pixbuf pb_scaled = null;
+        try {
+            var pb = new Gdk.Pixbuf.from_stream (imgStream, null);
+            // original size: 240px × 180px
+            pb_scaled = pb.scale_simple (120, 90, Gdk.InterpType.BILINEAR);
+        } catch (GLib.Error e) {
+            GLib.warning ("%s", e.message);
+        }
+
+        return pb_scaled;
+    }
 }
 
 public abstract class ArteParser : GLib.Object {
@@ -141,18 +163,14 @@ public abstract class ArteParser : GLib.Object {
         session.user_agent = USER_AGENT;
         session.send_message(msg);
 
-        GLib.debug ("RSS download done.");
-
         videos.clear();
 
         MarkupParser parser = {open_tag, close_tag, proc_text, null, null};
         var context = new MarkupParseContext (parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
-        // BUG in vala bindings?! MarkupParseContext: No user data should be allowed
+        // Possible vala bindings bug?! MarkupParseContext: No user data should be allowed
 
         context.parse (msg.response_body.data, (long) msg.response_body.length);
         context.end_parse ();
-
-        GLib.debug ("RSS parsing done: %i videos available.", videos.size);
     }
 
     protected virtual void open_tag (MarkupParseContext ctx,
@@ -324,14 +342,12 @@ class ArtePlugin : Totem.Plugin {
 
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
-        GLib.debug ("Activating Plugin.");
-
         t = totem;
         p = new ArteXMLParser();
         tree_view = new Gtk.TreeView ();
         tree_lock = new Mutex ();
 
-        var renderer = new Totem.CellRendererVideo (true);
+        var renderer = new Totem.CellRendererVideo (false);
         tree_view.insert_column_with_attributes (0, "", renderer,
                 "thumbnail", Col.IMAGE,
                 "title", Col.NAME, null);
@@ -381,7 +397,6 @@ class ArtePlugin : Totem.Plugin {
 
     public override void deactivate (Totem.Object totem)
     {
-        GLib.debug ("Deactivating Plugin.");
         totem.remove_sidebar_page ("arte");
     }
 
@@ -393,7 +408,7 @@ class ArtePlugin : Totem.Plugin {
         try {
             p.parse(language);
         } catch (MarkupError e) {
-            GLib.critical ("Error: %s\n", e.message);
+            GLib.critical ("Error: %s", e.message);
             t.action_error (_("Markup parser error"), _("Could not parse the Arte RSS feed."));
         }
 
@@ -404,31 +419,12 @@ class ArtePlugin : Totem.Plugin {
         TreeIter iter;
         foreach (Video v in p.videos) {
             listmodel.append (out iter);
-            listmodel.set (iter, Col.IMAGE, get_thumbnail (v), Col.NAME, v.title,
+            listmodel.set (iter, Col.IMAGE, v.get_thumbnail (), Col.NAME, v.title,
                     Col.VIDEO_OBJECT, v, -1);
         }
 
         tree_lock.unlock ();
         return false;
-    }
-
-    private Gdk.Pixbuf? get_thumbnail (Video v)
-    {
-        Soup.SessionAsync session = new Soup.SessionAsync();
-        session.user_agent = USER_AGENT;
-        Soup.Message msg = new Soup.Message ("GET", v.image_url);
-        session.send_message (msg);
-
-        InputStream imgStream = new MemoryInputStream.from_data (msg.response_body.data, (long) msg.response_body.length, null);
-        Gdk.Pixbuf pbs = null;
-        try {
-            var pb = new Gdk.Pixbuf.from_stream (imgStream, null);
-            pbs = pb.scale_simple (120, 90, Gdk.InterpType.BILINEAR); // original size: 240px × 180px
-        } catch (GLib.Error e) {
-            GLib.critical ("Error: %s\n", e.message);
-        }
-
-        return pbs;
     }
 
     private void callback_select_video_in_tree_view (Gtk.Widget sender,
@@ -445,7 +441,6 @@ class ArtePlugin : Totem.Plugin {
         model.get(iter, Col.VIDEO_OBJECT, out v);
 
         t.add_to_playlist_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), v.title, false);
-        GLib.debug ("Video Loaded: %s", v.title);
     }
 
     private void callback_refresh_rss_feed (Gtk.ToolButton toolbutton)
@@ -481,8 +476,6 @@ class ArtePlugin : Totem.Plugin {
 [ModuleInit]
 public GLib.Type register_totem_plugin (GLib.TypeModule module)
 {
-    GLib.debug ("Registering plugin: ArtePlugin");
-
     return typeof (ArtePlugin);
 }
 
