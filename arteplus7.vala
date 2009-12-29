@@ -145,6 +145,7 @@ public abstract class ArteParser : GLib.Object {
     public string xml_fr;
     public string xml_de;
     public ArrayList<Video> videos;
+    public bool feed_is_inverted { get; protected set; default = false; }
 
     public ArteParser () {
         videos = new ArrayList<Video>();
@@ -265,6 +266,7 @@ public class ArteXMLParser : ArteParser {
             "http://plus7.arte.tv/fr/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
         xml_de =
             "http://plus7.arte.tv/de/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
+        feed_is_inverted = true;
     }
 
     private override void open_tag (MarkupParseContext ctx,
@@ -418,7 +420,10 @@ class ArtePlugin : Totem.Plugin {
 
         TreeIter iter;
         foreach (Video v in p.videos) {
-            listmodel.append (out iter);
+            if (p.feed_is_inverted)
+                listmodel.prepend (out iter);
+            else
+                listmodel.append (out iter);
             listmodel.set (iter, Col.IMAGE, v.get_thumbnail (), Col.NAME, v.title,
                     Col.VIDEO_OBJECT, v, -1);
         }
