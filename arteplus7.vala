@@ -52,16 +52,16 @@ public class Video : GLib.Object {
     private string mq_stream_fake_uri = null;
     private string hq_stream_fake_uri = null;
 
-    public Video() {
-    }
+    public Video() {}
 
-    public void print () {
+    public void print ()
+    {
         stdout.printf ("Video: %s: %s, %s\n", title, pub_date.to_iso8601 (), page_url);
     }
 
     public string get_stream_uri (VideoQuality q)
     {
-        Soup.SessionAsync session = new Soup.SessionAsync ();
+        var session = new Soup.SessionAsync ();
         session.user_agent = USER_AGENT;
         // A bug in the vala bindings: BGO #605383
         //Soup.SessionAsync session = new Soup.SessionAsync.with_options(Soup.SESSION_USER_AGENT, USER_AGENT, null);
@@ -97,10 +97,10 @@ public class Video : GLib.Object {
         return stream_uri;
     }
 
-    private void extract_fake_stream_uris_from_html (Soup.SessionAsync session)
+    private void extract_fake_stream_uris_from_html (Soup.Session session)
             throws RegexError
     {
-        Soup.Message msg = new Soup.Message ("GET", this.page_url);
+        var msg = new Soup.Message ("GET", this.page_url);
         session.send_message(msg);
 
         MatchInfo match;
@@ -118,14 +118,12 @@ public class Video : GLib.Object {
         }
     }
 
-    public Gdk.Pixbuf? get_thumbnail ()
+    public Gdk.Pixbuf? get_thumbnail (Soup.Session session)
     {
         if (image_url == null)
             return null;
 
-        Soup.SessionAsync session = new Soup.SessionAsync();
-        session.user_agent = USER_AGENT;
-        Soup.Message msg = new Soup.Message ("GET", image_url);
+        var msg = new Soup.Message ("GET", image_url);
         session.send_message (msg);
 
         InputStream imgStream = new MemoryInputStream.from_data (msg.response_body.data,
@@ -150,7 +148,8 @@ public abstract class ArteParser : GLib.Object {
     public ArrayList<Video> videos;
     public bool feed_is_inverted { get; protected set; default = false; }
 
-    public ArteParser () {
+    public ArteParser ()
+    {
         videos = new ArrayList<Video>();
     }
 
@@ -163,7 +162,7 @@ public abstract class ArteParser : GLib.Object {
             msg = new Soup.Message ("GET", xml_fr);
         }
 
-        Soup.SessionAsync session = new Soup.SessionAsync();
+        var session = new Soup.SessionAsync();
         session.user_agent = USER_AGENT;
         session.send_message(msg);
 
@@ -198,7 +197,8 @@ public class ArteRSSParser : ArteParser {
     private Video current_video = null;
     private string current_data = null;
 
-    public ArteRSSParser () {
+    public ArteRSSParser ()
+    {
         /* Parses the official RSS feed */
         xml_fr =
             "http://plus7.arte.tv/fr/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
@@ -267,7 +267,8 @@ public class ArteXMLParser : ArteParser {
     private Video current_video = null;
     private string current_data = null;
 
-    public ArteXMLParser () {
+    public ArteXMLParser ()
+    {
         /* Parses the XML feed of the Flash preview plugin */
         xml_fr =
             "http://plus7.arte.tv/fr/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
@@ -347,8 +348,7 @@ class ArtePlugin : Totem.Plugin {
     private GLib.Mutex tree_lock;
     private bool use_fallback_feed = false;
 
-    public ArtePlugin () {
-    }
+    public ArtePlugin () {}
 
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
@@ -451,6 +451,9 @@ class ArtePlugin : Totem.Plugin {
         tree_view.set_model (tmp_ls);
 
         /* load the content */
+        var session = new Soup.SessionAsync();
+        session.user_agent = USER_AGENT;
+
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
                 typeof (string), typeof (Video));
 
@@ -460,7 +463,7 @@ class ArtePlugin : Totem.Plugin {
             } else {
                 listmodel.append (out iter);
             }
-            listmodel.set (iter, Col.IMAGE, v.get_thumbnail (),
+            listmodel.set (iter, Col.IMAGE, v.get_thumbnail (session),
                     Col.NAME, v.title, Col.VIDEO_OBJECT, v, -1);
         }
 
