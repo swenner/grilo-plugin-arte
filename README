@@ -2,7 +2,7 @@ The Arte Totem plugin allows you to watch video streams from the Franco-German
 TV Channel Arte. http://plus7.arte.tv/
 
 Sadly, this service is only available for IPs within France, Germany, Belgium
-or Switzerland.
+and Switzerland.
 
 ---------------
 Dependencies:
@@ -20,7 +20,9 @@ libsoup2.4-dev
 ---------------
 Installation:
 ---------------
+The plugin can be installed to ~/.local/share/totem/plugins/
 No root access is needed.
 
 $ make
 $ make install
+
