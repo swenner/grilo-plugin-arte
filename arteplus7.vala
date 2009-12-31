@@ -59,8 +59,10 @@ public class Video : GLib.Object {
         stdout.printf ("Video: %s: %s, %s\n", title, pub_date.to_iso8601 (), page_url);
     }
 
-    public string get_stream_uri (VideoQuality q)
+    public string? get_stream_uri (VideoQuality q)
     {
+        string stream_uri = null;
+
         var session = new Soup.SessionAsync ();
         session.user_agent = USER_AGENT;
         // A bug in the vala bindings: BGO #605383
@@ -73,7 +75,9 @@ public class Video : GLib.Object {
             }
         }
 
-        string stream_uri = "";
+        if (mq_stream_fake_uri == null)
+            return stream_uri;
+
         Soup.Message msg;
         if (q == VideoQuality.WMV_HQ) {
             msg = new Soup.Message ("GET", this.hq_stream_fake_uri);
@@ -81,6 +85,9 @@ public class Video : GLib.Object {
             msg = new Soup.Message ("GET", this.mq_stream_fake_uri);
         }
         session.send_message(msg);
+
+        if (msg.response_body.data == null)
+            return stream_uri;
 
         try {
             MatchInfo match;
@@ -102,6 +109,9 @@ public class Video : GLib.Object {
     {
         var msg = new Soup.Message ("GET", this.page_url);
         session.send_message(msg);
+
+        if (msg.response_body.data == null)
+            return;
 
         MatchInfo match;
         var regex = new Regex ("\"(http://.*_MQ_[\\w]{2}.wmv)\"");
@@ -125,6 +135,9 @@ public class Video : GLib.Object {
 
         var msg = new Soup.Message ("GET", image_url);
         session.send_message (msg);
+
+        if (msg.response_body.data == null)
+            return null;
 
         InputStream imgStream = new MemoryInputStream.from_data (msg.response_body.data,
                 (long) msg.response_body.length, null);
@@ -486,7 +499,14 @@ class ArtePlugin : Totem.Plugin {
         model.get_iter(out iter, path);
         model.get(iter, Col.VIDEO_OBJECT, out v);
 
-        t.add_to_playlist_and_play (v.get_stream_uri(VideoQuality.WMV_HQ), v.title, false);
+        string uri = v.get_stream_uri(quality);
+        if (uri == null) {
+            t.action_error (_("Video URL Extraction Error"),
+                _("Sorry, the plugin could not extract a valid stream URL.\n"));
+            return;
+        }
+
+        t.add_to_playlist_and_play (uri, v.title, false);
     }
 
     private void callback_refresh_rss_feed (Gtk.ToolButton toolbutton)
