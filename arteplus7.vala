@@ -501,8 +501,9 @@ class ArtePlugin : Totem.Plugin {
 
         string uri = v.get_stream_uri(quality);
         if (uri == null) {
+            /* Network problems or access from an unsupported country */
             t.action_error (_("Video URL Extraction Error"),
-                _("Sorry, the plugin could not extract a valid stream URL.\nBe aware that this service is only available in Belgium, Germany, France and Switzerland."));
+                _("Sorry, the plugin could not extract a valid stream URL.\nBe aware that this service is only available in Austria, Belgium, Germany, France and Switzerland."));
             return;
         }
 
