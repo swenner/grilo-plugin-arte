@@ -190,7 +190,7 @@ public abstract class ArteParser : GLib.Object {
 
     protected virtual void proc_text (MarkupParseContext ctx,
             string text,
-            ulong text_len) throws MarkupError {}
+            size_t text_len) throws MarkupError {}
 }
 
 public class ArteRSSParser : ArteParser {
@@ -239,7 +239,7 @@ public class ArteRSSParser : ArteParser {
 
     private override void proc_text (MarkupParseContext ctx,
             string text,
-            ulong text_len) throws MarkupError
+            size_t text_len) throws MarkupError
     {
         if (current_video != null) {
             switch (current_data) {
@@ -310,7 +310,7 @@ public class ArteXMLParser : ArteParser {
 
     private override void proc_text (MarkupParseContext ctx,
             string text,
-            ulong text_len) throws MarkupError
+            size_t text_len) throws MarkupError
     {
         if (current_video != null) {
             switch (current_data) {
