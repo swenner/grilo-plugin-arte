@@ -14,7 +14,7 @@ libsoup2.4
 libtotem-plparser
 
 On Debian or Ubuntu:
-# aptitude install vala libgee-dev libgtk2.0-dev libtotem-plparser-dev \
+# aptitude install valac libgee-dev libgtk2.0-dev libtotem-plparser-dev \
 libsoup2.4-dev
 
 ---------------
