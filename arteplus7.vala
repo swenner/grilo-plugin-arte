@@ -353,7 +353,7 @@ public enum Col {
 
 class ArtePlugin : Totem.Plugin {
     private Totem.Object t;
-    private Gtk.Box main_box;
+    private Gtk.Toolbar tool_bar;
     private Gtk.TreeView tree_view;
     private ArteParser p;
     private Language language = Language.FRENCH;
@@ -402,14 +402,14 @@ class ArtePlugin : Totem.Plugin {
         var quali_item = new Gtk.ToolItem ();
         quali_item.add (quali);
 
-        var tbar = new Gtk.Toolbar ();
-        tbar.insert (button, 0);
-        tbar.insert (langs_item, 1);
-        tbar.insert (quali_item, 2);
-        tbar.set_style (Gtk.ToolbarStyle.ICONS);
+        tool_bar = new Gtk.Toolbar ();
+        tool_bar.insert (button, 0);
+        tool_bar.insert (langs_item, 1);
+        tool_bar.insert (quali_item, 2);
+        tool_bar.set_style (Gtk.ToolbarStyle.ICONS);
 
-        main_box = new Gtk.VBox (false, 4);
-        main_box.pack_start (tbar, false, false, 0);
+        var main_box = new Gtk.VBox (false, 4);
+        main_box.pack_start (tool_bar, false, false, 0);
         main_box.pack_start (scroll_win, true, true, 0);
         main_box.show_all ();
 
@@ -427,6 +427,8 @@ class ArtePlugin : Totem.Plugin {
     {
         if (!tree_lock.trylock ())
             return false;
+
+        tool_bar.set_sensitive (false);
 
         try {
             p.parse(language);
@@ -452,6 +454,7 @@ class ArtePlugin : Totem.Plugin {
             t.action_error (_("IO Error"),
                 _("Sorry, the plugin could not download the Arte video feed."));
             tree_lock.unlock ();
+            tool_bar.set_sensitive (true);
             return false;
         }
 
@@ -483,6 +486,7 @@ class ArtePlugin : Totem.Plugin {
         tree_view.set_model (listmodel);
 
         tree_lock.unlock ();
+        tool_bar.set_sensitive (true);
         return false;
     }
 
