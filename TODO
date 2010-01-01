@@ -3,3 +3,5 @@ TODO:
  * show time until removal
  * save plugin state in gconf/dconf
  * thumbnail caching
+ * search field
+ * plugin settings dialog
