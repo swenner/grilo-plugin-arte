@@ -23,6 +23,7 @@ using Soup;
 using Gee;
 using Totem;
 using Gtk;
+using GConf;
 
 public enum VideoQuality {
     UNKNOWN,
@@ -40,6 +41,8 @@ public enum Language {
 
 public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.1.5) Gecko/20091123 Iceweasel/3.5.5 (like Firefox/3.5.5; Debian-3.5.5-1) ";
+
+public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 
 public class Video : GLib.Object {
     public string title = null;
@@ -369,6 +372,7 @@ class ArtePlugin : Totem.Plugin {
         p = new ArteXMLParser ();
         tree_view = new Gtk.TreeView ();
         tree_lock = new Mutex ();
+        load_properties ();
 
         var renderer = new Totem.CellRendererVideo (false);
         tree_view.insert_column_with_attributes (0, "", renderer,
@@ -387,7 +391,10 @@ class ArtePlugin : Totem.Plugin {
         var langs = new Gtk.ComboBox.text ();
         langs.append_text (_("German"));
         langs.append_text (_("French"));
-        langs.set_active (1); // French is the default language
+        if (language == Language.GERMAN)
+            langs.set_active (0);
+        else
+            langs.set_active (1); // French is the default language
         langs.changed.connect (callback_language_changed);
 
         var langs_item = new Gtk.ToolItem ();
@@ -396,7 +403,10 @@ class ArtePlugin : Totem.Plugin {
         var quali = new Gtk.ComboBox.text ();
         quali.append_text (_("MQ"));
         quali.append_text (_("HQ"));
-        quali.set_active (1); // HQ is the default quality
+        if (quality == VideoQuality.WMV_MQ)
+            quali.set_active (0);
+        else
+            quali.set_active (1); // HQ is the default quality
         quali.changed.connect (callback_quality_changed);
 
         var quali_item = new Gtk.ToolItem ();
@@ -490,6 +500,30 @@ class ArtePlugin : Totem.Plugin {
         return false;
     }
 
+    /* stores properties in gconf */
+    private void store_properties ()
+    {
+        var gc = GConf.Client.get_default ();
+        try {
+            gc.set_int (GCONF_ROOT + "/quality", (int) quality);
+            gc.set_int (GCONF_ROOT + "/language", (int) language);
+        } catch (GLib.Error e) {
+            GLib.warning ("%s", e.message);
+        }
+    }
+
+    /* loads properties from gconf */
+    private void load_properties ()
+    {
+        var gc = GConf.Client.get_default ();
+        try {
+            quality = (VideoQuality) gc.get_int (GCONF_ROOT + "/quality");
+            language = (Language) gc.get_int (GCONF_ROOT + "/language");
+        } catch (GLib.Error e) {
+            GLib.warning ("%s", e.message);
+        }
+    }
+
     private void callback_select_video_in_tree_view (Gtk.Widget sender,
         Gtk.TreePath path,
         Gtk.TreeViewColumn column)
@@ -531,16 +565,21 @@ class ArtePlugin : Totem.Plugin {
         }
         if (last != language) {
             GLib.Idle.add (refresh_rss_feed);
+            store_properties ();
         }
     }
 
     private void callback_quality_changed (Gtk.ComboBox box)
     {
+        VideoQuality last = quality;
         string text = box.get_active_text ();
         if (text == _("MQ")) {
             quality = VideoQuality.WMV_MQ;
         } else {
             quality = VideoQuality.WMV_HQ;
+        }
+        if (last != quality) {
+            store_properties ();
         }
     }
 }
