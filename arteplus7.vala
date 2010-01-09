@@ -188,7 +188,7 @@ public abstract class ArteParser : GLib.Object {
 
         videos.clear();
 
-        MarkupParser parser = {open_tag, close_tag, proc_text, null, null};
+        MarkupParser parser = {open_tag, close_tag, process_text, null, null};
         var context = new MarkupParseContext (parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
         // Possible vala bindings bug?! MarkupParseContext: No user data should be allowed
 
@@ -204,7 +204,7 @@ public abstract class ArteParser : GLib.Object {
     protected virtual void close_tag (MarkupParseContext ctx,
             string elem) throws MarkupError {}
 
-    protected virtual void proc_text (MarkupParseContext ctx,
+    protected virtual void process_text (MarkupParseContext ctx,
             string text,
             size_t text_len) throws MarkupError {}
 }
@@ -253,7 +253,7 @@ public class ArteRSSParser : ArteParser {
         }
     }
 
-    private override void proc_text (MarkupParseContext ctx,
+    private override void process_text (MarkupParseContext ctx,
             string text,
             size_t text_len) throws MarkupError
     {
@@ -324,7 +324,7 @@ public class ArteXMLParser : ArteParser {
         }
     }
 
-    private override void proc_text (MarkupParseContext ctx,
+    private override void process_text (MarkupParseContext ctx,
             string text,
             size_t text_len) throws MarkupError
     {
@@ -361,7 +361,7 @@ class ArtePlugin : Totem.Plugin {
     private ArteParser p;
     private Language language = Language.FRENCH;
     private VideoQuality quality = VideoQuality.WMV_HQ;
-    private GLib.Mutex tree_lock;
+    private GLib.StaticMutex tree_lock;
     private bool use_fallback_feed = false;
 
     public ArtePlugin () {}
@@ -371,7 +371,6 @@ class ArtePlugin : Totem.Plugin {
         t = totem;
         p = new ArteXMLParser ();
         tree_view = new Gtk.TreeView ();
-        tree_lock = new Mutex ();
         load_properties ();
 
         var renderer = new Totem.CellRendererVideo (false);
@@ -388,34 +387,8 @@ class ArtePlugin : Totem.Plugin {
         var button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
         button.clicked.connect (callback_refresh_rss_feed);
 
-        var langs = new Gtk.ComboBox.text ();
-        langs.append_text (_("German"));
-        langs.append_text (_("French"));
-        if (language == Language.GERMAN)
-            langs.set_active (0);
-        else
-            langs.set_active (1); // French is the default language
-        langs.changed.connect (callback_language_changed);
-
-        var langs_item = new Gtk.ToolItem ();
-        langs_item.add (langs);
-
-        var quali = new Gtk.ComboBox.text ();
-        quali.append_text (_("MQ"));
-        quali.append_text (_("HQ"));
-        if (quality == VideoQuality.WMV_MQ)
-            quali.set_active (0);
-        else
-            quali.set_active (1); // HQ is the default quality
-        quali.changed.connect (callback_quality_changed);
-
-        var quali_item = new Gtk.ToolItem ();
-        quali_item.add (quali);
-
         tool_bar = new Gtk.Toolbar ();
         tool_bar.insert (button, 0);
-        tool_bar.insert (langs_item, 1);
-        tool_bar.insert (quali_item, 2);
         tool_bar.set_style (Gtk.ToolbarStyle.ICONS);
 
         var main_box = new Gtk.VBox (false, 4);
@@ -431,6 +404,57 @@ class ArtePlugin : Totem.Plugin {
     public override void deactivate (Totem.Object totem)
     {
         totem.remove_sidebar_page ("arte");
+    }
+
+    public override Gtk.Widget create_configure_dialog ()
+    {
+        var langs = new Gtk.ComboBox.text ();
+        langs.append_text (_("German"));
+        langs.append_text (_("French"));
+        if (language == Language.GERMAN)
+            langs.set_active (0);
+        else
+            langs.set_active (1); // French is the default language
+        langs.changed.connect (callback_language_changed);
+
+        var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, "_medium");
+        var quali_radio_high = new Gtk.RadioButton.with_mnemonic_from_widget (
+                quali_radio_medium, "_high");
+        if (quality == VideoQuality.WMV_MQ)
+            quali_radio_medium.set_active (true);
+        else
+            quali_radio_high.set_active (true); // HQ is the default quality
+
+        quali_radio_medium.toggled.connect (callback_quality_toggled);
+
+        var langs_label = new Gtk.Label (_("Language:"));
+        var langs_box = new HBox (false, 20);
+        langs_box.pack_start (langs_label, false, true, 0);
+        langs_box.pack_start (langs, true, true, 0);
+
+        var quali_label = new Gtk.Label (_("Video quality:"));
+        var quali_box = new HBox (false, 20);
+        quali_box.pack_start (quali_label, false, true, 0);
+        quali_box.pack_start (quali_radio_medium, false, true, 0);
+        quali_box.pack_start (quali_radio_high, true, true, 0);
+
+        var dialog = new Dialog.with_buttons (_("Arte+7 Plugin Properties"),
+                null, Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE, null);
+        dialog.has_separator = false;
+        dialog.resizable = false;
+        dialog.border_width = 5;
+        dialog.vbox.spacing = 10;
+        dialog.vbox.pack_start (langs_box, false, true, 0);
+        dialog.vbox.pack_start (quali_box, false, true, 0);
+        dialog.show_all ();
+
+        dialog.response.connect ((source, response_id) => {
+            if (response_id == Gtk.ResponseType.CLOSE)
+                dialog.destroy ();
+        });
+
+        return dialog;
     }
 
     public bool refresh_rss_feed ()
@@ -524,11 +548,11 @@ class ArtePlugin : Totem.Plugin {
         }
     }
 
-    private void callback_select_video_in_tree_view (Gtk.Widget sender,
+    private void callback_select_video_in_tree_view (Gtk.TreeView sender,
         Gtk.TreePath path,
         Gtk.TreeViewColumn column)
     {
-        var tree_view = (TreeView) sender;
+        var tree_view = sender;
         var model = tree_view.get_model ();
 
         Gtk.TreeIter iter;
@@ -569,11 +593,11 @@ class ArtePlugin : Totem.Plugin {
         }
     }
 
-    private void callback_quality_changed (Gtk.ComboBox box)
+    private void callback_quality_toggled (Gtk.ToggleButton button)
     {
         VideoQuality last = quality;
-        string text = box.get_active_text ();
-        if (text == _("MQ")) {
+        bool mq_active = button.get_active ();
+        if (mq_active) {
             quality = VideoQuality.WMV_MQ;
         } else {
             quality = VideoQuality.WMV_HQ;
