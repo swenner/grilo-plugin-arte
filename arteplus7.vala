@@ -363,7 +363,7 @@ class ArtePlugin : Totem.Plugin {
     private VideoQuality quality = VideoQuality.WMV_HQ;
     private GLib.StaticMutex tree_lock;
     private bool use_fallback_feed = false;
-    private string filter = null;
+    private string? filter = null;
 
     public ArtePlugin () {}
 
@@ -390,13 +390,13 @@ class ArtePlugin : Totem.Plugin {
 
         var search = new Gtk.Entry ();
         search.set_width_chars (18);
+        /* search as you type */
         search.changed.connect ((entry) => {
             filter = ((Gtk.Entry) entry).get_text ().down ();
-            if (filter != "") {
-                var model = (Gtk.TreeModelFilter) tree_view.get_model ();
-                model.refilter ();
-            }
+            var model = (Gtk.TreeModelFilter) tree_view.get_model ();
+            model.refilter ();
         });
+        /* flush search field on return */
         search.activate.connect ((entry) => {
             entry.set_text ("");
             if (filter != null) {
