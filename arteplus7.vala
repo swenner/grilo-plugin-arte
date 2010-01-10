@@ -363,6 +363,7 @@ class ArtePlugin : Totem.Plugin {
     private VideoQuality quality = VideoQuality.WMV_HQ;
     private GLib.StaticMutex tree_lock;
     private bool use_fallback_feed = false;
+    private string filter = null;
 
     public ArtePlugin () {}
 
@@ -387,8 +388,29 @@ class ArtePlugin : Totem.Plugin {
         var button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
         button.clicked.connect (callback_refresh_rss_feed);
 
+        var search = new Gtk.Entry ();
+        search.set_width_chars (18);
+        search.changed.connect ((entry) => {
+            filter = ((Gtk.Entry) entry).get_text ().down ();
+            if (filter != "") {
+                var model = (Gtk.TreeModelFilter) tree_view.get_model ();
+                model.refilter ();
+            }
+        });
+        search.activate.connect ((entry) => {
+            entry.set_text ("");
+            if (filter != null) {
+                filter = null;
+                var model = (Gtk.TreeModelFilter) tree_view.get_model ();
+                model.refilter ();
+            }
+        });
+        var search_item = new Gtk.ToolItem ();
+        search_item.add (search);
+
         tool_bar = new Gtk.Toolbar ();
         tool_bar.insert (button, 0);
+        tool_bar.insert (search_item, 1);
         tool_bar.set_style (Gtk.ToolbarStyle.ICONS);
 
         var main_box = new Gtk.VBox (false, 4);
@@ -517,11 +539,24 @@ class ArtePlugin : Totem.Plugin {
                     Col.NAME, v.title, Col.VIDEO_OBJECT, v, -1);
         }
 
-        tree_view.set_model (listmodel);
+        var model_filter = new Gtk.TreeModelFilter (listmodel, null);
+        model_filter.set_visible_func (filter_tree);
+
+        tree_view.set_model (model_filter);
 
         tree_lock.unlock ();
         tool_bar.set_sensitive (true);
         return false;
+    }
+
+    private bool filter_tree (Gtk.TreeModel model, Gtk.TreeIter iter)
+    {
+        string title;
+        model.get (iter, Col.NAME, out title);
+        if (filter == null || title.down().contains(filter))
+            return true;
+        else
+            return false;
     }
 
     /* stores properties in gconf */
@@ -548,18 +583,17 @@ class ArtePlugin : Totem.Plugin {
         }
     }
 
-    private void callback_select_video_in_tree_view (Gtk.TreeView sender,
+    private void callback_select_video_in_tree_view (Gtk.TreeView tree_view,
         Gtk.TreePath path,
         Gtk.TreeViewColumn column)
     {
-        var tree_view = sender;
         var model = tree_view.get_model ();
 
         Gtk.TreeIter iter;
         Video v;
 
-        model.get_iter(out iter, path);
-        model.get(iter, Col.VIDEO_OBJECT, out v);
+        model.get_iter (out iter, path);
+        model.get (iter, Col.VIDEO_OBJECT, out v);
 
         string uri = v.get_stream_uri(quality);
         if (uri == null) {
