@@ -42,11 +42,12 @@ namespace Totem {
 		[CCode (cname = "totem_video_list_get_type")]
 		public static GLib.Type get_type ();
 		[CCode (cname = "totem_video_list_new")]
+		[CCode (has_construct_function = false)]
 		public VideoList ();
 		[CCode (cname = "totem_video_list_get_ui_manager")]
 		public Gtk.UIManager get_ui_manager ();
 
-		public virtual bool starting_video (Gtk.TreePath path);
+		public virtual signal bool starting_video (Gtk.TreePath path);
 	}
 
 	[CCode (cheader_filename = "totem-plugin.h")]
