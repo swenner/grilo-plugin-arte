@@ -451,9 +451,9 @@ class ArtePlugin : Totem.Plugin {
             langs.set_active (1); // French is the default language
         langs.changed.connect (callback_language_changed);
 
-        var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, "_medium");
+        var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, _("_medium"));
         var quali_radio_high = new Gtk.RadioButton.with_mnemonic_from_widget (
-                quali_radio_medium, "_high");
+                quali_radio_medium, _("_high"));
         if (quality == VideoQuality.WMV_MQ)
             quali_radio_medium.set_active (true);
         else
@@ -529,9 +529,13 @@ class ArtePlugin : Totem.Plugin {
         TreeIter iter;
 
         /* loading line */
-        var tmp_ls = new ListStore (2, typeof (Gdk.Pixbuf), typeof (string));
+        var tmp_ls = new ListStore (3, typeof (Gdk.Pixbuf),
+                typeof (string), typeof (string));
         tmp_ls.prepend (out iter);
-        tmp_ls.set (iter, Col.IMAGE, null, Col.NAME, _("Loading..."), -1);
+        tmp_ls.set (iter,
+                Col.IMAGE, null,
+                Col.NAME, _("Loading..."),
+                Col.DESCRIPTION, null, -1);
         tree_view.set_model (tmp_ls);
 
         /* load the content */
