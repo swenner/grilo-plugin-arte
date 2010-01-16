@@ -49,17 +49,22 @@ public class Video : GLib.Object {
     public string page_url = null;
     public string image_url = null;
     public string desc = null;
-    public string category = null;
-    public GLib.TimeVal pub_date;
+    /* public string category = null; */
+    public GLib.TimeVal publication_date;
+    public GLib.TimeVal offline_date;
 
     private string mq_stream_fake_uri = null;
     private string hq_stream_fake_uri = null;
 
-    public Video() {}
+    public Video()
+    {
+         publication_date.tv_sec = 0;
+         offline_date.tv_sec = 0;
+    }
 
     public void print ()
     {
-        stdout.printf ("Video: %s: %s, %s\n", title, pub_date.to_iso8601 (), page_url);
+        stdout.printf ("Video: %s: %s, %s\n", title, publication_date.to_iso8601 (), page_url);
     }
 
     public string? get_stream_uri (VideoQuality q)
@@ -268,11 +273,11 @@ public class ArteRSSParser : ArteParser {
                 case "description":
                     current_video.desc = text;
                     break;
-                case "category":
+                /* case "category":
                     current_video.category = text;
-                    break;
+                    break; */
                 case "pubDate":
-                    current_video.pub_date.from_iso8601 (text);
+                    current_video.publication_date.from_iso8601 (text);
                     break;
             }
         }
@@ -340,7 +345,10 @@ public class ArteXMLParser : ArteParser {
                     current_video.image_url = text;
                     break;
                 case "startDate":
-                    current_video.pub_date.from_iso8601 (text);
+                    current_video.publication_date.from_iso8601 (text);
+                    break;
+                case "offlineDate":
+                    current_video.offline_date.from_iso8601 (text);
                     break;
             }
         }
@@ -350,6 +358,7 @@ public class ArteXMLParser : ArteParser {
 public enum Col {
     IMAGE,
     NAME,
+    DESCRIPTION,
     VIDEO_OBJECT,
     N
 }
@@ -379,6 +388,7 @@ class ArtePlugin : Totem.Plugin {
                 "thumbnail", Col.IMAGE,
                 "title", Col.NAME, null);
         tree_view.set_headers_visible (false);
+        tree_view.set_tooltip_column (Col.DESCRIPTION);
         tree_view.row_activated.connect (callback_select_video_in_tree_view);
 
         var scroll_win = new Gtk.ScrolledWindow (null, null);
@@ -527,7 +537,7 @@ class ArtePlugin : Totem.Plugin {
         session.user_agent = USER_AGENT;
 
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
-                typeof (string), typeof (Video));
+                typeof (string), typeof (string), typeof (Video));
 
         foreach (Video v in p.videos) {
             if (p.feed_is_inverted) {
@@ -535,12 +545,30 @@ class ArtePlugin : Totem.Plugin {
             } else {
                 listmodel.append (out iter);
             }
-            listmodel.set (iter, Col.IMAGE, v.get_thumbnail (session),
-                    Col.NAME, v.title, Col.VIDEO_OBJECT, v, -1);
+
+            string desc_str = null;
+
+            if (v.offline_date.tv_sec > 0) {
+                var now = GLib.TimeVal ();
+                now.get_current_time ();
+                double minutes_left = (v.offline_date.tv_sec - now.tv_sec) / (60.0);
+                if (minutes_left < 60)
+                    desc_str = _("%.0f minutes until removal").printf (minutes_left);
+                else if (minutes_left < 60.0 * 24.0)
+                    desc_str = _("%.1f hours until removal").printf (minutes_left / 60.0);
+                else
+                    desc_str = _("%.1f days until removal").printf (minutes_left / (60.0 * 24.0));
+            }
+
+            listmodel.set (iter,
+                    Col.IMAGE, v.get_thumbnail (session),
+                    Col.NAME, v.title,
+                    Col.DESCRIPTION, desc_str,
+                    Col.VIDEO_OBJECT, v, -1);
         }
 
         var model_filter = new Gtk.TreeModelFilter (listmodel, null);
-        model_filter.set_visible_func (filter_tree);
+        model_filter.set_visible_func (callback_filter_tree);
 
         tree_view.set_model (model_filter);
 
@@ -549,11 +577,11 @@ class ArtePlugin : Totem.Plugin {
         return false;
     }
 
-    private bool filter_tree (Gtk.TreeModel model, Gtk.TreeIter iter)
+    private bool callback_filter_tree (Gtk.TreeModel model, Gtk.TreeIter iter)
     {
         string title;
         model.get (iter, Col.NAME, out title);
-        if (filter == null || title.down().contains(filter))
+        if (filter == null || title.down ().contains (filter))
             return true;
         else
             return false;
