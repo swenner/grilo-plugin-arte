@@ -397,6 +397,7 @@ class ArtePlugin : Totem.Plugin {
         scroll_win.add (tree_view);
 
         var button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
+        button.set_tooltip_text(_("Reload feed"));
         button.clicked.connect (callback_refresh_rss_feed);
 
         var search = new Gtk.Entry ();
