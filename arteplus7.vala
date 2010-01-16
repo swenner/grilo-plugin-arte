@@ -553,10 +553,12 @@ class ArtePlugin : Totem.Plugin {
             if (v.offline_date.tv_sec > 0) {
                 var now = GLib.TimeVal ();
                 now.get_current_time ();
-                double minutes_left = (v.offline_date.tv_sec - now.tv_sec) / (60.0);
-                if (minutes_left < 60)
+                double minutes_left = (v.offline_date.tv_sec - now.tv_sec) / 60.0;
+                if (minutes_left < 60.0) {
+                    if (minutes_left < 0.0)
+                        minutes_left = 0.0;
                     desc_str = _("%.0f minutes until removal").printf (minutes_left);
-                else if (minutes_left < 60.0 * 24.0)
+                } else if (minutes_left < 60.0 * 24.0)
                     desc_str = _("%.1f hours until removal").printf (minutes_left / 60.0);
                 else
                     desc_str = _("%.1f days until removal").printf (minutes_left / (60.0 * 24.0));
