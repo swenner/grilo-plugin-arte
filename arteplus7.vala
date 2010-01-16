@@ -393,7 +393,8 @@ class ArtePlugin : Totem.Plugin {
 
         var scroll_win = new Gtk.ScrolledWindow (null, null);
         scroll_win.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
-        scroll_win.add_with_viewport (tree_view);
+        scroll_win.set_shadow_type (ShadowType.IN);
+        scroll_win.add (tree_view);
 
         var button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
         button.clicked.connect (callback_refresh_rss_feed);
