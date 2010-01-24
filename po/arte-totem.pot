@@ -1,0 +1,111 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-01-24 21:04+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../arteplus7.vala:190
+msgid "plus7.arte.tv could not be accessed."
+msgstr ""
+
+#: ../arteplus7.vala:396
+msgid "Reload feed"
+msgstr ""
+
+#: ../arteplus7.vala:429
+msgid "Arte+7"
+msgstr ""
+
+#: ../arteplus7.vala:442 ../arteplus7.vala:651
+msgid "German"
+msgstr ""
+
+#: ../arteplus7.vala:443
+msgid "French"
+msgstr ""
+
+#: ../arteplus7.vala:450
+msgid "_medium"
+msgstr ""
+
+#: ../arteplus7.vala:452
+msgid "_high"
+msgstr ""
+
+#: ../arteplus7.vala:460
+msgid "Language:"
+msgstr ""
+
+#: ../arteplus7.vala:465
+msgid "Video quality:"
+msgstr ""
+
+#: ../arteplus7.vala:471
+msgid "Arte+7 Plugin Properties"
+msgstr ""
+
+#: ../arteplus7.vala:500
+#, c-format
+msgid "XML Parse Error: %s"
+msgstr ""
+
+#. We are screwed!
+#: ../arteplus7.vala:511
+msgid "Markup Parser Error"
+msgstr ""
+
+#: ../arteplus7.vala:512
+msgid "Sorry, the plugin could not parse the Arte video feed."
+msgstr ""
+
+#. Network problems
+#: ../arteplus7.vala:518
+msgid "IO Error"
+msgstr ""
+
+#: ../arteplus7.vala:519
+msgid "Sorry, the plugin could not download the Arte video feed."
+msgstr ""
+
+#: ../arteplus7.vala:533
+msgid "Loading..."
+msgstr ""
+
+#: ../arteplus7.vala:560
+#, c-format
+msgid "%.0f minutes until removal"
+msgstr ""
+
+#: ../arteplus7.vala:562
+#, c-format
+msgid "%.1f hours until removal"
+msgstr ""
+
+#: ../arteplus7.vala:564
+#, c-format
+msgid "%.1f days until removal"
+msgstr ""
+
+#. Network problems or access from an unsupported country
+#: ../arteplus7.vala:633
+msgid "Video URL Extraction Error"
+msgstr ""
+
+#: ../arteplus7.vala:634
+msgid ""
+"Sorry, the plugin could not extract a valid stream URL.\n"
+"Be aware that this service is only available in Austria, Belgium, Germany, "
+"France and Switzerland."
+msgstr ""

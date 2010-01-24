@@ -1,0 +1,113 @@
+# I18n file for Arte+7 totem plugin
+# Copyright (C) 2010 Simon Wenner <simon@wenner.ch>
+# This file is distributed under the same license as the Totem Arte Plugin package.
+# This file was first created by Nicolas Delvaux <nicolas.delvaux@gmx.com>, 2010.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-01-24 21:04+0100\n"
+"PO-Revision-Date: 2010-01-23 19:02+0100\n"
+"Last-Translator: Nicolas Delvaux <nicolas.delvaux@gmx.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../arteplus7.vala:190
+msgid "plus7.arte.tv could not be accessed."
+msgstr "plus7.arte.tv n'a pas pu être atteint."
+
+#: ../arteplus7.vala:396
+msgid "Reload feed"
+msgstr "Actualiser le flux"
+
+#: ../arteplus7.vala:429
+msgid "Arte+7"
+msgstr "Arte+7"
+
+#: ../arteplus7.vala:442 ../arteplus7.vala:651
+msgid "German"
+msgstr "Allemand"
+
+#: ../arteplus7.vala:443
+msgid "French"
+msgstr "Français"
+
+#: ../arteplus7.vala:450
+msgid "_medium"
+msgstr "_moyenne"
+
+#: ../arteplus7.vala:452
+msgid "_high"
+msgstr "_haute"
+
+#: ../arteplus7.vala:460
+msgid "Language:"
+msgstr "Langage :"
+
+#: ../arteplus7.vala:465
+msgid "Video quality:"
+msgstr "Qualité vidéo :"
+
+#: ../arteplus7.vala:471
+msgid "Arte+7 Plugin Properties"
+msgstr "Préférences du greffon Arte+7"
+
+#: ../arteplus7.vala:500
+#, c-format
+msgid "XML Parse Error: %s"
+msgstr "Erreur d'analyse XML"
+
+#. We are screwed!
+#: ../arteplus7.vala:511
+msgid "Markup Parser Error"
+msgstr "Erreur de l'analyseur syntaxique"
+
+#: ../arteplus7.vala:512
+msgid "Sorry, the plugin could not parse the Arte video feed."
+msgstr "Désolé, le greffon n'a pas pu analyser le flux vidéo Arte."
+
+#. Network problems
+#: ../arteplus7.vala:518
+msgid "IO Error"
+msgstr "Erreur d'entrée-sortie"
+
+#: ../arteplus7.vala:519
+msgid "Sorry, the plugin could not download the Arte video feed."
+msgstr "Désolé, le greffon n'a pas pu télécharger le flux vidéo Arte."
+
+#: ../arteplus7.vala:533
+msgid "Loading..."
+msgstr "Chargement..."
+
+#: ../arteplus7.vala:560
+#, c-format
+msgid "%.0f minutes until removal"
+msgstr "%.0f minutes avant suppression"
+
+#: ../arteplus7.vala:562
+#, c-format
+msgid "%.1f hours until removal"
+msgstr "%.1f heures avant suppression"
+
+#: ../arteplus7.vala:564
+#, c-format
+msgid "%.1f days until removal"
+msgstr "%.1f jours avant suppression"
+
+#. Network problems or access from an unsupported country
+#: ../arteplus7.vala:633
+msgid "Video URL Extraction Error"
+msgstr "Erreur d'extraction de l'URL de la vidéo"
+
+#: ../arteplus7.vala:634
+msgid ""
+"Sorry, the plugin could not extract a valid stream URL.\n"
+"Be aware that this service is only available in Austria, Belgium, Germany, "
+"France and Switzerland."
+msgstr ""
+"Désolé, le greffon n'a pas pu extraire d'adresse de flux valide.\n"
+"Notez que ce service est disponible uniquement en Allemagne, Autriche, "
+"Belgique, France et Suisse."
