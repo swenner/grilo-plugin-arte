@@ -49,7 +49,6 @@ public class Video : GLib.Object {
     public string page_url = null;
     public string image_url = null;
     public string desc = null;
-    /* public string category = null; */
     public GLib.TimeVal publication_date;
     public GLib.TimeVal offline_date;
 
@@ -273,9 +272,6 @@ public class ArteRSSParser : ArteParser {
                 case "description":
                     current_video.desc = text;
                     break;
-                /* case "category":
-                    current_video.category = text;
-                    break; */
                 case "pubDate":
                     current_video.publication_date.from_iso8601 (text);
                     break;
