@@ -58,7 +58,7 @@ msgstr "Préférences du greffon Arte+7"
 #: ../arteplus7.vala:500
 #, c-format
 msgid "XML Parse Error: %s"
-msgstr "Erreur d'analyse XML"
+msgstr "Erreur d'analyse XML : %s"
 
 #. We are screwed!
 #: ../arteplus7.vala:511
