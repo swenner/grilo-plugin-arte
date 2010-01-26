@@ -397,7 +397,6 @@ class ArtePlugin : Totem.Plugin {
         button.clicked.connect (callback_refresh_rss_feed);
 
         var search = new Gtk.Entry ();
-        search.set_width_chars (18);
         /* search as you type */
         search.changed.connect ((entry) => {
             filter = ((Gtk.Entry) entry).get_text ().down ();
@@ -415,7 +414,8 @@ class ArtePlugin : Totem.Plugin {
         });
         var search_item = new Gtk.ToolItem ();
         search_item.add (search);
-
+		search_item.set_expand (true);
+		
         tool_bar = new Gtk.Toolbar ();
         tool_bar.insert (button, 0);
         tool_bar.insert (search_item, 1);
