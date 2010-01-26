@@ -414,7 +414,7 @@ class ArtePlugin : Totem.Plugin {
         });
         var search_item = new Gtk.ToolItem ();
         search_item.add (search);
-		search_item.set_expand (true);
+        search_item.set_expand (true);
 		
         tool_bar = new Gtk.Toolbar ();
         tool_bar.insert (button, 0);
