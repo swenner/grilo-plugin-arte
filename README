@@ -16,7 +16,7 @@ gconf
 
 On Debian or Ubuntu:
 # aptitude install valac libgee-dev libgtk2.0-dev libtotem-plparser-dev \
-libsoup2.4-dev libgconf2-dev
+libsoup2.4-dev libgconf2-dev gettext
 
 ---------------
 Installation:
