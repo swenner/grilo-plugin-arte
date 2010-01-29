@@ -16,10 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:190
-msgid "plus7.arte.tv could not be accessed."
-msgstr ""
-
 #: ../arteplus7.vala:396
 msgid "Reload feed"
 msgstr ""
@@ -54,11 +50,6 @@ msgstr ""
 
 #: ../arteplus7.vala:471
 msgid "Arte+7 Plugin Properties"
-msgstr ""
-
-#: ../arteplus7.vala:500
-#, c-format
-msgid "XML Parse Error: %s"
 msgstr ""
 
 #. We are screwed!
