@@ -25,5 +25,9 @@ The plugin can be installed to ~/.local/share/totem/plugins/
 No root access is needed.
 
 $ make
-$ make install
+$ make install-home
 
+Or you can install it with root access to $(DESTDIR)/usr/lib/totem/plugins/:
+
+$ make
+$ sudo make install
