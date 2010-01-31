@@ -51,11 +51,6 @@ namespace Totem {
 		[CCode (cname = "totem_action_fullscreen")]
 		public void action_fullscreen (bool state);
 
-		[CCode (cname = "totem_add_sidebar_page")]
-		public void add_sidebar_page (string page_id, string title, Gtk.Widget main_widget);
-		[CCode (cname = "totem_remove_sidebar_page")]
-		public void remove_sidebar_page (string page_id);
-
 		[CCode (cname = "totem_is_fullscreen")]
 		public bool is_fullscreen ();
 		[CCode (cname = "totem_is_playing")]
@@ -64,6 +59,25 @@ namespace Totem {
 		public bool is_paused ();
 		[CCode (cname = "totem_is_seekable")]
 		public bool is_seekable ();
+
+		[CCode (cname = "totem_get_main_window")]
+		public Gtk.Window get_main_window ();
+		[CCode (cname = "totem_get_ui_manage")]
+		public Gtk.UIManager get_ui_manage ();
+		[CCode (cname = "totem_get_video_widget")]
+		public Gtk.Widget get_video_widget ();
+
+		/* Current media information */
+		[CCode (cname = "totem_get_short_title")]
+		public string get_short_title ();
+		[CCode (cname = "totem_get_current_time")]
+		public int64 get_current_time ();
+
+		/* Sidebar handling */
+		[CCode (cname = "totem_add_sidebar_page")]
+		public void add_sidebar_page (string page_id, string title, Gtk.Widget main_widget);
+		[CCode (cname = "totem_remove_sidebar_page")]
+		public void remove_sidebar_page (string page_id);
 	}
 
 	[CCode (cheader_filename = "totem-cell-renderer-video.h")]
