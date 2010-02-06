@@ -556,15 +556,18 @@ class ArtePlugin : Totem.Plugin {
                 if (minutes_left < 59.0) {
                     if (minutes_left < 1.0)
                         desc_str = _("Less than 1 minute until removal");
-                    desc_str = _("Less than %.0f minutes until removal").printf (minutes_left + 1);
+                    else
+                        desc_str = _("Less than %.0f minutes until removal").printf (minutes_left + 1.0);
                 } else if (minutes_left < 60.0 * 24.0) {
-                    if (minutes_left <= 60)
+                    if (minutes_left <= 60.0)
                         desc_str = _("Less than 1 hour until removal");
-                    desc_str = _("Less than %.0f hours until removal").printf ((minutes_left / 60.0) + 1);
-                } else if (minutes_left < (60.0 * 24.0) * 2)
+                    else
+                        desc_str = _("Less than %.0f hours until removal").printf ((minutes_left / 60.0) + 1.0);
+                } else if (minutes_left < (60.0 * 24.0) * 2.0) {
                     desc_str = _("1 day until removal");
-                else
+                } else {
                     desc_str = _("%.0f days until removal").printf (minutes_left / (60.0 * 24.0));
+                }
             }
 
             listmodel.set (iter,
