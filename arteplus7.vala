@@ -1,6 +1,6 @@
 /*
  * Totem Arte Plugin allows you to watch streams from arte.tv
- * Copyright (C) 2009 Simon Wenner <simon@wenner.ch>
+ * Copyright (C) 2009, 2010 Simon Wenner <simon@wenner.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,10 +70,8 @@ public class Video : GLib.Object {
     {
         string stream_uri = null;
 
-        var session = new Soup.SessionAsync ();
-        session.user_agent = USER_AGENT;
-        // A bug in the vala bindings: BGO #605383
-        //Soup.SessionAsync session = new Soup.SessionAsync.with_options(Soup.SESSION_USER_AGENT, USER_AGENT, null);
+        var session = new Soup.SessionAsync.with_options(
+                Soup.SESSION_USER_AGENT, USER_AGENT, null);
         if (mq_stream_fake_uri == null) {
             try {
                 extract_fake_stream_uris_from_html (session);
@@ -99,7 +97,7 @@ public class Video : GLib.Object {
         try {
             MatchInfo match;
             var regex = new Regex ("HREF=\"(mms://.*)\"");
-            regex.match(msg.response_body.data, 0, out match);
+            regex.match((string) msg.response_body.data, 0, out match);
             string res = match.fetch(1);
             if (res != null) {
                 stream_uri = res;
@@ -122,13 +120,13 @@ public class Video : GLib.Object {
 
         MatchInfo match;
         var regex = new Regex ("\"(http://.*_MQ_[\\w]{2}.wmv)\"");
-        regex.match(msg.response_body.data, 0, out match);
+        regex.match((string) msg.response_body.data, 0, out match);
         string res = match.fetch(1);
         if (res != null) {
             this.mq_stream_fake_uri = res;
         }
         regex = new Regex ("\"(http://.*_HQ_[\\w]{2}.wmv)\"");
-        regex.match(msg.response_body.data, 0, out match);
+        regex.match((string) msg.response_body.data, 0, out match);
         res = match.fetch(1);
         if (res != null) {
             this.hq_stream_fake_uri = res;
@@ -196,7 +194,7 @@ public abstract class ArteParser : GLib.Object {
         var context = new MarkupParseContext (parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
         // Possible vala bindings bug?! MarkupParseContext: No user data should be allowed
 
-        context.parse (msg.response_body.data, (long) msg.response_body.length);
+        context.parse ((string) msg.response_body.data, (long) msg.response_body.length);
         context.end_parse ();
     }
 
