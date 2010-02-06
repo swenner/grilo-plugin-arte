@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
-"Report-Msgid-Bugs-To: simon@wenner.ch\n"
-"POT-Creation-Date: 2010-01-24 21:04+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-01 19:02+0100\n"
 "PO-Revision-Date: 2010-01-29 20:50+0100\n"
 "Last-Translator: Simon Wenner <simon@wenner.ch>\n"
 "Language-Team: \n"
@@ -20,85 +20,102 @@ msgstr ""
 msgid "Reload feed"
 msgstr "Videos aktualisieren"
 
-#: ../arteplus7.vala:429
+#: ../arteplus7.vala:430
 msgid "Arte+7"
 msgstr "Arte+7"
 
-#: ../arteplus7.vala:442 ../arteplus7.vala:651
+#: ../arteplus7.vala:443 ../arteplus7.vala:656
 msgid "German"
 msgstr "Deutsch"
 
-#: ../arteplus7.vala:443
+#: ../arteplus7.vala:444
 msgid "French"
 msgstr "Französisch"
 
-#: ../arteplus7.vala:450
+#: ../arteplus7.vala:451
 msgid "_medium"
 msgstr "_mittel"
 
-#: ../arteplus7.vala:452
+#: ../arteplus7.vala:453
 msgid "_high"
 msgstr "_hoch"
 
-#: ../arteplus7.vala:460
+#: ../arteplus7.vala:461
 msgid "Language:"
 msgstr "Sprache:"
 
-#: ../arteplus7.vala:465
+#: ../arteplus7.vala:466
 msgid "Video quality:"
 msgstr "Videoqualität"
 
-#: ../arteplus7.vala:471
+#: ../arteplus7.vala:472
 msgid "Arte+7 Plugin Properties"
 msgstr "Arte+7 Plugin-Einstellungen"
 
 #. We are screwed!
-#: ../arteplus7.vala:511
+#: ../arteplus7.vala:512
 msgid "Markup Parser Error"
 msgstr "Markup Lesefehler"
 
-#: ../arteplus7.vala:512
+#: ../arteplus7.vala:513
 msgid "Sorry, the plugin could not parse the Arte video feed."
 msgstr "Entschuldigung, das Plugin konnte den Arte-Videofeed nicht lesen."
 
 #. Network problems
-#: ../arteplus7.vala:518
+#: ../arteplus7.vala:519
 msgid "IO Error"
 msgstr "IO Fehler"
 
-#: ../arteplus7.vala:519
+#: ../arteplus7.vala:520
 msgid "Sorry, the plugin could not download the Arte video feed."
-msgstr "Entschuldigung, das Plugin konnte den Arte-Videofeed nicht herunterladen."
+msgstr ""
+"Entschuldigung, das Plugin konnte den Arte-Videofeed nicht herunterladen."
 
-#: ../arteplus7.vala:533
+#: ../arteplus7.vala:534
 msgid "Loading..."
 msgstr "Lade..."
 
 #: ../arteplus7.vala:560
-#, c-format
-msgid "%.0f minutes until removal"
+#, fuzzy
+msgid "Less than 1 minute until removal"
 msgstr "noch %.0f Minuten verfügbar"
 
-#: ../arteplus7.vala:562
-#, c-format
-msgid "%.1f hours until removal"
-msgstr "noch %.1f Stunden verfügbar"
+#: ../arteplus7.vala:561
+#, fuzzy, c-format
+msgid "Less than %.0f minutes until removal"
+msgstr "noch %.0f Minuten verfügbar"
 
 #: ../arteplus7.vala:564
-#, c-format
-msgid "%.1f days until removal"
+#, fuzzy
+msgid "Less than 1 hour until removal"
+msgstr "noch %.1f Stunden verfügbar"
+
+#: ../arteplus7.vala:565
+#, fuzzy, c-format
+msgid "Less than %.0f hours until removal"
+msgstr "noch %.1f Stunden verfügbar"
+
+#: ../arteplus7.vala:567
+#, fuzzy
+msgid "1 day until removal"
+msgstr "noch %.1f Tage verfügbar"
+
+#: ../arteplus7.vala:569
+#, fuzzy, c-format
+msgid "%.0f days until removal"
 msgstr "noch %.1f Tage verfügbar"
 
 #. Network problems or access from an unsupported country
-#: ../arteplus7.vala:633
+#: ../arteplus7.vala:638
 msgid "Video URL Extraction Error"
 msgstr "Video URL Extraktionsfehler"
 
-#: ../arteplus7.vala:634
+#: ../arteplus7.vala:639
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Be aware that this service is only available in Austria, Belgium, Germany, "
 "France and Switzerland."
-msgstr "Entschuldigung, das Plugin konnte keine gültige Stream URL extrahieren.\n"
+msgstr ""
+"Entschuldigung, das Plugin konnte keine gültige Stream URL extrahieren.\n"
 "Bedenke, dass dieser Service nur in Österreich, Belgien, Deutschland, "
 "Frankreich und der Schweiz verfügbar ist."

@@ -553,14 +553,18 @@ class ArtePlugin : Totem.Plugin {
                 var now = GLib.TimeVal ();
                 now.get_current_time ();
                 double minutes_left = (v.offline_date.tv_sec - now.tv_sec) / 60.0;
-                if (minutes_left < 60.0) {
-                    if (minutes_left < 0.0)
-                        minutes_left = 0.0;
-                    desc_str = _("%.0f minutes until removal").printf (minutes_left);
-                } else if (minutes_left < 60.0 * 24.0)
-                    desc_str = _("%.1f hours until removal").printf (minutes_left / 60.0);
+                if (minutes_left < 59.0) {
+                    if (minutes_left < 1.0)
+                        desc_str = _("Less than 1 minute until removal");
+                    desc_str = _("Less than %.0f minutes until removal").printf (minutes_left + 1);
+                } else if (minutes_left < 60.0 * 24.0) {
+                    if (minutes_left <= 60)
+                        desc_str = _("Less than 1 hour until removal");
+                    desc_str = _("Less than %.0f hours until removal").printf ((minutes_left / 60.0) + 1);
+                } else if (minutes_left < (60.0 * 24.0) * 2)
+                    desc_str = _("1 day until removal");
                 else
-                    desc_str = _("%.1f days until removal").printf (minutes_left / (60.0 * 24.0));
+                    desc_str = _("%.0f days until removal").printf (minutes_left / (60.0 * 24.0));
             }
 
             listmodel.set (iter,
