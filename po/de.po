@@ -76,34 +76,28 @@ msgid "Loading..."
 msgstr "Lade..."
 
 #: ../arteplus7.vala:560
-#, fuzzy
 msgid "Less than 1 minute until removal"
-msgstr "noch %.0f Minuten verfügbar"
+msgstr "Weniger als eine Minute verfügbar"
 
 #: ../arteplus7.vala:561
-#, fuzzy, c-format
 msgid "Less than %.0f minutes until removal"
-msgstr "noch %.0f Minuten verfügbar"
+msgstr "Weniger als %.0f Minuten verfügbar"
 
 #: ../arteplus7.vala:564
-#, fuzzy
 msgid "Less than 1 hour until removal"
-msgstr "noch %.1f Stunden verfügbar"
+msgstr "Weniger als eine Stunde verfügbar"
 
 #: ../arteplus7.vala:565
-#, fuzzy, c-format
 msgid "Less than %.0f hours until removal"
-msgstr "noch %.1f Stunden verfügbar"
+msgstr "Weniger als %.0f Stunden verfügbar"
 
 #: ../arteplus7.vala:567
-#, fuzzy
 msgid "1 day until removal"
-msgstr "noch %.1f Tage verfügbar"
+msgstr "Noch einen Tag verfügbar"
 
 #: ../arteplus7.vala:569
-#, fuzzy, c-format
 msgid "%.0f days until removal"
-msgstr "noch %.1f Tage verfügbar"
+msgstr "Noch %.0f Tage verfügbar"
 
 #. Network problems or access from an unsupported country
 #: ../arteplus7.vala:638
