@@ -97,7 +97,7 @@ public class Video : GLib.Object {
         try {
             MatchInfo match;
             var regex = new Regex ("HREF=\"(mms://.*)\"");
-            regex.match((string) msg.response_body.data, 0, out match);
+            regex.match(msg.response_body.flatten ().data, 0, out match);
             string res = match.fetch(1);
             if (res != null) {
                 stream_uri = res;
@@ -120,13 +120,13 @@ public class Video : GLib.Object {
 
         MatchInfo match;
         var regex = new Regex ("\"(http://.*_MQ_[\\w]{2}.wmv)\"");
-        regex.match((string) msg.response_body.data, 0, out match);
+        regex.match(msg.response_body.flatten ().data, 0, out match);
         string res = match.fetch(1);
         if (res != null) {
             this.mq_stream_fake_uri = res;
         }
         regex = new Regex ("\"(http://.*_HQ_[\\w]{2}.wmv)\"");
-        regex.match((string) msg.response_body.data, 0, out match);
+        regex.match(msg.response_body.flatten ().data, 0, out match);
         res = match.fetch(1);
         if (res != null) {
             this.hq_stream_fake_uri = res;
@@ -145,7 +145,7 @@ public class Video : GLib.Object {
             return null;
 
         InputStream imgStream = new MemoryInputStream.from_data (msg.response_body.data,
-                (long) msg.response_body.length, null);
+                (ssize_t) msg.response_body.length, null);
 
         Gdk.Pixbuf pb_scaled = null;
         try {
@@ -194,7 +194,7 @@ public abstract class ArteParser : GLib.Object {
         var context = new MarkupParseContext (parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
         // Possible vala bindings bug?! MarkupParseContext: No user data should be allowed
 
-        context.parse ((string) msg.response_body.data, (long) msg.response_body.length);
+        context.parse (msg.response_body.flatten ().data, (ssize_t) msg.response_body.length);
         context.end_parse ();
     }
 
