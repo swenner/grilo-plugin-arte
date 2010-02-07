@@ -63,7 +63,8 @@ public class Video : GLib.Object {
 
     public void print ()
     {
-        stdout.printf ("Video: %s: %s, %s\n", title, publication_date.to_iso8601 (), page_url);
+        stdout.printf ("Video: %s: %s, %s\n", title,
+                publication_date.to_iso8601 (), page_url);
     }
 
     public string? get_stream_uri (VideoQuality q)
@@ -144,7 +145,7 @@ public class Video : GLib.Object {
         if (msg.response_body.data == null)
             return null;
 
-        InputStream imgStream = new MemoryInputStream.from_data (msg.response_body.data,
+        var imgStream = new MemoryInputStream.from_data (msg.response_body.data,
                 (ssize_t) msg.response_body.length, null);
 
         Gdk.Pixbuf pb_scaled = null;
@@ -165,6 +166,14 @@ public abstract class ArteParser : GLib.Object {
     public string xml_de;
     public ArrayList<Video> videos;
     public bool feed_is_inverted { get; protected set; default = false; }
+
+    private const MarkupParser parser = {
+            open_tag,
+            close_tag,
+            process_text,
+            null,
+            null
+        };
 
     public ArteParser ()
     {
@@ -190,11 +199,10 @@ public abstract class ArteParser : GLib.Object {
 
         videos.clear();
 
-        MarkupParser parser = {open_tag, close_tag, process_text, null, null};
-        var context = new MarkupParseContext (parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
-        // Possible vala bindings bug?! MarkupParseContext: No user data should be allowed
-
-        context.parse (msg.response_body.flatten ().data, (ssize_t) msg.response_body.length);
+        var context = new MarkupParseContext (parser,
+                MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
+        context.parse (msg.response_body.flatten ().data,
+                (ssize_t) msg.response_body.length);
         context.end_parse ();
     }
 
@@ -349,6 +357,7 @@ public class ArteXMLParser : ArteParser {
     }
 }
 
+/* TreeView column names */
 public enum Col {
     IMAGE,
     NAME,
@@ -443,7 +452,7 @@ class ArtePlugin : Totem.Plugin {
         if (language == Language.GERMAN)
             langs.set_active (0);
         else
-            langs.set_active (1); // French is the default language
+            langs.set_active (1); /* French is the default language */
         langs.changed.connect (callback_language_changed);
 
         var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, _("_medium"));
@@ -452,7 +461,7 @@ class ArtePlugin : Totem.Plugin {
         if (quality == VideoQuality.WMV_MQ)
             quali_radio_medium.set_active (true);
         else
-            quali_radio_high.set_active (true); // HQ is the default quality
+            quali_radio_high.set_active (true); /* HQ is the default quality */
 
         quali_radio_medium.toggled.connect (callback_quality_toggled);
 
