@@ -81,8 +81,19 @@ public class Video : GLib.Object {
             }
         }
 
-        if (mq_stream_fake_uri == null || hq_stream_fake_uri == null)
+        /* extraction of any stream failed */
+        if (mq_stream_fake_uri == null && hq_stream_fake_uri == null)
             return stream_uri;
+
+        /* sometimes only one quality level is available */
+        if (q == VideoQuality.WMV_HQ && hq_stream_fake_uri == null) {
+            q = VideoQuality.WMV_MQ;
+            GLib.message ("No high quality stream available. Fallback to medium quality.");
+        }
+        if (q == VideoQuality.WMV_MQ && mq_stream_fake_uri == null) {
+            q = VideoQuality.WMV_HQ;
+            GLib.message ("No medium quality stream available. Fallback to high quality.");
+        }
 
         Soup.Message msg;
         if (q == VideoQuality.WMV_HQ) {
