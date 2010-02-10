@@ -40,7 +40,7 @@ public enum Language {
 }
 
 public const string USER_AGENT =
-    "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.1.6) Gecko/20091216 Iceweasel/3.5.6 (like Firefox/3.5.6; Debian-3.5.6-1) ";
+    "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.2.1) Gecko/20100122 firefox/3.6.1";
 
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 
