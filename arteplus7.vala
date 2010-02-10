@@ -81,7 +81,7 @@ public class Video : GLib.Object {
             }
         }
 
-        if (mq_stream_fake_uri == null)
+        if (mq_stream_fake_uri == null || hq_stream_fake_uri == null)
             return stream_uri;
 
         Soup.Message msg;
