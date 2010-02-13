@@ -113,6 +113,7 @@ public class Cache : GLib.Object {
                     THUMBNAIL_WIDTH, -1, true, null);
         } catch (GLib.Error e) {
             GLib.error ("%s", e.message);
+            return null;
         }
 
         /* store the file on disk as PNG */
@@ -125,7 +126,34 @@ public class Cache : GLib.Object {
         return pb;
     }
 
-    public void delete_cruft () {
-        // TODO
+    /* Delete files that were created more than x days ago. */
+    public void delete_cruft (int days) {
+        // Debug
+        GLib.message ("Cache: Delete files that are older than %d days.", days);
+        GLib.TimeVal now = TimeVal ();
+        GLib.TimeVal mod_time = TimeVal ();
+        now.get_current_time ();
+        long deadline = now.tv_sec - days * 24 * 60 * 60;
+
+        var directory = File.new_for_path (cache_path);
+        try {
+            var enumerator = directory.enumerate_children ("*",
+                    GLib.FileQueryInfoFlags.NONE, null);
+
+            GLib.FileInfo file_info;
+            while ((file_info = enumerator.next_file (null)) != null) {
+                file_info.get_modification_time (out mod_time);
+                if (mod_time.tv_sec < deadline) {
+                    var file = File.new_for_path (cache_path + file_info.get_name ());
+                    file.delete (null);
+                    // Debug
+                    GLib.message ("Cache: Deleted: %s", file_info.get_name ());
+                }
+            }
+            enumerator.close(null);
+
+        } catch (Error e) {
+            GLib.warning ("%s", e.message);
+        }
     }
 }
