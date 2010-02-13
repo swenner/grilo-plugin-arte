@@ -548,7 +548,7 @@ class ArtePlugin : Totem.Plugin {
                 listmodel.append (out iter);
             }
 
-            string desc_str = null;
+            string desc_str = v.title + "\n";
 
             if (v.offline_date.tv_sec > 0) {
                 var now = GLib.TimeVal ();
@@ -556,18 +556,18 @@ class ArtePlugin : Totem.Plugin {
                 double minutes_left = (v.offline_date.tv_sec - now.tv_sec) / 60.0;
                 if (minutes_left < 59.0) {
                     if (minutes_left < 1.0)
-                        desc_str = _("Less than 1 minute until removal");
+                        desc_str += _("Less than 1 minute until removal");
                     else
-                        desc_str = _("Less than %.0f minutes until removal").printf (minutes_left + 1.0);
+                        desc_str += _("Less than %.0f minutes until removal").printf (minutes_left + 1.0);
                 } else if (minutes_left < 60.0 * 24.0) {
                     if (minutes_left <= 60.0)
-                        desc_str = _("Less than 1 hour until removal");
+                        desc_str += _("Less than 1 hour until removal");
                     else
-                        desc_str = _("Less than %.0f hours until removal").printf ((minutes_left / 60.0) + 1.0);
+                        desc_str += _("Less than %.0f hours until removal").printf ((minutes_left / 60.0) + 1.0);
                 } else if (minutes_left < (60.0 * 24.0) * 2.0) {
-                    desc_str = _("1 day until removal");
+                    desc_str += _("1 day until removal");
                 } else {
-                    desc_str = _("%.0f days until removal").printf (minutes_left / (60.0 * 24.0));
+                    desc_str += _("%.0f days until removal").printf (minutes_left / (60.0 * 24.0));
                 }
             }
 
@@ -686,4 +686,3 @@ public GLib.Type register_totem_plugin (GLib.TypeModule module)
 {
     return typeof (ArtePlugin);
 }
-
