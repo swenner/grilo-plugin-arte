@@ -41,8 +41,9 @@ public enum Language {
 
 public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.2.1) Gecko/20100122 firefox/3.6.1";
-
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
+public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
+public const int THUMBNAIL_WIDTH = 140;
 
 public class Video : GLib.Object {
     public string title = null;
@@ -70,9 +71,9 @@ public class Video : GLib.Object {
     public string? get_stream_uri (VideoQuality q)
     {
         string stream_uri = null;
-
-        var session = new Soup.SessionAsync.with_options(
+        var session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
+
         if (mq_stream_fake_uri == null) {
             try {
                 extract_fake_stream_uris_from_html (session);
@@ -144,32 +145,6 @@ public class Video : GLib.Object {
             this.hq_stream_fake_uri = res;
         }
     }
-
-    public Gdk.Pixbuf? get_thumbnail (Soup.Session session)
-    {
-        if (image_url == null)
-            return null;
-
-        var msg = new Soup.Message ("GET", image_url);
-        session.send_message (msg);
-
-        if (msg.response_body.data == null)
-            return null;
-
-        var imgStream = new MemoryInputStream.from_data (msg.response_body.data,
-                (ssize_t) msg.response_body.length, null);
-
-        Gdk.Pixbuf pb_scaled = null;
-        try {
-            var pb = new Gdk.Pixbuf.from_stream (imgStream, null);
-            // original size: 240px × 180px
-            pb_scaled = pb.scale_simple (120, 90, Gdk.InterpType.BILINEAR);
-        } catch (GLib.Error e) {
-            GLib.warning ("%s", e.message);
-        }
-
-        return pb_scaled;
-    }
 }
 
 public abstract class ArteParser : GLib.Object {
@@ -200,8 +175,8 @@ public abstract class ArteParser : GLib.Object {
             msg = new Soup.Message ("GET", xml_fr);
         }
 
-        var session = new Soup.SessionAsync();
-        session.user_agent = USER_AGENT;
+        var session = new Soup.SessionAsync.with_options (
+                Soup.SESSION_USER_AGENT, USER_AGENT, null);
         session.send_message(msg);
 
         if (msg.status_code != 200) {
@@ -379,20 +354,21 @@ public enum Col {
 
 class ArtePlugin : Totem.Plugin {
     private Totem.Object t;
-    private Gtk.Toolbar tool_bar;
-    private Gtk.TreeView tree_view;
+    private Gtk.Toolbar tool_bar; /* refresh button and search field */
+    private Gtk.TreeView tree_view; /* list of movie thumbnails */
     private ArteParser p;
+    private Cache cache; /* image thumbnail cache */
     private Language language = Language.FRENCH;
     private VideoQuality quality = VideoQuality.WMV_HQ;
     private GLib.StaticMutex tree_lock;
     private bool use_fallback_feed = false;
     private string? filter = null;
 
-    public ArtePlugin () {}
-
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
         t = totem;
+        cache = new Cache (Environment.get_user_cache_dir ()
+             + CACHE_PATH_SUFFIX);
         p = new ArteXMLParser ();
         tree_view = new Gtk.TreeView ();
         load_properties ();
@@ -554,9 +530,6 @@ class ArtePlugin : Totem.Plugin {
         tree_view.set_model (tmp_ls);
 
         /* load the content */
-        var session = new Soup.SessionAsync();
-        session.user_agent = USER_AGENT;
-
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
                 typeof (string), typeof (string), typeof (Video));
 
@@ -591,7 +564,7 @@ class ArtePlugin : Totem.Plugin {
             }
 
             listmodel.set (iter,
-                    Col.IMAGE, v.get_thumbnail (session),
+                    Col.IMAGE, cache.get_pixbuf (v.image_url),
                     Col.NAME, v.title,
                     Col.DESCRIPTION, desc_str,
                     Col.VIDEO_OBJECT, v, -1);
