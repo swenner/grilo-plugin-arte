@@ -62,8 +62,8 @@ namespace Totem {
 
 		[CCode (cname = "totem_get_main_window")]
 		public Gtk.Window get_main_window ();
-		[CCode (cname = "totem_get_ui_manage")]
-		public Gtk.UIManager get_ui_manage ();
+		[CCode (cname = "totem_get_ui_manager")]
+		public Gtk.UIManager get_ui_manager ();
 		[CCode (cname = "totem_get_video_widget")]
 		public Gtk.Widget get_video_widget ();
 
