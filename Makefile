@@ -1,4 +1,7 @@
 DESTDIR=
+VERSION=0.8
+NAME=totem-plugin-arte
+PACKAGE=$(NAME)-$(VERSION)
 
 all:
 	valac -C arteplus7.vala cache.vala --thread --pkg libsoup-2.4 --pkg gee-1.0 --pkg totem --pkg gconf-2.0 --vapidir=./deps
@@ -33,3 +36,14 @@ uninstall-home:
 clean:
 	rm arteplus7.c cache.c libarteplus7.so
 	rm po/*mo
+
+dist:
+	mkdir $(PACKAGE)/
+	mkdir $(PACKAGE)/po
+	mkdir $(PACKAGE)/deps
+	cp -f arteplus7.vala cache.vala arteplus7.totem-plugin $(PACKAGE)/
+	cp -f Makefile README AUTHORS COPYING $(PACKAGE)/
+	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/
+	cp -f deps/*.h deps/totem.vapi deps/totem.deps $(PACKAGE)/deps/
+	tar -pczf $(PACKAGE).tar.gz $(PACKAGE)/
+	rm -rf $(PACKAGE)/
