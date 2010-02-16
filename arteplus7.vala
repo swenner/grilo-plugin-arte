@@ -70,7 +70,6 @@ public class Video : GLib.Object {
 
     public string? get_stream_uri (VideoQuality q)
     {
-        string stream_uri = null;
         var session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
 
@@ -84,7 +83,7 @@ public class Video : GLib.Object {
 
         /* extraction of any stream failed */
         if (mq_stream_fake_uri == null && hq_stream_fake_uri == null)
-            return stream_uri;
+            return null;
 
         /* sometimes only one quality level is available */
         if (q == VideoQuality.WMV_HQ && hq_stream_fake_uri == null) {
@@ -104,9 +103,11 @@ public class Video : GLib.Object {
         }
         session.send_message(msg);
 
+        /* WMV download failed */
         if (msg.response_body.data == null)
-            return stream_uri;
+            return null;
 
+        string stream_uri = null;
         try {
             MatchInfo match;
             var regex = new Regex ("HREF=\"(mms://.*)\"");
@@ -386,9 +387,9 @@ class ArtePlugin : Totem.Plugin {
         scroll_win.set_shadow_type (ShadowType.IN);
         scroll_win.add (tree_view);
 
-        var button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
-        button.set_tooltip_text(_("Reload feed"));
-        button.clicked.connect (callback_refresh_rss_feed);
+        var refresh_button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
+        refresh_button.set_tooltip_text(_("Reload feed"));
+        refresh_button.clicked.connect (callback_refresh_rss_feed);
 
         var search = new Gtk.Entry ();
         /* search as you type */
@@ -412,7 +413,7 @@ class ArtePlugin : Totem.Plugin {
         search.set_width_chars (18);
 
         tool_bar = new Gtk.Toolbar ();
-        tool_bar.insert (button, 0);
+        tool_bar.insert (refresh_button, 0);
         tool_bar.insert (search_item, 1);
         tool_bar.set_style (Gtk.ToolbarStyle.ICONS);
 
