@@ -35,9 +35,9 @@ public class Cache : GLib.Object {
         /* create the caching directory */
         var dir = GLib.File.new_for_path (cache_path);
 		if (!dir.query_exists (null)) {
-            GLib.message ("Directory '%s' created", dir.get_path ());
 			try {
-				dir.make_directory (null);
+				GLib.message ("Directory '%s' created", dir.get_path ());
+				dir.make_directory_with_parents (null);
 			} catch (Error e) {
 				GLib.error ("Could not create caching directory.");
 			}
