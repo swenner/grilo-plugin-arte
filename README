@@ -7,27 +7,29 @@ Belgium and Switzerland.
 ---------------
 Dependencies:
 ---------------
+Totem
+libtotem-plparser
 Vala >= 0.7.10
 libgee
 Gtk+2.0
 libsoup2.4
-libtotem-plparser
 gconf
+gstreamer-plugins-bad
 
 On Debian or Ubuntu:
 # aptitude install valac libgee-dev libgtk2.0-dev libtotem-plparser-dev \
-libsoup2.4-dev libgconf2-dev gettext
+libsoup2.4-dev libgconf2-dev gettext gstreamer0.10-plugins-bad
 
 ---------------
 Installation:
 ---------------
-The plugin can be installed to ~/.local/share/totem/plugins/
-No root access is needed.
-
-$ make
-$ make install-home
-
-Or you can install it with root access to $(DESTDIR)/usr/lib/totem/plugins/:
+Install the plugin (with root access) to $(DESTDIR)/usr/lib/totem/plugins/
 
 $ make
 $ sudo make install
+
+Alternatively, you can install the plugin to ~/.local/share/totem/plugins/
+No root access is needed, but no translations will be installed.
+
+$ make
+$ make install-home
