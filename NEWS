@@ -1,0 +1,14 @@
+2010 February - Totem Arte Plugin 0.8.1
+
+ * Fix the creation of the cache directory
+ * Update installation instructions
+
+2010 February - Totem Arte Plugin 0.8.0
+
+ * First official release
+ * Preferences are hidden in the preference dialogue and stored in gconf
+ * Streams can be searched
+ * Stream thumbnail images are cached to improve the start-up time
+ * I18n support (Nicolas Delvaux)
+ * German and French localization (Nicolas Delvaux)
+

@@ -1,5 +1,5 @@
 DESTDIR=
-VERSION=0.8
+VERSION=0.8.1
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 
@@ -42,8 +42,9 @@ dist:
 	mkdir $(PACKAGE)/po
 	mkdir $(PACKAGE)/deps
 	cp -f arteplus7.vala cache.vala arteplus7.totem-plugin $(PACKAGE)/
-	cp -f Makefile README AUTHORS COPYING $(PACKAGE)/
+	cp -f Makefile README AUTHORS COPYING NEWS $(PACKAGE)/
 	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/
 	cp -f deps/*.h deps/totem.vapi deps/totem.deps $(PACKAGE)/deps/
 	tar -pczf $(PACKAGE).tar.gz $(PACKAGE)/
 	rm -rf $(PACKAGE)
+
