@@ -20,7 +20,6 @@
 
 using GLib;
 using Soup;
-using Gee;
 using Totem;
 using Gtk;
 using GConf;
@@ -151,8 +150,7 @@ public class Video : GLib.Object {
 public abstract class ArteParser : GLib.Object {
     public string xml_fr;
     public string xml_de;
-    public ArrayList<Video> videos;
-    public bool feed_is_inverted { get; protected set; default = false; }
+    public GLib.SList<Video> videos;
 
     private const MarkupParser parser = {
             open_tag,
@@ -164,7 +162,7 @@ public abstract class ArteParser : GLib.Object {
 
     public ArteParser ()
     {
-        videos = new ArrayList<Video>();
+        videos = new GLib.SList<Video>();
     }
 
     public void parse (Language lang) throws MarkupError, IOError
@@ -184,7 +182,7 @@ public abstract class ArteParser : GLib.Object {
             throw new IOError.HOST_NOT_FOUND ("plus7.arte.tv could not be accessed.");
         }
 
-        videos.clear();
+        videos = new GLib.SList<Video>();
 
         var context = new MarkupParseContext (parser,
                 MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
@@ -240,7 +238,7 @@ public class ArteRSSParser : ArteParser {
         switch (elem) {
             case "item":
                 if (current_video != null) {
-                    videos.add (current_video);
+                    videos.append (current_video);
                     current_video = null;
                 }
                 break;
@@ -284,7 +282,6 @@ public class ArteXMLParser : ArteParser {
             "http://plus7.arte.tv/fr/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
         xml_de =
             "http://plus7.arte.tv/de/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
-        feed_is_inverted = true;
     }
 
     private override void open_tag (MarkupParseContext ctx,
@@ -308,7 +305,7 @@ public class ArteXMLParser : ArteParser {
         switch (elem) {
             case "video":
                 if (current_video != null) {
-                    videos.add (current_video);
+                    videos.prepend (current_video);
                     current_video = null;
                 }
                 break;
@@ -543,15 +540,12 @@ class ArtePlugin : Totem.Plugin {
                 typeof (string), typeof (string), typeof (Video));
 
         foreach (Video v in p.videos) {
-            if (p.feed_is_inverted) {
-                listmodel.prepend (out iter);
-            } else {
-                listmodel.append (out iter);
-            }
+            listmodel.append (out iter);
 
-            string desc_str = v.title + "\n";
+            string desc_str = v.title;
 
             if (v.offline_date.tv_sec > 0) {
+                desc_str += "\n";
                 var now = GLib.TimeVal ();
                 now.get_current_time ();
                 double minutes_left = (v.offline_date.tv_sec - now.tv_sec) / 60.0;
@@ -573,7 +567,7 @@ class ArtePlugin : Totem.Plugin {
             }
 
             listmodel.set (iter,
-                    Col.IMAGE, cache.get_pixbuf (v.image_url),
+                    Col.IMAGE, v.image_url != null ? cache.get_pixbuf (v.image_url) : null,
                     Col.NAME, v.title,
                     Col.DESCRIPTION, desc_str,
                     Col.VIDEO_OBJECT, v, -1);
