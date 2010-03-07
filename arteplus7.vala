@@ -178,7 +178,7 @@ public abstract class ArteParser : GLib.Object {
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
         session.send_message(msg);
 
-        if (msg.status_code != 200) {
+        if (msg.status_code != Soup.KnownStatusCode.OK) {
             throw new IOError.HOST_NOT_FOUND ("plus7.arte.tv could not be accessed.");
         }
 
