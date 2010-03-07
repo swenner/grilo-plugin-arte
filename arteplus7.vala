@@ -495,6 +495,19 @@ class ArtePlugin : Totem.Plugin {
 
         tool_bar.set_sensitive (false);
 
+        TreeIter iter;
+
+        /* display loading message */
+        var tmp_ls = new ListStore (3, typeof (Gdk.Pixbuf),
+                typeof (string), typeof (string));
+        tmp_ls.prepend (out iter);
+        tmp_ls.set (iter,
+                Col.IMAGE, null,
+                Col.NAME, _("Loading..."),
+                Col.DESCRIPTION, null, -1);
+        tree_view.set_model (tmp_ls);
+
+        /* download and parse */
         try {
             p.parse(language);
         } catch (MarkupError e) {
@@ -523,19 +536,7 @@ class ArtePlugin : Totem.Plugin {
             return false;
         }
 
-        TreeIter iter;
-
-        /* loading line */
-        var tmp_ls = new ListStore (3, typeof (Gdk.Pixbuf),
-                typeof (string), typeof (string));
-        tmp_ls.prepend (out iter);
-        tmp_ls.set (iter,
-                Col.IMAGE, null,
-                Col.NAME, _("Loading..."),
-                Col.DESCRIPTION, null, -1);
-        tree_view.set_model (tmp_ls);
-
-        /* load the content */
+        /* load the video list */
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
                 typeof (string), typeof (string), typeof (Video));
 
