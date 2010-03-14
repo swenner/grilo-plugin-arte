@@ -1,3 +1,9 @@
+2010 March - Totem Arte Plugin 0.8.2
+
+ * Remove the libgee dependency
+ * Bugfix: Delayed appearance of the loading message
+ * Minor code cleanup
+
 2010 February - Totem Arte Plugin 0.8.1
 
  * Fix the creation of the cache directory
