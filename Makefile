@@ -44,7 +44,7 @@ dist:
 	cp -f arteplus7.vala cache.vala arteplus7.totem-plugin $(PACKAGE)/
 	cp -f Makefile README AUTHORS COPYING NEWS $(PACKAGE)/
 	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/
-	cp -f deps/*.h deps/totem.vapi deps/totem.deps $(PACKAGE)/deps/
+	cp -f deps/*.h deps/totem.vapi deps/totem.deps deps/COPYING.LGPL deps/license_change $(PACKAGE)/deps/
 	tar -pczf $(PACKAGE).tar.gz $(PACKAGE)/
 	rm -rf $(PACKAGE)
 
