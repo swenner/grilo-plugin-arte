@@ -352,7 +352,7 @@ public enum Col {
 
 class ArtePlugin : Totem.Plugin {
     private Totem.Object t;
-    private Gtk.Toolbar tool_bar; /* refresh button and search field */
+    private Gtk.Entry search_entry; /* search field with buttons inside */
     private Gtk.TreeView tree_view; /* list of movie thumbnails */
     private ArteParser p;
     private Cache cache; /* image thumbnail cache */
@@ -384,38 +384,39 @@ class ArtePlugin : Totem.Plugin {
         scroll_win.set_shadow_type (ShadowType.IN);
         scroll_win.add (tree_view);
 
-        var refresh_button = new Gtk.ToolButton.from_stock (Gtk.STOCK_REFRESH);
-        refresh_button.set_tooltip_text(_("Reload feed"));
-        refresh_button.clicked.connect (callback_refresh_rss_feed);
-
-        var search = new Gtk.Entry ();
+        /* add a search entry with a refresh and a cleanup icon */
+        search_entry = new Gtk.Entry ();
+        search_entry.set_icon_from_stock (Gtk.EntryIconPosition.PRIMARY,
+                Gtk.STOCK_REFRESH);
+        search_entry.set_icon_tooltip_text (Gtk.EntryIconPosition.PRIMARY,
+                _("Reload feed"));
+        search_entry.set_icon_from_stock (Gtk.EntryIconPosition.SECONDARY,
+                Gtk.STOCK_CLEAR);
+        search_entry.set_icon_sensitive (Gtk.EntryIconPosition.SECONDARY, false);
         /* search as you type */
-        search.changed.connect ((entry) => {
-            filter = ((Gtk.Entry) entry).get_text ().down ();
+        search_entry.changed.connect ((widget) => {
+            Gtk.Entry entry = (Gtk.Entry) widget;
+            entry.set_icon_sensitive (Gtk.EntryIconPosition.SECONDARY,
+                    (entry.get_text () != ""));
+
+            filter = entry.get_text ().down ();
             var model = (Gtk.TreeModelFilter) tree_view.get_model ();
             model.refilter ();
         });
         /* flush search field on return */
-        search.activate.connect ((entry) => {
+        search_entry.activate.connect ((entry) => {
             entry.set_text ("");
-            if (filter != null) {
-                filter = null;
-                var model = (Gtk.TreeModelFilter) tree_view.get_model ();
-                model.refilter ();
-            }
         });
-        var search_item = new Gtk.ToolItem ();
-        search_item.add (search);
-        search_item.set_expand (true);
-        search.set_width_chars (18);
-
-        tool_bar = new Gtk.Toolbar ();
-        tool_bar.insert (refresh_button, 0);
-        tool_bar.insert (search_item, 1);
-        tool_bar.set_style (Gtk.ToolbarStyle.ICONS);
+        /* cleanup or refresh on click */
+        search_entry.icon_press.connect ((entry, position, event) => {
+            if (position == Gtk.EntryIconPosition.PRIMARY)
+                callback_refresh_rss_feed (entry);
+            else
+                entry.set_text ("");
+        });
 
         var main_box = new Gtk.VBox (false, 4);
-        main_box.pack_start (tool_bar, false, false, 0);
+        main_box.pack_start (search_entry, false, false, 0);
         main_box.pack_start (scroll_win, true, true, 0);
         main_box.show_all ();
 
@@ -493,7 +494,7 @@ class ArtePlugin : Totem.Plugin {
         if (!tree_lock.trylock ())
             return false;
 
-        tool_bar.set_sensitive (false);
+        search_entry.set_sensitive (false);
 
         TreeIter iter;
 
@@ -532,7 +533,7 @@ class ArtePlugin : Totem.Plugin {
             t.action_error (_("IO Error"),
                 _("Sorry, the plugin could not download the Arte video feed."));
             tree_lock.unlock ();
-            tool_bar.set_sensitive (true);
+            search_entry.set_sensitive (true);
             return false;
         }
 
@@ -580,7 +581,7 @@ class ArtePlugin : Totem.Plugin {
         tree_view.set_model (model_filter);
 
         tree_lock.unlock ();
-        tool_bar.set_sensitive (true);
+        search_entry.set_sensitive (true);
         return false;
     }
 
@@ -641,7 +642,7 @@ class ArtePlugin : Totem.Plugin {
         t.add_to_playlist_and_play (uri, v.title, false);
     }
 
-    private void callback_refresh_rss_feed (Gtk.ToolButton toolbutton)
+    private void callback_refresh_rss_feed (Gtk.Widget widget)
     {
         use_fallback_feed = false;
         GLib.Idle.add (refresh_rss_feed);
