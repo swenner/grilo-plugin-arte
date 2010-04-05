@@ -122,6 +122,6 @@ namespace Totem {
 		public Gtk.Builder load_interface (string name, bool fatal, Gtk.Window parent);
 
 		[CCode (cname = "totem_plugin_find_file")]
-		public virtual weak string find_file (string file);
+		public virtual unowned string find_file (string file);
 	}
 }
