@@ -403,9 +403,9 @@ class ArtePlugin : Totem.Plugin {
             var model = (Gtk.TreeModelFilter) tree_view.get_model ();
             model.refilter ();
         });
-        /* flush search field on return */
+        /* set focus to the first video on return */
         search_entry.activate.connect ((entry) => {
-            entry.set_text ("");
+            tree_view.grab_focus ();
         });
         /* cleanup or refresh on click */
         search_entry.icon_press.connect ((entry, position, event) => {
