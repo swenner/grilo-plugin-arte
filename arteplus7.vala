@@ -582,6 +582,7 @@ class ArtePlugin : Totem.Plugin {
 
         tree_lock.unlock ();
         search_entry.set_sensitive (true);
+        search_entry.grab_focus ();
         return false;
     }
 
