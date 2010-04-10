@@ -8,94 +8,94 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-01 19:02+0100\n"
+"POT-Creation-Date: 2010-04-10 13:38+0200\n"
 "PO-Revision-Date: 2010-01-23 19:02+0100\n"
 "Last-Translator: Nicolas Delvaux <nicolas.delvaux@gmx.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:396
+#: ../arteplus7.vala:392
 msgid "Reload feed"
-msgstr "Actualiser le flux"
+msgstr "Recharger la liste des vidéos"
 
-#: ../arteplus7.vala:430
+#: ../arteplus7.vala:423
 msgid "Arte+7"
 msgstr "Arte+7"
 
-#: ../arteplus7.vala:443 ../arteplus7.vala:656
+#: ../arteplus7.vala:444 ../arteplus7.vala:656
 msgid "German"
 msgstr "Allemand"
 
-#: ../arteplus7.vala:444
+#: ../arteplus7.vala:445
 msgid "French"
 msgstr "Français"
 
-#: ../arteplus7.vala:451
+#: ../arteplus7.vala:452
 msgid "_medium"
 msgstr "_moyenne"
 
-#: ../arteplus7.vala:453
+#: ../arteplus7.vala:454
 msgid "_high"
 msgstr "_haute"
 
-#: ../arteplus7.vala:461
+#: ../arteplus7.vala:462
 msgid "Language:"
 msgstr "Langage :"
 
-#: ../arteplus7.vala:466
+#: ../arteplus7.vala:467
 msgid "Video quality:"
 msgstr "Qualité vidéo :"
 
-#: ../arteplus7.vala:472
+#: ../arteplus7.vala:473
 msgid "Arte+7 Plugin Properties"
 msgstr "Préférences du greffon Arte+7"
 
+#: ../arteplus7.vala:507
+msgid "Loading..."
+msgstr "Chargement..."
+
 #. We are screwed!
-#: ../arteplus7.vala:512
+#: ../arteplus7.vala:526
 msgid "Markup Parser Error"
 msgstr "Erreur de l'analyseur syntaxique"
 
-#: ../arteplus7.vala:513
+#: ../arteplus7.vala:527
 msgid "Sorry, the plugin could not parse the Arte video feed."
 msgstr "Désolé, le greffon n'a pas pu analyser le flux vidéo Arte."
 
 #. Network problems
-#: ../arteplus7.vala:519
+#: ../arteplus7.vala:533
 msgid "IO Error"
 msgstr "Erreur d'entrée-sortie"
 
-#: ../arteplus7.vala:520
+#: ../arteplus7.vala:534
 msgid "Sorry, the plugin could not download the Arte video feed."
 msgstr "Désolé, le greffon n'a pas pu télécharger le flux vidéo Arte."
 
-#: ../arteplus7.vala:534
-msgid "Loading..."
-msgstr "Chargement..."
-
-#: ../arteplus7.vala:560
+#: ../arteplus7.vala:556
 msgid "Less than 1 minute until removal"
 msgstr "Moins de 1 minute avant suppression"
 
-#: ../arteplus7.vala:561
+#: ../arteplus7.vala:558
 #, c-format
 msgid "Less than %.0f minutes until removal"
 msgstr "Moins de %.0f minutes avant suppression"
 
-#: ../arteplus7.vala:564
+#: ../arteplus7.vala:561
 msgid "Less than 1 hour until removal"
 msgstr "Moins de 1 heure avant suppression"
 
-#: ../arteplus7.vala:565
+#: ../arteplus7.vala:563
 #, c-format
 msgid "Less than %.0f hours until removal"
 msgstr "Moins de %.0f heures avant suppression"
 
-#: ../arteplus7.vala:567
+#: ../arteplus7.vala:565
 msgid "1 day until removal"
 msgstr "1 jour avant suppression"
 
-#: ../arteplus7.vala:569
+#: ../arteplus7.vala:567
 #, c-format
 msgid "%.0f days until removal"
 msgstr "%.0f jours avant suppression"
@@ -111,6 +111,6 @@ msgid ""
 "Be aware that this service is only available in Austria, Belgium, Germany, "
 "France and Switzerland."
 msgstr ""
-"Désolé, le greffon n'a pas pu extraire d'adresse de flux valide.\n"
+"Désolé, le greffon n'a pas pu extraire une adresse de flux valide.\n"
 "Notez que ce service est disponible uniquement en Allemagne, Autriche, "
 "Belgique, France et Suisse."

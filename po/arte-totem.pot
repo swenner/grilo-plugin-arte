@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-01 19:02+0100\n"
+"POT-Creation-Date: 2010-04-10 13:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,87 +16,87 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:396
+#: ../arteplus7.vala:392
 msgid "Reload feed"
 msgstr ""
 
-#: ../arteplus7.vala:430
+#: ../arteplus7.vala:423
 msgid "Arte+7"
 msgstr ""
 
-#: ../arteplus7.vala:443 ../arteplus7.vala:656
+#: ../arteplus7.vala:444 ../arteplus7.vala:656
 msgid "German"
 msgstr ""
 
-#: ../arteplus7.vala:444
+#: ../arteplus7.vala:445
 msgid "French"
 msgstr ""
 
-#: ../arteplus7.vala:451
+#: ../arteplus7.vala:452
 msgid "_medium"
 msgstr ""
 
-#: ../arteplus7.vala:453
+#: ../arteplus7.vala:454
 msgid "_high"
 msgstr ""
 
-#: ../arteplus7.vala:461
+#: ../arteplus7.vala:462
 msgid "Language:"
 msgstr ""
 
-#: ../arteplus7.vala:466
+#: ../arteplus7.vala:467
 msgid "Video quality:"
 msgstr ""
 
-#: ../arteplus7.vala:472
+#: ../arteplus7.vala:473
 msgid "Arte+7 Plugin Properties"
 msgstr ""
 
+#: ../arteplus7.vala:507
+msgid "Loading..."
+msgstr ""
+
 #. We are screwed!
-#: ../arteplus7.vala:512
+#: ../arteplus7.vala:526
 msgid "Markup Parser Error"
 msgstr ""
 
-#: ../arteplus7.vala:513
+#: ../arteplus7.vala:527
 msgid "Sorry, the plugin could not parse the Arte video feed."
 msgstr ""
 
 #. Network problems
-#: ../arteplus7.vala:519
+#: ../arteplus7.vala:533
 msgid "IO Error"
 msgstr ""
 
-#: ../arteplus7.vala:520
+#: ../arteplus7.vala:534
 msgid "Sorry, the plugin could not download the Arte video feed."
 msgstr ""
 
-#: ../arteplus7.vala:534
-msgid "Loading..."
-msgstr ""
-
-#: ../arteplus7.vala:560
+#: ../arteplus7.vala:556
 msgid "Less than 1 minute until removal"
 msgstr ""
 
-#: ../arteplus7.vala:561
+#: ../arteplus7.vala:558
 #, c-format
 msgid "Less than %.0f minutes until removal"
 msgstr ""
 
-#: ../arteplus7.vala:564
+#: ../arteplus7.vala:561
 msgid "Less than 1 hour until removal"
 msgstr ""
 
-#: ../arteplus7.vala:565
+#: ../arteplus7.vala:563
 #, c-format
 msgid "Less than %.0f hours until removal"
 msgstr ""
 
-#: ../arteplus7.vala:567
+#: ../arteplus7.vala:565
 msgid "1 day until removal"
 msgstr ""
 
-#: ../arteplus7.vala:569
+#: ../arteplus7.vala:567
 #, c-format
 msgid "%.0f days until removal"
 msgstr ""
