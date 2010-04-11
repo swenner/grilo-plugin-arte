@@ -392,6 +392,8 @@ class ArtePlugin : Totem.Plugin {
                 _("Reload feed"));
         search_entry.set_icon_from_stock (Gtk.EntryIconPosition.SECONDARY,
                 Gtk.STOCK_CLEAR);
+        search_entry.set_icon_tooltip_text (Gtk.EntryIconPosition.SECONDARY,
+                _("Clear the search text"));
         search_entry.set_icon_sensitive (Gtk.EntryIconPosition.SECONDARY, false);
         /* search as you type */
         search_entry.changed.connect ((widget) => {
