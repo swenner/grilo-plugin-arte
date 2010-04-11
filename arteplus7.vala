@@ -432,6 +432,10 @@ class ArtePlugin : Totem.Plugin {
                 return false;
             });
         }
+
+        /* Refresh the feed on pressing F5 */
+        main_box.key_press_event.connect (callback_F5_pressed);
+
         return true;
     }
 
@@ -678,6 +682,18 @@ class ArtePlugin : Totem.Plugin {
         if (last != quality) {
             store_properties ();
         }
+    }
+
+    private bool callback_F5_pressed (Gtk.Widget widget, Gdk.EventKey event)
+    {
+      string key = Gdk.keyval_name (event.keyval);
+      if (key == "F5")
+      {
+        callback_refresh_rss_feed (widget);
+      }
+
+      /* propagate the signal to the next handler */
+      return false;
     }
 }
 
