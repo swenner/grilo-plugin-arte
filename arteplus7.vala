@@ -433,14 +433,19 @@ class ArtePlugin : Totem.Plugin {
             });
         }
 
-        /* Refresh the feed on pressing F5 */
-        main_box.key_press_event.connect (callback_F5_pressed);
+        /* Refresh the feed on pressing 'F5' */
+        var window = t.get_main_window ();
+        window.key_press_event.connect (callback_F5_pressed);
 
         return true;
     }
 
     public override void deactivate (Totem.Object totem)
     {
+        /* Remove the 'F5' key event handler */
+        var window = t.get_main_window ();
+        window.key_press_event.disconnect (callback_F5_pressed);
+        /* Remove the plugin tab */
         totem.remove_sidebar_page ("arte");
     }
 
@@ -686,14 +691,14 @@ class ArtePlugin : Totem.Plugin {
 
     private bool callback_F5_pressed (Gtk.Widget widget, Gdk.EventKey event)
     {
-      string key = Gdk.keyval_name (event.keyval);
-      if (key == "F5")
-      {
-        callback_refresh_rss_feed (widget);
-      }
+        string key = Gdk.keyval_name (event.keyval);
+        if (key == "F5")
+        {
+          callback_refresh_rss_feed (widget);
+        }
 
-      /* propagate the signal to the next handler */
-      return false;
+        /* propagate the signal to the next handler */
+        return false;
     }
 }
 
