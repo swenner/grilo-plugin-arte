@@ -457,7 +457,7 @@ class ArtePlugin : Totem.Plugin {
         if (language == Language.GERMAN)
             langs.set_active (0);
         else
-            langs.set_active (1); /* French is the default language */
+            langs.set_active (1);
         langs.changed.connect (callback_language_changed);
 
         var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, _("_medium"));
@@ -466,7 +466,7 @@ class ArtePlugin : Totem.Plugin {
         if (quality == VideoQuality.WMV_MQ)
             quali_radio_medium.set_active (true);
         else
-            quali_radio_high.set_active (true); /* HQ is the default quality */
+            quali_radio_high.set_active (true);
 
         quali_radio_medium.toggled.connect (callback_quality_toggled);
 
@@ -626,6 +626,14 @@ class ArtePlugin : Totem.Plugin {
         try {
             quality = (VideoQuality) gc.get_int (GCONF_ROOT + "/quality");
             language = (Language) gc.get_int (GCONF_ROOT + "/language");
+            if (quality == VideoQuality.UNKNOWN) { /* HQ is the default quality */
+                quality = VideoQuality.WMV_HQ;
+                store_properties ();
+            }
+            if (language == Language.UNKNOWN) { /* French is the default language */
+                language = Language.FRENCH;
+                store_properties ();
+            }
         } catch (GLib.Error e) {
             GLib.warning ("%s", e.message);
         }
