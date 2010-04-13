@@ -626,16 +626,16 @@ class ArtePlugin : Totem.Plugin {
         try {
             quality = (VideoQuality) gc.get_int (GCONF_ROOT + "/quality");
             language = (Language) gc.get_int (GCONF_ROOT + "/language");
-            if (quality == VideoQuality.UNKNOWN) { /* HQ is the default quality */
-                quality = VideoQuality.WMV_HQ;
-                store_properties ();
-            }
-            if (language == Language.UNKNOWN) { /* French is the default language */
-                language = Language.FRENCH;
-                store_properties ();
-            }
         } catch (GLib.Error e) {
             GLib.warning ("%s", e.message);
+        }
+        if (quality == VideoQuality.UNKNOWN) { /* HQ is the default quality */
+            quality = VideoQuality.WMV_HQ;
+            store_properties ();
+        }
+        if (language == Language.UNKNOWN) { /* French is the default language */
+            language = Language.FRENCH;
+            store_properties ();
         }
     }
 
