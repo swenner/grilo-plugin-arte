@@ -25,7 +25,7 @@ using Gtk;
 using GConf;
 
 public enum VideoQuality {
-    UNKNOWN,
+    UNKNOWN = 0,
     WMV_MQ,
     WMV_HQ,
     FLV_MQ,
@@ -33,7 +33,7 @@ public enum VideoQuality {
 }
 
 public enum Language {
-    UNKNOWN,
+    UNKNOWN = 0,
     FRENCH,
     GERMAN
 }
@@ -95,10 +95,10 @@ public class Video : GLib.Object {
         }
 
         Soup.Message msg;
-        if (q == VideoQuality.WMV_HQ) {
-            msg = new Soup.Message ("GET", this.hq_stream_fake_uri);
-        } else {
+        if (q == VideoQuality.WMV_MQ) {
             msg = new Soup.Message ("GET", this.mq_stream_fake_uri);
+        } else {
+            msg = new Soup.Message ("GET", this.hq_stream_fake_uri);
         }
         session.send_message(msg);
 
@@ -702,7 +702,7 @@ class ArtePlugin : Totem.Plugin {
         string key = Gdk.keyval_name (event.keyval);
         if (key == "F5")
         {
-          callback_refresh_rss_feed (widget);
+            callback_refresh_rss_feed (widget);
         }
 
         /* propagate the signal to the next handler */
