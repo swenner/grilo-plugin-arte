@@ -38,11 +38,13 @@ clean:
 	rm po/*mo
 
 dist:
+	rm -f ChangeLog
+	git log --pretty=short > ChangeLog
 	mkdir $(PACKAGE)
 	mkdir $(PACKAGE)/po
 	mkdir $(PACKAGE)/deps
 	cp -f arteplus7.vala cache.vala arteplus7.totem-plugin $(PACKAGE)/
-	cp -f Makefile README AUTHORS COPYING NEWS $(PACKAGE)/
+	cp -f Makefile README AUTHORS COPYING NEWS ChangeLog $(PACKAGE)/
 	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/
 	cp -f deps/*.h deps/totem.vapi deps/totem.deps deps/COPYING.LGPL deps/license_change $(PACKAGE)/deps/
 	tar -pczf $(PACKAGE).tar.gz $(PACKAGE)/
