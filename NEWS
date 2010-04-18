@@ -3,7 +3,7 @@
  * Add Totem's license files and Totem's additional license exception clause
  * Redesigned search bar
  * Pressing F5 refreshes the video feed
- * Better Handling of Gconf errors (Nicolas Delvaux)
+ * Better handling of Gconf errors (Nicolas Delvaux)
  * Minor bugfixes and translation updates
 
 2010 March - Totem Arte Plugin 0.8.2
