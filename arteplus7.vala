@@ -16,6 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA.
  *
+ * The Totem Arte Plugin project hereby grants permission for non-GPL compatible
+ * GStreamer plugins to be used and distributed together with GStreamer, Totem
+ * and Totem Arte Plugin. This permission is above and beyond the permissions
+ * granted by the GPL license by which Totem Arte Plugin is covered.
+ * If you modify this code, you may extend this exception to your version of the
+ * code, but you are not obligated to do so. If you do not wish to do so,
+ * delete this exception statement from your version.
+ *
  */
 
 using GLib;
