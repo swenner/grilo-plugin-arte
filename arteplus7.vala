@@ -50,7 +50,7 @@ public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.2.1) Gecko/20100122 firefox/3.6.1";
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
-public const int THUMBNAIL_WIDTH = 140;
+public const int THUMBNAIL_WIDTH = 160;
 
 public class Video : GLib.Object {
     public string title = null;
@@ -287,9 +287,9 @@ public class ArteXMLParser : ArteParser {
     {
         /* Parses the XML feed of the Flash preview plugin */
         xml_fr =
-            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3211552,view,asXml.xml";
+            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=de/thumb/date//1/1000/";
         xml_de =
-            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3211552,view,asXml.xml";
+            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=fr/thumb/date//1/1000/";
     }
 
     private override void open_tag (MarkupParseContext ctx,

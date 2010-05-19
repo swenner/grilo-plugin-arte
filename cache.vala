@@ -116,7 +116,7 @@ public class Cache : GLib.Object {
                 (ssize_t) msg.response_body.length, null);
 
         try {
-            /* original size: 240px × 180px */
+            /* original size: 720px × 406px */
             pb = new Gdk.Pixbuf.from_stream_at_scale (img_stream,
                     THUMBNAIL_WIDTH, -1, true, null);
         } catch (GLib.Error e) {
