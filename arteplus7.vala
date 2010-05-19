@@ -220,9 +220,9 @@ public class ArteRSSParser : ArteParser {
     {
         /* Parses the official RSS feed */
         xml_fr =
-            "http://plus7.arte.tv/fr/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
+            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3188666,view,rss.xml";
         xml_de =
-            "http://plus7.arte.tv/de/1697480,templateId=renderRssFeed,CmPage=1697480,CmStyle=1697478,CmPart=com.arte-tv.streaming.xml";
+            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3188666,view,rss.xml";
     }
 
     private override void open_tag (MarkupParseContext ctx,
@@ -287,9 +287,9 @@ public class ArteXMLParser : ArteParser {
     {
         /* Parses the XML feed of the Flash preview plugin */
         xml_fr =
-            "http://plus7.arte.tv/fr/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
+            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3211552,view,asXml.xml";
         xml_de =
-            "http://plus7.arte.tv/de/1698112,templateId=renderCarouselXml,CmPage=1697480,CmPart=com.arte-tv.streaming.xml";
+            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3211552,view,asXml.xml";
     }
 
     private override void open_tag (MarkupParseContext ctx,
@@ -332,11 +332,11 @@ public class ArteXMLParser : ArteParser {
                 case "title":
                     current_video.title = text;
                     break;
-                case "targetURL":
-                    current_video.page_url = text;
+                case "targetUrl":
+                    current_video.page_url = "http://videos.arte.tv" + text;
                     break;
-                case "previewPictureURL":
-                    current_video.image_url = text;
+                case "imageUrl":
+                    current_video.image_url = "http://videos.arte.tv" + text;
                     break;
                 case "startDate":
                     current_video.publication_date.from_iso8601 (text);
