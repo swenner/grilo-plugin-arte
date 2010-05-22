@@ -97,6 +97,9 @@ public abstract class ArteParser : GLib.Object {
         videos = new GLib.SList<Video>();
     }
 
+    public virtual void reset () {}
+    public virtual void set_page (int page) {}
+
     public void parse (Language lang) throws MarkupError, IOError
     {
         Soup.Message msg;
@@ -113,8 +116,6 @@ public abstract class ArteParser : GLib.Object {
         if (msg.status_code != Soup.KnownStatusCode.OK) {
             throw new IOError.HOST_NOT_FOUND ("plus7.arte.tv could not be accessed.");
         }
-
-        videos = new GLib.SList<Video>();
 
         var context = new MarkupParseContext (parser,
                 MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
@@ -203,17 +204,32 @@ public class ArteRSSParser : ArteParser {
     }
 }
 
-public class ArteXMLParser : ArteParser {
+public class ArteXMLParser : ArteParser
+{
     private Video current_video = null;
     private string current_data = null;
+    public int page = 1;
+    private const string xml_tmpl = "http://videos.arte.tv/%s/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=%s//date//%d/20/";
 
     public ArteXMLParser ()
     {
         /* Parses the XML feed of the Flash preview plugin */
-        xml_fr =
-            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=fr/thumb///1/20/";
-        xml_de =
-            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=de/thumb///1/20/";
+        reset ();
+    }
+
+    public override void reset ()
+    {
+        videos = new GLib.SList<Video>();
+        page = 1;
+        xml_fr = xml_tmpl.printf ("fr", "fr", page);
+        xml_de = xml_tmpl.printf ("de", "de", page);
+    }
+
+    public override void set_page (int page)
+    {
+        this.page = page;
+        xml_fr = xml_tmpl.printf ("fr", "fr", page);
+        xml_de = xml_tmpl.printf ("de", "de", page);
     }
 
     private override void open_tag (MarkupParseContext ctx,
@@ -456,7 +472,16 @@ class ArtePlugin : Totem.Plugin {
 
         /* download and parse */
         try {
-            p.parse(language);
+            p.reset ();
+            for (int i=5; i>0; i--) {
+                p.set_page (i);
+                p.parse (language);
+            }
+            GLib.message ("Video Count: %u", p.videos.length ());
+            // TODO: sort the videos, needs a parsable publication date
+            //p.videos.sort ((a, b) => {
+            //    return (int) (((Video) a).publication_date.tv_sec < ((Video) b).publication_date.tv_sec);
+            //});
         } catch (MarkupError e) {
             GLib.critical ("XML Parse Error: %s", e.message);
             if (!use_fallback_feed) {
