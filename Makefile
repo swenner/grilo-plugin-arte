@@ -34,7 +34,7 @@ uninstall-home:
 	rm ~/.local/share/totem/plugins/libarteplus7.so
 
 clean:
-	rm arteplus7.c cache.c libarteplus7.so
+	rm arteplus7.c cache.c url-extractor.c libarteplus7.so
 	rm po/*mo
 
 dist:
