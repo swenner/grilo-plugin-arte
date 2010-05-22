@@ -211,9 +211,9 @@ public class ArteXMLParser : ArteParser {
     {
         /* Parses the XML feed of the Flash preview plugin */
         xml_fr =
-            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=////1/500/";
+            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=fr/thumb///1/20/";
         xml_de =
-            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=////1/500/";
+            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=de/thumb///1/20/";
     }
 
     private override void open_tag (MarkupParseContext ctx,
@@ -262,10 +262,13 @@ public class ArteXMLParser : ArteParser {
                 case "imageUrl":
                     current_video.image_url = "http://videos.arte.tv" + text;
                     break;
+                case "teaserText":
+                    current_video.desc = text;
+                    break;
                 case "startDate":
                     current_video.publication_date.from_iso8601 (text);
                     break;
-                case "offlineDate":
+                case "endDate":
                     current_video.offline_date.from_iso8601 (text);
                     break;
             }
@@ -487,7 +490,13 @@ class ArtePlugin : Totem.Plugin {
         foreach (Video v in p.videos) {
             listmodel.append (out iter);
 
-            string desc_str = v.title;
+            string desc_str;
+            // use the description if available, fallback to the title otherwise
+            if (v.desc != null) {
+              desc_str = v.desc;
+            } else {
+              desc_str = v.title;
+            }
 
             if (v.offline_date.tv_sec > 0) {
                 desc_str += "\n";
