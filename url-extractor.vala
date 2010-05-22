@@ -128,7 +128,7 @@ public class WMVStreamUrlExtractor : GLib.Object, Extractor
       regexp = "quality=\"" + quali_str + "\">(rtmp://.*)[?]h=";
       rtmp_uri = extract_string_from_page (url, regexp);
       if (verbose)
-      stdout.printf ("Extract RTMP URI:\t\t%s\n", rtmp_uri);
+        stdout.printf ("Extract RTMP URI:\t\t%s\n", rtmp_uri);
 
       if (rtmp_uri == null)
         return null;
