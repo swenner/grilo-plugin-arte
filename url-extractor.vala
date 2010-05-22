@@ -115,8 +115,24 @@ public class WMVStreamUrlExtractor : GLib.Object, Extractor
     if (verbose)
       stdout.printf ("Extract RTMP URI:\t\t%s\n", rtmp_uri);
 
-    if (rtmp_uri == null)
-      return null;
+    /* sometimes only one quality level is available */
+    if (rtmp_uri == null) {
+      if (q == VideoQuality.WMV_HQ) {
+        q = VideoQuality.WMV_MQ;
+        GLib.message ("No high quality stream available. Fallback to medium quality.");
+      }
+      if (q == VideoQuality.WMV_MQ) {
+        q = VideoQuality.WMV_HQ;
+        GLib.message ("No medium quality stream available. Fallback to high quality.");
+      }
+      regexp = "quality=\"" + quali_str + "\">(rtmp://.*)[?]h=";
+      rtmp_uri = extract_string_from_page (url, regexp);
+      if (verbose)
+      stdout.printf ("Extract RTMP URI:\t\t%s\n", rtmp_uri);
+
+      if (rtmp_uri == null)
+        return null;
+    }
 
     // Get the video id and server id from the RTMP uri
     // Example:

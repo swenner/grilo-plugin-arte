@@ -3,118 +3,122 @@
 # This file is distributed under the same license as the Totem Arte Plugin package.
 # This file was first created by Nicolas Delvaux <nicolas.delvaux@gmx.com>, 2010.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.3\n"
-"Report-Msgid-Bugs-To: Simon Wenner <simon@wenner.ch>\n"
-"POT-Creation-Date: 2010-04-11 12:13+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-05-22 20:55+0200\n"
 "PO-Revision-Date: 2010-04-11 12:16+0200\n"
 "Last-Translator: Nicolas Delvaux <nicolas.delvaux@gmx.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:392
+#: ../arteplus7.vala:324
 msgid "Reload feed"
 msgstr "Recharger la liste des vidéos"
 
-#: ../arteplus7.vala:396
+#: ../arteplus7.vala:328
 msgid "Clear the search text"
 msgstr "Effacer le texte recherché"
 
-#: ../arteplus7.vala:425
+#: ../arteplus7.vala:357
 msgid "Arte+7"
 msgstr "Arte+7"
 
-#: ../arteplus7.vala:446 ../arteplus7.vala:658
+#: ../arteplus7.vala:387 ../arteplus7.vala:607
 msgid "German"
 msgstr "Allemand"
 
-#: ../arteplus7.vala:447
+#: ../arteplus7.vala:388
 msgid "French"
 msgstr "Français"
 
-#: ../arteplus7.vala:454
+#: ../arteplus7.vala:395
 msgid "_medium"
 msgstr "_moyenne"
 
-#: ../arteplus7.vala:456
+#: ../arteplus7.vala:397
 msgid "_high"
 msgstr "_haute"
 
-#: ../arteplus7.vala:464
+#: ../arteplus7.vala:405
 msgid "Language:"
 msgstr "Langage :"
 
-#: ../arteplus7.vala:469
+#: ../arteplus7.vala:410
 msgid "Video quality:"
 msgstr "Qualité vidéo :"
 
-#: ../arteplus7.vala:475
+#: ../arteplus7.vala:416
 msgid "Arte+7 Plugin Properties"
 msgstr "Préférences du greffon Arte+7"
 
-#: ../arteplus7.vala:509
+#: ../arteplus7.vala:450
 msgid "Loading..."
 msgstr "Chargement..."
 
 #. We are screwed!
-#: ../arteplus7.vala:528
+#: ../arteplus7.vala:469
 msgid "Markup Parser Error"
 msgstr "Erreur de l'analyseur syntaxique"
 
-#: ../arteplus7.vala:529
+#: ../arteplus7.vala:470
 msgid "Sorry, the plugin could not parse the Arte video feed."
 msgstr "Désolé, le greffon n'a pas pu analyser le flux vidéo Arte."
 
 #. Network problems
-#: ../arteplus7.vala:535
+#: ../arteplus7.vala:476
 msgid "IO Error"
 msgstr "Erreur d'entrée-sortie"
 
-#: ../arteplus7.vala:536
+#: ../arteplus7.vala:477
 msgid "Sorry, the plugin could not download the Arte video feed."
 msgstr "Désolé, le greffon n'a pas pu télécharger le flux vidéo Arte."
 
-#: ../arteplus7.vala:558
+#: ../arteplus7.vala:499
 msgid "Less than 1 minute until removal"
 msgstr "Moins de 1 minute avant suppression"
 
-#: ../arteplus7.vala:560
+#: ../arteplus7.vala:501
 #, c-format
 msgid "Less than %.0f minutes until removal"
 msgstr "Moins de %.0f minutes avant suppression"
 
-#: ../arteplus7.vala:563
+#: ../arteplus7.vala:504
 msgid "Less than 1 hour until removal"
 msgstr "Moins de 1 heure avant suppression"
 
-#: ../arteplus7.vala:565
+#: ../arteplus7.vala:506
 #, c-format
 msgid "Less than %.0f hours until removal"
 msgstr "Moins de %.0f heures avant suppression"
 
-#: ../arteplus7.vala:567
+#: ../arteplus7.vala:508
 msgid "1 day until removal"
 msgstr "1 jour avant suppression"
 
-#: ../arteplus7.vala:569
+#: ../arteplus7.vala:510
 #, c-format
 msgid "%.0f days until removal"
 msgstr "%.0f jours avant suppression"
 
 #. Network problems or access from an unsupported country
-#: ../arteplus7.vala:640
+#: ../arteplus7.vala:589
 msgid "Video URL Extraction Error"
 msgstr "Erreur d'extraction de l'URL de la vidéo"
 
-#: ../arteplus7.vala:641
+#: ../arteplus7.vala:590
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
+"Perhaps this stream is not yet available, you may retry in a few minutes.\n"
+"\n"
 "Be aware that this service is only available in Austria, Belgium, Germany, "
 "France and Switzerland."
 msgstr ""
 "Désolé, le greffon n'a pas pu extraire une adresse de flux valide.\n"
+"Il est possible que le flux ne soit pas encore disponible,"
+"vous pouvez réessayer dans quelques minutes.\n"
+"\n"
 "Notez que ce service est disponible uniquement en Allemagne, Autriche, "
 "Belgique, France et Suisse."
