@@ -37,7 +37,7 @@ public interface Extractor : GLib.Object
 public class WMVStreamUrlExtractor : GLib.Object, Extractor
 {
   private Soup.SessionAsync session;
-  private bool verbose = true;
+  private const bool verbose = true; /* enables debug messages */
 
   public WMVStreamUrlExtractor()
   {
@@ -119,10 +119,12 @@ public class WMVStreamUrlExtractor : GLib.Object, Extractor
     if (rtmp_uri == null) {
       if (q == VideoQuality.WMV_HQ) {
         q = VideoQuality.WMV_MQ;
+        quali_str = "sd";
         GLib.message ("No high quality stream available. Fallback to medium quality.");
       }
       if (q == VideoQuality.WMV_MQ) {
         q = VideoQuality.WMV_HQ;
+        quali_str = "hd";
         GLib.message ("No medium quality stream available. Fallback to high quality.");
       }
       regexp = "quality=\"" + quali_str + "\">(rtmp://.*)[?]h=";
