@@ -1,3 +1,10 @@
+2010 May - Totem Arte Plugin 0.8.4
+
+ * Arte changed their video service
+ * Use the new RSS and XML feeds
+ * Use a new extraction scheme to get to the WMV stream
+ * Add a ChangeLog file
+
 2010 April - Totem Arte Plugin 0.8.3
 
  * Add Totem's license files and Totem's additional license exception clause

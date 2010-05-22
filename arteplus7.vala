@@ -214,11 +214,12 @@ public class ArteXMLParser : ArteParser
     private Video current_video = null;
     private string current_data = null;
     public int page = 1;
-    private const string xml_tmpl = "http://videos.arte.tv/%s/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=%s//date//%d/20/";
+    /* Parses the XML feed of the Flash preview plugin */
+    private const string xml_tmpl =
+        "http://videos.arte.tv/%s/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=%s//date//%d/20/";
 
     public ArteXMLParser ()
     {
-        /* Parses the XML feed of the Flash preview plugin */
         reset ();
     }
 
