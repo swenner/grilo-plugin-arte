@@ -32,7 +32,8 @@ using Totem;
 using Gtk;
 using GConf;
 
-public enum VideoQuality {
+public enum VideoQuality
+{
     UNKNOWN = 0,
     WMV_MQ,
     WMV_HQ,
@@ -40,7 +41,8 @@ public enum VideoQuality {
     FLV_HQ
 }
 
-public enum Language {
+public enum Language
+{
     UNKNOWN = 0,
     FRENCH,
     GERMAN
@@ -52,7 +54,8 @@ public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
 
-public class Video : GLib.Object {
+public class Video : GLib.Object
+{
     public string title = null;
     public string page_url = null;
     public string image_url = null;
@@ -79,7 +82,8 @@ public class Video : GLib.Object {
     }
 }
 
-public abstract class ArteParser : GLib.Object {
+public abstract class ArteParser : GLib.Object
+{
     public string xml_fr;
     public string xml_de;
     public GLib.SList<Video> videos;
@@ -137,7 +141,8 @@ public abstract class ArteParser : GLib.Object {
             size_t text_len) throws MarkupError {}
 }
 
-public class ArteRSSParser : ArteParser {
+public class ArteRSSParser : ArteParser
+{
     private Video current_video = null;
     private string current_data = null;
 
@@ -292,16 +297,8 @@ public class ArteXMLParser : ArteParser
     }
 }
 
-/* TreeView column names */
-public enum Col {
-    IMAGE,
-    NAME,
-    DESCRIPTION,
-    VIDEO_OBJECT,
-    N
-}
-
-class ArtePlugin : Totem.Plugin {
+class ArtePlugin : Totem.Plugin
+{
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private Gtk.TreeView tree_view; /* list of movie thumbnails */
@@ -312,6 +309,15 @@ class ArtePlugin : Totem.Plugin {
     private GLib.StaticMutex tree_lock;
     private bool use_fallback_feed = false;
     private string? filter = null;
+
+    /* TreeView column names */
+    private enum Col {
+        IMAGE,
+        NAME,
+        DESCRIPTION,
+        VIDEO_OBJECT,
+        N
+    }
 
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
