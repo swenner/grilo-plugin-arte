@@ -60,9 +60,6 @@ public class Video : GLib.Object {
     public GLib.TimeVal publication_date;
     public GLib.TimeVal offline_date;
 
-    private string mq_stream_fake_uri = null;
-    private string hq_stream_fake_uri = null;
-
     public Video()
     {
          publication_date.tv_sec = 0;
@@ -75,83 +72,10 @@ public class Video : GLib.Object {
                 publication_date.to_iso8601 (), page_url);
     }
 
-    public string? get_stream_uri (VideoQuality q)
+    public string? get_stream_uri (VideoQuality q, Language lang)
     {
-        var session = new Soup.SessionAsync.with_options (
-                Soup.SESSION_USER_AGENT, USER_AGENT, null);
-
-        if (mq_stream_fake_uri == null) {
-            try {
-                extract_fake_stream_uris_from_html (session);
-            } catch (RegexError e) {
-                GLib.warning ("%s", e.message);
-            }
-        }
-
-        /* extraction of any stream failed */
-        if (mq_stream_fake_uri == null && hq_stream_fake_uri == null)
-            return null;
-
-        /* sometimes only one quality level is available */
-        if (q == VideoQuality.WMV_HQ && hq_stream_fake_uri == null) {
-            q = VideoQuality.WMV_MQ;
-            GLib.message ("No high quality stream available. Fallback to medium quality.");
-        }
-        if (q == VideoQuality.WMV_MQ && mq_stream_fake_uri == null) {
-            q = VideoQuality.WMV_HQ;
-            GLib.message ("No medium quality stream available. Fallback to high quality.");
-        }
-
-        Soup.Message msg;
-        if (q == VideoQuality.WMV_MQ) {
-            msg = new Soup.Message ("GET", this.mq_stream_fake_uri);
-        } else {
-            msg = new Soup.Message ("GET", this.hq_stream_fake_uri);
-        }
-        session.send_message(msg);
-
-        /* WMV download failed */
-        if (msg.response_body.data == null)
-            return null;
-
-        string stream_uri = null;
-        try {
-            MatchInfo match;
-            var regex = new Regex ("HREF=\"(mms://.*)\"");
-            regex.match(msg.response_body.flatten ().data, 0, out match);
-            string res = match.fetch(1);
-            if (res != null) {
-                stream_uri = res;
-            }
-        } catch (RegexError e) {
-            GLib.warning ("%s", e.message);
-        }
-
-        return stream_uri;
-    }
-
-    private void extract_fake_stream_uris_from_html (Soup.Session session)
-            throws RegexError
-    {
-        var msg = new Soup.Message ("GET", this.page_url);
-        session.send_message(msg);
-
-        if (msg.response_body.data == null)
-            return;
-
-        MatchInfo match;
-        var regex = new Regex ("\"(http://.*_MQ_[\\w]{2}.wmv)\"");
-        regex.match(msg.response_body.flatten ().data, 0, out match);
-        string res = match.fetch(1);
-        if (res != null) {
-            this.mq_stream_fake_uri = res;
-        }
-        regex = new Regex ("\"(http://.*_HQ_[\\w]{2}.wmv)\"");
-        regex.match(msg.response_body.flatten ().data, 0, out match);
-        res = match.fetch(1);
-        if (res != null) {
-            this.hq_stream_fake_uri = res;
-        }
+        var extractor = new WMVStreamUrlExtractor ();
+        return extractor.get_url (q, lang, page_url);
     }
 }
 
@@ -287,9 +211,9 @@ public class ArteXMLParser : ArteParser {
     {
         /* Parses the XML feed of the Flash preview plugin */
         xml_fr =
-            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=de/thumb/date//1/1000/";
+            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=////1/500/";
         xml_de =
-            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=fr/thumb/date//1/1000/";
+            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=////1/500/";
     }
 
     private override void open_tag (MarkupParseContext ctx,
@@ -659,7 +583,7 @@ class ArtePlugin : Totem.Plugin {
         model.get_iter (out iter, path);
         model.get (iter, Col.VIDEO_OBJECT, out v);
 
-        string uri = v.get_stream_uri(quality);
+        string uri = v.get_stream_uri (quality, language);
         if (uri == null) {
             /* Network problems or access from an unsupported country */
             t.action_error (_("Video URL Extraction Error"),

@@ -4,8 +4,8 @@ NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 
 all:
-	valac -C arteplus7.vala cache.vala --thread --pkg libsoup-2.4 --pkg totem --pkg gconf-2.0 --vapidir=./deps
-	gcc -shared -fPIC `pkg-config --cflags --libs glib-2.0 libsoup-2.4 gtk+-2.0 totem-plparser gconf-2.0` -o libarteplus7.so arteplus7.c cache.c -I./deps -DGETTEXT_PACKAGE="\"totem-arte\""
+	valac -C arteplus7.vala cache.vala url-extractor.vala --thread --pkg libsoup-2.4 --pkg totem --pkg gconf-2.0 --vapidir=./deps
+	gcc -shared -fPIC `pkg-config --cflags --libs glib-2.0 libsoup-2.4 gtk+-2.0 totem-plparser gconf-2.0` -o libarteplus7.so arteplus7.c cache.c url-extractor.c -I./deps -DGETTEXT_PACKAGE="\"totem-arte\""
 	msgfmt --output-file=po/de.mo po/de.po
 	msgfmt --output-file=po/fr.mo po/fr.po
 
@@ -43,7 +43,7 @@ dist:
 	mkdir $(PACKAGE)
 	mkdir $(PACKAGE)/po
 	mkdir $(PACKAGE)/deps
-	cp -f arteplus7.vala cache.vala arteplus7.totem-plugin $(PACKAGE)/
+	cp -f arteplus7.vala cache.vala url-extractor.vala arteplus7.totem-plugin $(PACKAGE)/
 	cp -f Makefile README AUTHORS COPYING NEWS ChangeLog $(PACKAGE)/
 	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/
 	cp -f deps/*.h deps/totem.vapi deps/totem.deps deps/COPYING.LGPL deps/license_change $(PACKAGE)/deps/
