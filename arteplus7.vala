@@ -49,7 +49,7 @@ public enum Language
 }
 
 public const string USER_AGENT =
-    "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.2.1) Gecko/20100122 firefox/3.6.1";
+    "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.3) Gecko/20100403 Firefox/3.6.3";
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
