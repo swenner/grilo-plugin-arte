@@ -48,13 +48,6 @@ public enum Language
     GERMAN
 }
 
-errordomain ExtractionError
-{
-    DOWNLOAD_FAILED,
-    EXTRACTION_FAILED,
-    STREAM_NOT_READY
-}
-
 public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.3) Gecko/20100403 Firefox/3.6.3";
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";

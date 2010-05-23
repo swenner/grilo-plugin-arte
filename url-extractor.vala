@@ -29,6 +29,13 @@
 using GLib;
 using Soup;
 
+errordomain ExtractionError
+{
+    DOWNLOAD_FAILED,
+    EXTRACTION_FAILED,
+    STREAM_NOT_READY
+}
+
 public interface Extractor : GLib.Object
 {
   public abstract string get_url (VideoQuality q, Language lang, string page_url)
