@@ -3,6 +3,7 @@
  * Arte changed their video service
  * Use the new RSS and XML feeds
  * Use a new extraction scheme to get to the WMV stream
+ * Improved error dialogues
  * Add a ChangeLog file
 
 2010 April - Totem Arte Plugin 0.8.3

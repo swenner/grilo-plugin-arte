@@ -486,10 +486,10 @@ class ArtePlugin : Totem.Plugin
                 p.parse (language);
             }
             GLib.message ("Video Count: %u", p.videos.length ());
-            // TODO: sort the videos, needs a parsable publication date
-            //p.videos.sort ((a, b) => {
-            //    return (int) (((Video) a).publication_date.tv_sec < ((Video) b).publication_date.tv_sec);
-            //});
+            /* sort the videos by removal date */
+            p.videos.sort ((a, b) => {
+                return (int) (((Video) a).offline_date.tv_sec > ((Video) b).offline_date.tv_sec);
+            });
         } catch (MarkupError e) {
             GLib.critical ("XML Parse Error: %s", e.message);
             if (!use_fallback_feed) {
