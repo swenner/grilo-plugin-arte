@@ -48,6 +48,13 @@ public enum Language
     GERMAN
 }
 
+errordomain ExtractionError
+{
+    DOWNLOAD_FAILED,
+    EXTRACTION_FAILED,
+    STREAM_NOT_READY
+}
+
 public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.3) Gecko/20100403 Firefox/3.6.3";
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
@@ -75,7 +82,8 @@ public class Video : GLib.Object
                 publication_date.to_iso8601 (), page_url);
     }
 
-    public string? get_stream_uri (VideoQuality q, Language lang)
+    public string get_stream_uri (VideoQuality q, Language lang)
+        throws ExtractionError
     {
         var extractor = new WMVStreamUrlExtractor ();
         return extractor.get_url (q, lang, page_url);
@@ -523,7 +531,7 @@ class ArtePlugin : Totem.Plugin
             listmodel.append (out iter);
 
             string desc_str;
-            // use the description if available, fallback to the title otherwise
+            /* use the description if available, fallback to the title otherwise */
             if (v.desc != null) {
               desc_str = v.desc;
             } else {
@@ -624,11 +632,23 @@ class ArtePlugin : Totem.Plugin
         model.get_iter (out iter, path);
         model.get (iter, Col.VIDEO_OBJECT, out v);
 
-        string uri = v.get_stream_uri (quality, language);
-        if (uri == null) {
-            /* Network problems or access from an unsupported country */
-            t.action_error (_("Video URL Extraction Error"),
-                _("Sorry, the plugin could not extract a valid stream URL.\nPerhaps this stream is not yet available, you may retry in a few minutes.\n\nBe aware that this service is only available in Austria, Belgium, Germany, France and Switzerland."));
+        string uri = null;
+        try {
+            uri = v.get_stream_uri (quality, language);
+        } catch (ExtractionError e) {
+            if(e is ExtractionError.STREAM_NOT_READY) {
+                /* The video is part of the XML/RSS feed but no stream is available yet */
+                t.action_error (_("This video is not available yet"),
+                        _("Sorry, the plugin could not find any stream URL.\nIt seems that this video is not available yet, even on the Arte web-player.\n\nPlease retry later."));
+            } else if (e is ExtractionError.DOWNLOAD_FAILED) {
+                /* Network problems */
+                t.action_error (_("Video URL Extraction Error"),
+                        _("Sorry, the plugin could not extract a valid stream URL.\nThere seems to be a network problem."));
+            } else {
+                /* ExtractionError.EXTRACTION_ERROR or an unspecified error */
+                t.action_error (_("Video URL Extraction Error"),
+                        _("Sorry, the plugin could not extract a valid stream URL.\nPerhaps this stream is not yet available, you may retry in a few minutes.\n\nBe aware that this service is only available in Austria, Belgium, Germany, France and Switzerland."));
+            }
             return;
         }
 
