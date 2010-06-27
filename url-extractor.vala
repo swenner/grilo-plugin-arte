@@ -45,7 +45,7 @@ public interface Extractor : GLib.Object
 public class WMVStreamUrlExtractor : GLib.Object, Extractor
 {
   private Soup.SessionAsync session;
-  private const bool verbose = true; /* enables debug messages */
+  private const bool verbose = false; /* enables debug messages */
 
   public WMVStreamUrlExtractor()
   {

@@ -74,8 +74,9 @@ public class Video : GLib.Object
 
     public void print ()
     {
-        stdout.printf ("Video: %s: %s, %s\n", title,
-                publication_date.to_iso8601 (), page_url);
+        stdout.printf ("Video: %s: %s, %s, %s\n", title,
+                publication_date.to_iso8601 (),
+                offline_date.to_iso8601 (), page_url);
     }
 
     public string get_stream_uri (VideoQuality q, Language lang)
@@ -237,7 +238,7 @@ public class ArteXMLParser : ArteParser
     public override void reset ()
     {
         videos = new GLib.SList<Video>();
-        page = 1;
+        this.page = 1;
         xml_fr = xml_tmpl.printf ("fr", "fr", page);
         xml_de = xml_tmpl.printf ("de", "de", page);
     }
@@ -491,7 +492,7 @@ class ArtePlugin : Totem.Plugin
         /* download and parse */
         try {
             p.reset ();
-            for (int i=5; i>0; i--) {
+            for (int i=1; i<6; i++) {
                 p.set_page (i);
                 p.parse (language);
             }
