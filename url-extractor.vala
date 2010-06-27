@@ -49,8 +49,13 @@ public class WMVStreamUrlExtractor : GLib.Object, Extractor
 
   public WMVStreamUrlExtractor()
   {
-    session = new Soup.SessionAsync.with_options (
-              Soup.SESSION_USER_AGENT, USER_AGENT, null);
+    if (use_http_proxy) {
+      session = new Soup.SessionAsync.with_options (
+        Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
+    } else {
+      session = new Soup.SessionAsync.with_options (
+        Soup.SESSION_USER_AGENT, USER_AGENT, null);
+    }
   }
 
   private string extract_string_from_page (string url, string regexp)

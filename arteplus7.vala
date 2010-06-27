@@ -51,8 +51,11 @@ public enum Language
 public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.3) Gecko/20100403 Firefox/3.6.3";
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
+public const string GCONF_HTTP_PROXY = "/system/http_proxy";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
+public bool use_http_proxy = false;
+public Soup.URI proxy_uri;
 
 public class Video : GLib.Object
 {
@@ -113,9 +116,16 @@ public abstract class ArteParser : GLib.Object
         } else {
             msg = new Soup.Message ("GET", xml_fr);
         }
-
-        var session = new Soup.SessionAsync.with_options (
+        
+        Soup.SessionAsync session;
+        if (use_http_proxy) {
+            session = new Soup.SessionAsync.with_options (
+                Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
+        } else {
+            session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
+        }
+        
         session.send_message(msg);
 
         if (msg.status_code != Soup.KnownStatusCode.OK) {
@@ -509,8 +519,8 @@ class ArtePlugin : Totem.Plugin
             return false;
         } catch (IOError e) {
             /* Network problems */
-            t.action_error (_("IO Error"),
-                _("Sorry, the plugin could not download the Arte video feed."));
+            t.action_error (_("Network problem"),
+                _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings.\nCurrently, only http proxies are supported."));
             tree_lock.unlock ();
             search_entry.set_sensitive (true);
             return false;
@@ -597,9 +607,23 @@ class ArtePlugin : Totem.Plugin
     private void load_properties ()
     {
         var gc = GConf.Client.get_default ();
+        string parsed_proxy_uri = "";
+        int proxy_port;
+        
         try {
             quality = (VideoQuality) gc.get_int (GCONF_ROOT + "/quality");
             language = (Language) gc.get_int (GCONF_ROOT + "/language");
+            use_http_proxy = gc.get_bool (GCONF_HTTP_PROXY + "/use_http_proxy");
+            if (use_http_proxy) {
+                parsed_proxy_uri = gc.get_string (GCONF_HTTP_PROXY + "/host");
+                proxy_port = gc.get_int (GCONF_HTTP_PROXY + "/port");
+                if (parsed_proxy_uri == "") {
+                    use_http_proxy = false; /* necessary to prevent a crash in this case */
+                } else {
+                    proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
+                    GLib.message ("With proxy: %s", proxy_uri.to_string(false));
+                }
+            }
         } catch (GLib.Error e) {
             GLib.warning ("%s", e.message);
         }
@@ -636,11 +660,11 @@ class ArtePlugin : Totem.Plugin
             } else if (e is ExtractionError.DOWNLOAD_FAILED) {
                 /* Network problems */
                 t.action_error (_("Video URL Extraction Error"),
-                        _("Sorry, the plugin could not extract a valid stream URL.\nThere seems to be a network problem."));
+                        _("Sorry, the plugin could not extract a valid stream URL.\nPlease verify your network settings and (if any) your proxy settings.\nCurrently, only http proxies are supported."));
             } else {
                 /* ExtractionError.EXTRACTION_ERROR or an unspecified error */
                 t.action_error (_("Video URL Extraction Error"),
-                        _("Sorry, the plugin could not extract a valid stream URL.\nPerhaps this stream is not yet available, you may retry in a few minutes.\n\nBe aware that this service is only available in Austria, Belgium, Germany, France and Switzerland."));
+                        _("Sorry, the plugin could not extract a valid stream URL.\nPerhaps this stream is not yet available, you may retry in a few minutes.\n\nBe aware that this service is only available for IPs within Austria, Belgium, Germany, France and Switzerland."));
             }
             return;
         }

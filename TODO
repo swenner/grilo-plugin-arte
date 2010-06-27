@@ -1,4 +1,4 @@
 TODO:
  * sort the movies by publishing date
  * add a loading message or animation after selecting a video
- * support gnome proxy settings
+ * support socks proxy

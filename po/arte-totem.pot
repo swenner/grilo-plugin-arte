@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-23 17:43+0200\n"
+"POT-Creation-Date: 2010-06-27 14:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,101 +16,104 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:351
+#: ../arteplus7.vala:361
 msgid "Reload feed"
 msgstr ""
 
-#: ../arteplus7.vala:355
+#: ../arteplus7.vala:365
 msgid "Clear the search text"
 msgstr ""
 
-#: ../arteplus7.vala:384
+#: ../arteplus7.vala:394
 msgid "Arte+7"
 msgstr ""
 
-#: ../arteplus7.vala:414 ../arteplus7.vala:661
+#: ../arteplus7.vala:424 ../arteplus7.vala:685
 msgid "German"
 msgstr ""
 
-#: ../arteplus7.vala:415
+#: ../arteplus7.vala:425
 msgid "French"
 msgstr ""
 
-#: ../arteplus7.vala:422
+#: ../arteplus7.vala:432
 msgid "_medium"
 msgstr ""
 
-#: ../arteplus7.vala:424
+#: ../arteplus7.vala:434
 msgid "_high"
 msgstr ""
 
-#: ../arteplus7.vala:432
+#: ../arteplus7.vala:442
 msgid "Language:"
 msgstr ""
 
-#: ../arteplus7.vala:437
+#: ../arteplus7.vala:447
 msgid "Video quality:"
 msgstr ""
 
-#: ../arteplus7.vala:443
+#: ../arteplus7.vala:453
 msgid "Arte+7 Plugin Properties"
 msgstr ""
 
-#: ../arteplus7.vala:477
+#: ../arteplus7.vala:487
 msgid "Loading..."
 msgstr ""
 
 #. We are screwed!
-#: ../arteplus7.vala:505
+#: ../arteplus7.vala:515
 msgid "Markup Parser Error"
 msgstr ""
 
-#: ../arteplus7.vala:506
+#: ../arteplus7.vala:516
 msgid "Sorry, the plugin could not parse the Arte video feed."
 msgstr ""
 
 #. Network problems
-#: ../arteplus7.vala:512
-msgid "IO Error"
+#: ../arteplus7.vala:522
+msgid "Network problem"
 msgstr ""
 
-#: ../arteplus7.vala:513
-msgid "Sorry, the plugin could not download the Arte video feed."
+#: ../arteplus7.vala:523
+msgid ""
+"Sorry, the plugin could not download the Arte video feed.\n"
+"Please verify your network settings and (if any) your proxy settings.\n"
+"Currently, only http proxies are supported."
 msgstr ""
 
-#: ../arteplus7.vala:541
+#: ../arteplus7.vala:551
 msgid "Less than 1 minute until removal"
 msgstr ""
 
-#: ../arteplus7.vala:543
+#: ../arteplus7.vala:553
 #, c-format
 msgid "Less than %.0f minutes until removal"
 msgstr ""
 
-#: ../arteplus7.vala:546
+#: ../arteplus7.vala:556
 msgid "Less than 1 hour until removal"
 msgstr ""
 
-#: ../arteplus7.vala:548
+#: ../arteplus7.vala:558
 #, c-format
 msgid "Less than %.0f hours until removal"
 msgstr ""
 
-#: ../arteplus7.vala:550
+#: ../arteplus7.vala:560
 msgid "1 day until removal"
 msgstr ""
 
-#: ../arteplus7.vala:552
+#: ../arteplus7.vala:562
 #, c-format
 msgid "%.0f days until removal"
 msgstr ""
 
 #. The video is part of the XML/RSS feed but no stream is available yet
-#: ../arteplus7.vala:634
+#: ../arteplus7.vala:658
 msgid "This video is not available yet"
 msgstr ""
 
-#: ../arteplus7.vala:635
+#: ../arteplus7.vala:659
 msgid ""
 "Sorry, the plugin could not find any stream URL.\n"
 "It seems that this video is not available yet, even on the Arte web-player.\n"
@@ -120,21 +123,22 @@ msgstr ""
 
 #. Network problems
 #. ExtractionError.EXTRACTION_ERROR or an unspecified error
-#: ../arteplus7.vala:638 ../arteplus7.vala:642
+#: ../arteplus7.vala:662 ../arteplus7.vala:666
 msgid "Video URL Extraction Error"
 msgstr ""
 
-#: ../arteplus7.vala:639
+#: ../arteplus7.vala:663
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
-"There seems to be a network problem."
+"Please verify your network settings and (if any) your proxy settings.\n"
+"Currently, only http proxies are supported."
 msgstr ""
 
-#: ../arteplus7.vala:643
+#: ../arteplus7.vala:667
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Perhaps this stream is not yet available, you may retry in a few minutes.\n"
 "\n"
-"Be aware that this service is only available in Austria, Belgium, Germany, "
-"France and Switzerland."
+"Be aware that this service is only available for IPs within Austria, "
+"Belgium, Germany, France and Switzerland."
 msgstr ""
