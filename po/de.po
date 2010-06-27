@@ -70,7 +70,7 @@ msgstr "Entschuldigung, das Plugin konnte den Arte-Videofeed nicht lesen."
 #. Network problems
 #: ../arteplus7.vala:522
 msgid "Network problem"
-msgstr ""
+msgstr "Verbindungsproblem"
 
 #: ../arteplus7.vala:523
 msgid ""
@@ -138,7 +138,6 @@ msgid ""
 msgstr ""
 
 #: ../arteplus7.vala:667
-#, fuzzy
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Perhaps this stream is not yet available, you may retry in a few minutes.\n"
@@ -150,19 +149,6 @@ msgstr ""
 "Vielleicht ist der Stream noch nicht verfügbar, versuche es später "
 "nochmals.\n"
 "\n"
-"Bedenke, dass dieser Service nur in Österreich, Belgien, Deutschland, "
+"Bedenke, dass dieser Service nur für IPs aus Österreich, Belgien, Deutschland, "
 "Frankreich und der Schweiz verfügbar ist."
 
-#~ msgid "IO Error"
-#~ msgstr "IO Fehler"
-
-#~ msgid "Sorry, the plugin could not download the Arte video feed."
-#~ msgstr ""
-#~ "Entschuldigung, das Plugin konnte den Arte-Videofeed nicht herunterladen."
-
-#~ msgid ""
-#~ "Sorry, the plugin could not extract a valid stream URL.\n"
-#~ "There seems to be a network problem."
-#~ msgstr ""
-#~ "Entschuldigung, das Plugin konnte keine gültige Stream URL extrahieren.\n"
-#~ "Es scheint Verbindungsprobleme zu geben."
