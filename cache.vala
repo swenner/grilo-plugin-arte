@@ -30,15 +30,21 @@ using GLib;
 using Gtk;
 using Soup;
 
-public class Cache : GLib.Object {
+public class Cache : GLib.Object
+{
     public string cache_path {get; set;}
     private Soup.Session session;
 
     public Cache (string path)
     {
         cache_path = path;
-        session = new Soup.SessionAsync.with_options (
+        if (use_http_proxy) {
+            session = new Soup.SessionAsync.with_options (
+                Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
+        } else {
+            session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
+        }
 
         /* create the caching directory */
         var dir = GLib.File.new_for_path (cache_path);

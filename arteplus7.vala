@@ -621,7 +621,7 @@ class ArtePlugin : Totem.Plugin
                     use_http_proxy = false; /* necessary to prevent a crash in this case */
                 } else {
                     proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
-                    GLib.message ("With proxy: %s", proxy_uri.to_string(false));
+                    GLib.message ("Using proxy: %s", proxy_uri.to_string (false));
                 }
             }
         } catch (GLib.Error e) {
