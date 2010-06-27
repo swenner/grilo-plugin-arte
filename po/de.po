@@ -78,6 +78,9 @@ msgid ""
 "Please verify your network settings and (if any) your proxy settings.\n"
 "Currently, only http proxies are supported."
 msgstr ""
+"Entschuldigung, das Plugin konnte den Arte-Videofeed nicht herunterladen.\n"
+"Bitte überprüfen sie Ihre Netzwerk- und (falls vorhanden) Proxy-Einstellungen\n"
+"Zur Zeit werden nur HTTP-Proxies unterstützt."
 
 #: ../arteplus7.vala:551
 msgid "Less than 1 minute until removal"
@@ -136,6 +139,9 @@ msgid ""
 "Please verify your network settings and (if any) your proxy settings.\n"
 "Currently, only http proxies are supported."
 msgstr ""
+"Entschuldigung, das Plugin konnte keine gültige Stream URL extrahieren.\n"
+"Bitte überprüfen sie Ihre Netzwerk- und (falls vorhanden) Proxy-Einstellungen\n"
+"Zur Zeit werden nur HTTP-Proxies unterstützt."
 
 #: ../arteplus7.vala:667
 msgid ""
