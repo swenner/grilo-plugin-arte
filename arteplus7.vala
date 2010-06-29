@@ -335,11 +335,11 @@ class ArtePlugin : Totem.Plugin
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
         t = totem;
+        load_properties ();
         cache = new Cache (Environment.get_user_cache_dir ()
              + CACHE_PATH_SUFFIX);
         p = new ArteXMLParser ();
         tree_view = new Gtk.TreeView ();
-        load_properties ();
 
         var renderer = new Totem.CellRendererVideo (false);
         tree_view.insert_column_with_attributes (0, "", renderer,
