@@ -38,9 +38,18 @@ public class Cache : GLib.Object
     public Cache (string path)
     {
         cache_path = path;
-        if (use_http_proxy) {
+        if (use_proxy) {
             session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
+
+            session.authenticate.connect((sess, msg, auth, retrying) => { /* watch if authentication is needed */
+                if (!retrying) {
+                    auth.authenticate (proxy_username, proxy_password);
+                } else {
+                    stdout.printf ("Proxy authentication failed!\n");
+                }
+            });
+
         } else {
             session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
@@ -48,14 +57,14 @@ public class Cache : GLib.Object
 
         /* create the caching directory */
         var dir = GLib.File.new_for_path (cache_path);
-		if (!dir.query_exists (null)) {
-			try {
-				dir.make_directory_with_parents (null);
-				GLib.message ("Directory '%s' created", dir.get_path ());
-			} catch (Error e) {
-				GLib.error ("Could not create caching directory.");
-			}
-		}
+        if (!dir.query_exists (null)) {
+            try {
+                dir.make_directory_with_parents (null);
+                GLib.message ("Directory '%s' created", dir.get_path ());
+            } catch (Error e) {
+                GLib.error ("Could not create caching directory.");
+            }
+        }
     }
 
     public string? get_data_path (string url)
@@ -65,7 +74,7 @@ public class Cache : GLib.Object
                 + Checksum.compute_for_string (ChecksumType.MD5, url);
 
         var file = GLib.File.new_for_path (file_path);
-		if (file.query_exists (null)) {
+        if (file.query_exists (null)) {
             return file_path;
         }
 
@@ -99,7 +108,7 @@ public class Cache : GLib.Object
         Gdk.Pixbuf pb = null;
 
         var file = GLib.File.new_for_path (file_path);
-		if (file.query_exists (null)) {
+        if (file.query_exists (null)) {
             try {
                 pb = new Gdk.Pixbuf.from_file (file_path);
             } catch (Error e) {

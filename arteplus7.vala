@@ -54,8 +54,10 @@ public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string GCONF_HTTP_PROXY = "/system/http_proxy";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
-public bool use_http_proxy = false;
+public bool use_proxy = false;
 public Soup.URI proxy_uri;
+public string proxy_username;
+public string proxy_password;
 
 public class Video : GLib.Object
 {
@@ -117,16 +119,25 @@ public abstract class ArteParser : GLib.Object
         } else {
             msg = new Soup.Message ("GET", xml_fr);
         }
-        
+
         Soup.SessionAsync session;
-        if (use_http_proxy) {
+        if (use_proxy) {
             session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
+
+            session.authenticate.connect((sess, msg, auth, retrying) => { /* watch if authentication is needed */
+                if (!retrying) {
+                    auth.authenticate (proxy_username, proxy_password);
+                } else {
+                    stdout.printf ("Proxy authentication failed!\n");
+                }
+            });
+
         } else {
             session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
         }
-        
+
         session.send_message(msg);
 
         if (msg.status_code != Soup.KnownStatusCode.OK) {
@@ -614,15 +625,17 @@ class ArtePlugin : Totem.Plugin
         try {
             quality = (VideoQuality) gc.get_int (GCONF_ROOT + "/quality");
             language = (Language) gc.get_int (GCONF_ROOT + "/language");
-            use_http_proxy = gc.get_bool (GCONF_HTTP_PROXY + "/use_http_proxy");
-            if (use_http_proxy) {
+            use_proxy = gc.get_bool (GCONF_HTTP_PROXY + "/use_http_proxy");
+            if (use_proxy) {
                 parsed_proxy_uri = gc.get_string (GCONF_HTTP_PROXY + "/host");
                 proxy_port = gc.get_int (GCONF_HTTP_PROXY + "/port");
                 if (parsed_proxy_uri == "") {
-                    use_http_proxy = false; /* necessary to prevent a crash in this case */
+                    use_proxy = false; /* necessary to prevent a crash in this case */
                 } else {
                     proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
                     GLib.message ("Using proxy: %s", proxy_uri.to_string (false));
+                    proxy_username = gc.get_string (GCONF_HTTP_PROXY + "/authentication_user");
+                    proxy_password = gc.get_string (GCONF_HTTP_PROXY + "/authentication_password");
                 }
             }
         } catch (GLib.Error e) {

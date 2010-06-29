@@ -49,9 +49,18 @@ public class WMVStreamUrlExtractor : GLib.Object, Extractor
 
   public WMVStreamUrlExtractor()
   {
-    if (use_http_proxy) {
+    if (use_proxy) {
       session = new Soup.SessionAsync.with_options (
         Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
+
+        session.authenticate.connect((sess, msg, auth, retrying) => { /* watch if authentication is needed */
+          if (!retrying) {
+            auth.authenticate (proxy_username, proxy_password);
+          } else {
+            stdout.printf ("Proxy authentication failed!\n");
+          }
+        });
+
     } else {
       session = new Soup.SessionAsync.with_options (
         Soup.SESSION_USER_AGENT, USER_AGENT, null);
