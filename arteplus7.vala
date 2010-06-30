@@ -532,7 +532,7 @@ class ArtePlugin : Totem.Plugin
         } catch (IOError e) {
             /* Network problems */
             t.action_error (_("Network problem"),
-                _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings.\nCurrently, only http proxies are supported."));
+                _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings."));
             tree_lock.unlock ();
             search_entry.set_sensitive (true);
             return false;
@@ -674,7 +674,7 @@ class ArtePlugin : Totem.Plugin
             } else if (e is ExtractionError.DOWNLOAD_FAILED) {
                 /* Network problems */
                 t.action_error (_("Video URL Extraction Error"),
-                        _("Sorry, the plugin could not extract a valid stream URL.\nPlease verify your network settings and (if any) your proxy settings.\nCurrently, only http proxies are supported."));
+                        _("Sorry, the plugin could not extract a valid stream URL.\nPlease verify your network settings and (if any) your proxy settings."));
             } else {
                 /* ExtractionError.EXTRACTION_ERROR or an unspecified error */
                 t.action_error (_("Video URL Extraction Error"),
