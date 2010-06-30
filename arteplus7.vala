@@ -645,8 +645,13 @@ class ArtePlugin : Totem.Plugin
             quality = VideoQuality.WMV_HQ;
             store_properties ();
         }
-        if (language == Language.UNKNOWN) { /* French is the default language */
-            language = Language.FRENCH;
+        if (language == Language.UNKNOWN) { /* Try to guess user prefer language at first run */
+            var env_lang = Environment.get_variable ("LANG");
+            if (env_lang.substring (0,2) == "de") {
+                language = Language.GERMAN;
+            } else {
+                language = Language.FRENCH; /* Otherwise, French is the default language */
+            }
             store_properties ();
         }
     }
