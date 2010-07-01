@@ -647,7 +647,7 @@ class ArtePlugin : Totem.Plugin
         }
         if (language == Language.UNKNOWN) { /* Try to guess user prefer language at first run */
             var env_lang = Environment.get_variable ("LANG");
-            if (env_lang.substring (0,2) == "de") {
+            if (env_lang != null && env_lang.substring (0,2) == "de") {
                 language = Language.GERMAN;
             } else {
                 language = Language.FRENCH; /* Otherwise, French is the default language */
