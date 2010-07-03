@@ -59,6 +59,28 @@ public Soup.URI proxy_uri;
 public string proxy_username;
 public string proxy_password;
 
+public static Soup.SessionAsync create_session ()
+    {
+        Soup.SessionAsync session;
+        if (use_proxy) {
+            session = new Soup.SessionAsync.with_options (
+                Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
+
+            session.authenticate.connect((sess, msg, auth, retrying) => { /* watch if authentication is needed */
+                if (!retrying) {
+                    auth.authenticate (proxy_username, proxy_password);
+                } else {
+                    GLib.warning ("Proxy authentication failed!\n");
+                }
+            });
+
+        } else {
+            session = new Soup.SessionAsync.with_options (
+                Soup.SESSION_USER_AGENT, USER_AGENT, null);
+        }
+    return session;
+    }
+
 public class Video : GLib.Object
 {
     public string title = null;

@@ -33,27 +33,12 @@ using Soup;
 public class Cache : GLib.Object
 {
     public string cache_path {get; set;}
-    private Soup.Session session;
+    private Soup.SessionAsync session;
 
     public Cache (string path)
     {
         cache_path = path;
-        if (use_proxy) {
-            session = new Soup.SessionAsync.with_options (
-                Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
-
-            session.authenticate.connect((sess, msg, auth, retrying) => { /* watch if authentication is needed */
-                if (!retrying) {
-                    auth.authenticate (proxy_username, proxy_password);
-                } else {
-                    GLib.warning ("Proxy authentication failed!\n");
-                }
-            });
-
-        } else {
-            session = new Soup.SessionAsync.with_options (
-                Soup.SESSION_USER_AGENT, USER_AGENT, null);
-        }
+        session = create_session ();
 
         /* create the caching directory */
         var dir = GLib.File.new_for_path (cache_path);
