@@ -45,19 +45,19 @@ public interface Extractor : GLib.Object
 public class WMVStreamUrlExtractor : GLib.Object, Extractor
 {
   private Soup.SessionAsync session;
-  private const bool verbose = false; /* enables debug messages */
+  private const bool verbose = true; /* enables debug messages */
 
   public WMVStreamUrlExtractor()
   {
     if (use_proxy) {
-      session = new Soup.SessionAsync.with_options (
+      new Soup.SessionAsync.with_options (
         Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
 
         session.authenticate.connect((sess, msg, auth, retrying) => { /* watch if authentication is needed */
           if (!retrying) {
             auth.authenticate (proxy_username, proxy_password);
           } else {
-            stdout.printf ("Proxy authentication failed!\n");
+            GLib.warning ("Proxy authentication failed!\n");
           }
         });
 

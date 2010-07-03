@@ -46,7 +46,7 @@ public class Cache : GLib.Object
                 if (!retrying) {
                     auth.authenticate (proxy_username, proxy_password);
                 } else {
-                    stdout.printf ("Proxy authentication failed!\n");
+                    GLib.warning ("Proxy authentication failed!\n");
                 }
             });
 
