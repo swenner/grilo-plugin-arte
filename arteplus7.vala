@@ -142,23 +142,7 @@ public abstract class ArteParser : GLib.Object
             msg = new Soup.Message ("GET", xml_fr);
         }
 
-        Soup.SessionAsync session;
-        if (use_proxy) {
-            session = new Soup.SessionAsync.with_options (
-                Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
-
-            session.authenticate.connect((sess, msg, auth, retrying) => { /* watch if authentication is needed */
-                if (!retrying) {
-                    auth.authenticate (proxy_username, proxy_password);
-                } else {
-                    GLib.warning ("Proxy authentication failed!\n");
-                }
-            });
-
-        } else {
-            session = new Soup.SessionAsync.with_options (
-                Soup.SESSION_USER_AGENT, USER_AGENT, null);
-        }
+        Soup.SessionAsync session = create_session ();
 
         session.send_message(msg);
 
