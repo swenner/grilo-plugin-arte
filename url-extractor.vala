@@ -42,17 +42,17 @@ public interface Extractor : GLib.Object
       throws ExtractionError;
 }
 
-public class WMVStreamUrlExtractor : GLib.Object, Extractor
+public class StreamUrlExtractor : GLib.Object
 {
-  private Soup.SessionAsync session;
-  private const bool verbose = true; /* enables debug messages */
+  protected Soup.SessionAsync session;
+  protected const bool verbose = true; /* enables debug messages */
 
-  public WMVStreamUrlExtractor ()
+  public StreamUrlExtractor()
   {
     session = create_session ();
   }
 
-  private string extract_string_from_page (string url, string regexp)
+  protected string extract_string_from_page (string url, string regexp)
       throws ExtractionError
   {
     /* Download */
@@ -75,7 +75,22 @@ public class WMVStreamUrlExtractor : GLib.Object, Extractor
 
     return res;
   }
+}
 
+public class MP4StreamUrlExtractor : StreamUrlExtractor, Extractor
+{
+  public string get_url (VideoQuality q, Language lang, string page_url)
+      throws ExtractionError
+  {
+    // TODO
+
+    return "INVALID";
+  }
+}
+
+/* Dead Extractor since July 3, 2010 */
+public class WMVStreamUrlExtractor : StreamUrlExtractor, Extractor
+{
   public string get_url (VideoQuality q, Language lang, string page_url)
       throws ExtractionError
   {
