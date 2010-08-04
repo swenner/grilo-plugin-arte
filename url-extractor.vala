@@ -158,7 +158,13 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
         throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
     }
     
-    /* Build the stream URI as librtmp wants it */
+    /* Build the stream URI
+     * To prevent regular disconnections (and so to keep the plugin usable),
+     * we need to pass the Flash player uri to GStreamer.
+     * We do that by appending it to the stream uri.
+     * (see the librtmp manual for more information) */
+    // Example:
+    // rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_042143-002-A_PG_HQ_FR?h=d7878fae5c9726844d22da78e05f764e swfVfy=1 swfUrl=http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf
     string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + flash_player_uri;
     if (verbose)
       stdout.printf ("Build stream URI:\t\t%s\n", stream_uri);
