@@ -44,11 +44,11 @@ msgstr "_haute"
 
 #: ../arteplus7.vala:454
 msgid "Language:"
-msgstr "Langage :"
+msgstr "Langage :"
 
 #: ../arteplus7.vala:459
 msgid "Video quality:"
-msgstr "Qualité vidéo :"
+msgstr "Qualité vidéo :"
 
 #: ../arteplus7.vala:465
 msgid "Arte+7 Plugin Properties"
@@ -122,7 +122,7 @@ msgid ""
 msgstr ""
 "Désolé, le greffon n'a pas pu trouver la moindre adresse de flux.\n"
 "Il semble que cette vidéo ne soit pas encore disponible, même depuis le "
-"lecteur du site de Arte !\n"
+"lecteur du site de Arte !\n"
 "\n"
 "Réessayez plus tard."
 
@@ -150,7 +150,7 @@ msgid ""
 "Belgium, Germany, France and Switzerland."
 msgstr ""
 "Désolé, le greffon n'a pas pu extraire une adresse de flux valide.\n"
-"Il est possible que le flux ne soit pas encore disponible,vous pouvez "
+"Il est possible que le flux ne soit pas encore disponible, vous pouvez "
 "réessayer dans quelques minutes.\n"
 "\n"
 "Notez que ce service n'est disponible que si votre IP est allemande, "
