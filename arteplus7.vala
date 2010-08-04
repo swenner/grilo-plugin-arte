@@ -106,7 +106,7 @@ public class Video : GLib.Object
     public string get_stream_uri (VideoQuality q, Language lang)
         throws ExtractionError
     {
-        var extractor = new WMVStreamUrlExtractor ();
+        var extractor = new RTMPStreamUrlExtractor ();
         return extractor.get_url (q, lang, page_url);
     }
 }

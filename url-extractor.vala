@@ -77,19 +77,7 @@ public class StreamUrlExtractor : GLib.Object
   }
 }
 
-public class MP4StreamUrlExtractor : StreamUrlExtractor, Extractor
-{
-  public string get_url (VideoQuality q, Language lang, string page_url)
-      throws ExtractionError
-  {
-    // TODO
-
-    return "INVALID";
-  }
-}
-
-/* Dead Extractor since July 3, 2010 */
-public class WMVStreamUrlExtractor : StreamUrlExtractor, Extractor
+public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
 {
   public string get_url (VideoQuality q, Language lang, string page_url)
       throws ExtractionError
@@ -107,6 +95,16 @@ public class WMVStreamUrlExtractor : StreamUrlExtractor, Extractor
     string quali_str = "hd";
     if (q == VideoQuality.WMV_MQ)
       quali_str = "sd";
+
+    /* Get the Arte Flash player URI */
+    // Example:
+    // var url_player = "http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf";
+    regexp = "var url_player = \"(http://.*.swf)\";";
+    var flash_player_uri = extract_string_from_page (page_url, regexp);
+    if (verbose)
+      stdout.printf ("Extract Flash player URI:\t%s\n", flash_player_uri);
+    if (flash_player_uri == null)
+      throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
     /* Get the Flash XML data */
     // Example:
@@ -131,11 +129,11 @@ public class WMVStreamUrlExtractor : StreamUrlExtractor, Extractor
     if (url == null)
       throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
-    /* Get the RTMP uri, we don't have to care about the hash. */
+    /* Get the RTMP uri. */
     // Example:
-    // <url quality="hd">rtmp://artestras.fcod.llnwd.net/a3903/o35/geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_16_037811-000-A_PG_HQ_FR?h=d25651dc20ccdf2e8fce4839fccbd6b7</url>
-    // <url quality="sd">rtmp://artestras.fcod.llnwd.net/a3903/o35/geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_14_037811-000-A_PG_MQ_FR?h=53699c6ac8729bcb3af3a89520c0c46c</url>
-    regexp = "quality=\"" + quali_str + "\">(rtmp://.*)[?]h=";
+    // <url quality="hd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_037778-021-B_PG_HQ_FR?h=7258f52f54eb0d320f6650e647432f03</url>
+    // <url quality="sd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_06_037778-021-B_PG_MQ_FR?h=76c529bce0f034e74dc92a14549d6a4e</url>
+    regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
     var rtmp_uri = extract_string_from_page (url, regexp);
     if (verbose)
       stdout.printf ("Extract RTMP URI:\t\t%s\n", rtmp_uri);
@@ -151,7 +149,7 @@ public class WMVStreamUrlExtractor : StreamUrlExtractor, Extractor
         quali_str = "hd";
         GLib.message ("No medium quality stream available. Fallback to high quality.");
       }
-      regexp = "quality=\"" + quali_str + "\">(rtmp://.*)[?]h=";
+      regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
       rtmp_uri = extract_string_from_page (url, regexp);
       if (verbose)
         stdout.printf ("Extract RTMP URI:\t\t%s\n", rtmp_uri);
@@ -159,73 +157,74 @@ public class WMVStreamUrlExtractor : StreamUrlExtractor, Extractor
       if (rtmp_uri == null)
         throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
     }
+    
+    /* Build the stream URI as librtmp wants it */
+    string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + flash_player_uri;
+    if (verbose)
+      stdout.printf ("Build stream URI:\t\t%s\n", stream_uri);
 
-    /* Get the video id and server id from the RTMP uri */
+    return stream_uri;
+  }
+}
+
+/* This extractor use "EQ" quality links provided by Arte. */
+// While writing this, these links do not work.
+// So this extractor stays here, waiting for its time...
+public class MP4StreamUrlExtractor : StreamUrlExtractor, Extractor
+{
+  public string get_url (VideoQuality q, Language lang, string page_url)
+      throws ExtractionError
+  {
+    string regexp, url;
+    if (verbose)
+      stdout.printf ("Initial Page URL:\t\t%s\n", page_url);
+
+    /* Setup the language string */
+    string lang_str = "fr";
+    if (lang == Language.GERMAN)
+      lang_str = "de";
+
+    /* Get the Flash XML data */
     // Example:
-    // rtmp://artestras.fcod.llnwd.net/a3903/o35/geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_16_037811-000-A_PG_HQ_FR
-    regexp = "videothek/(.*)/arteprod/(.*)";
-    string sid = null, id = null;
-    try {
-      MatchInfo match;
-      var regex = new Regex (regexp);
-      regex.match(rtmp_uri, 0, out match);
-      sid = match.fetch(1);
-      id = match.fetch(2);
-    } catch (RegexError e) {
-        GLib.warning ("%s", e.message);
-    }
-    if (verbose) {
-      stdout.printf ("Extract Server ID:\t\t%s\n", sid);
-      stdout.printf ("Extract Video ID:\t\t%s\n", id);
-    }
+    // vars_player.videorefFileUrl = "http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219416,view,asPlayerXml.xml";
+    regexp = "videorefFileUrl = \"(http://.*.xml)\";";
+    url = extract_string_from_page (page_url, regexp);
+    if (verbose)
+      stdout.printf ("Extract Flash Videoref:\t\t%s\n", url);
 
-    if (sid == null || id == null)
+    if (url == null)
       throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
-    /* Get the encoding of the video */
+    /* Get the language specific flash XML data */
     // Example:
-    // A7_SGT_ENC_16_042378-018-A_PG_HQ_FR
-    regexp = "(.*ENC_)([0-9]*)(_.*)";
-    string enc = null, front = null, tail = null;
-    try {
-      MatchInfo match;
-      var regex = new Regex (regexp);
-      regex.match(id, 0, out match);
-      front = match.fetch(1);
-      enc = match.fetch(2);
-      tail = match.fetch(3);
-    } catch (RegexError e) {
-        GLib.warning ("%s", e.message);
-    }
+    // <video lang="de" ref="http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219418,view,asPlayerXml.xml"/>
+    // <video lang="fr" ref="http://videos.arte.tv/fr/do_delegate/videos/secrets_de_plantes-3219420,view,asPlayerXml.xml"/>
+    regexp = "video lang=\"" + lang_str + "\" ref=\"(http://.*.xml)\"";
+    url = extract_string_from_page (url, regexp);
     if (verbose)
-      stdout.printf ("Extract Video Encoding:\t\t%s\n", enc);
+      stdout.printf ("Extract Flash Lang Videoref:\t%s\n", url);
 
-    if (front == null || enc == null || tail == null)
+    if (url == null) {
       throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
+    }
 
-    /* Subtract 8 from the encoding, this gives us WMV encoding */
-    int new_enc = enc.to_int () - 8;
+    /* Get the EQ uri */
+    // Example:
+    // <url quality="EQ">http://artestras.wmod.rd.llnw.net/geo/arte7/EUR_DE_FR/arteprod/A7_SGT_ENC_16_037778-021-B_PG_EQ_FR.mp4</url>
+    regexp = "quality=\"EQ\">(http://.*.mp4)";
+    var eq_uri = extract_string_from_page (url, regexp);
     if (verbose)
-      stdout.printf ("New Video Encoding:\t\t%02d\n", new_enc);
-
-    /* Build the new video ID with the new encoding */
-    string new_id = front + "%02d".printf(new_enc) + tail;
-
-    /* Build the new URI to the WMV server */
-    string wmv_url = "http://artestras.wmod.rd.llnw.net/geo/arte7/" + sid +
-                     "/arteprod/" + new_id + ".wmv";
-    if (verbose)
-      stdout.printf ("Build new WMV URI:\t\t%s\n", wmv_url);
+      stdout.printf ("Extract EQ URI:\t\t%s\n", eq_uri);
 
     /* Extract the real url */
     // Example:
-    // <REF HREF="mms://artestras.wmod.llnwd.net/a3903/o35/geo/arte7/ALL/arteprod/A7_SGT_ENC_08_042378-018-A_PG_HQ_FR.wmv?e=1274541080&amp;h=b9da65df4958eb14d1c1f17c9e03c460"/>
+    // <REF HREF="mms://artestras.wmod.llnwd.net/a3903/o35/geo/arte7/EUR_DE_FR/arteprod/A7_SGT_ENC_16_037778-021-B_PG_EQ_FR.mp4?e=1280957332&amp;h=3ab8ed22003545b1f46c6a595d5c6475"/>
     regexp = "\"(mms://.*)\"";
-    var real_url = extract_string_from_page (wmv_url, regexp);
+    var real_url = extract_string_from_page (eq_uri, regexp);
     if (verbose)
       stdout.printf ("Extract Real WMV URL:\t\t%s\n", real_url);
 
-    /* We did it!!! :-) */
     return real_url;
   }
 }
+
