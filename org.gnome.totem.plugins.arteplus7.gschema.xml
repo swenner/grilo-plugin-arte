@@ -4,12 +4,12 @@
     <key name="quality" type="i">
       <default>0</default>
       <summary>Quality</summary>
-      <description>TODO</description>
+      <description>The video stream quality.</description>
     </key>
     <key name="language" type="i">
       <default>0</default>
       <summary>Language</summary>
-      <description>TODO</description>
+      <description>The language of the video stream (French or German).</description>
     </key>
   </schema>
 </schemalist>
