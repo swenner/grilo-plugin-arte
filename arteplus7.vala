@@ -245,7 +245,7 @@ public class ArteXMLParser : ArteParser
     public int page = 1;
     /* Parses the XML feed of the Flash preview plugin */
     private const string xml_tmpl =
-        "http://videos.arte.tv/%s/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=%s//date//%d/20/";
+        "http://videos.arte.tv/%s/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=%s////%d/10/";
 
     public ArteXMLParser ()
     {
@@ -509,11 +509,12 @@ class ArtePlugin : Totem.Plugin
         /* download and parse */
         try {
             p.reset ();
-            for (int i=1; i<6; i++) {
+            for (int i=1; i<10; i++) {
                 p.set_page (i);
                 p.parse (language);
+                GLib.message ("Fetching page %d: Video count: %u", i, p.videos.length ());
             }
-            GLib.message ("Video Count: %u", p.videos.length ());
+            GLib.message ("Total video count: %u", p.videos.length ());
             /* sort the videos by removal date */
             p.videos.sort ((a, b) => {
                 return (int) (((Video) a).offline_date.tv_sec > ((Video) b).offline_date.tv_sec);
@@ -548,7 +549,19 @@ class ArtePlugin : Totem.Plugin
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
                 typeof (string), typeof (string), typeof (Video));
 
+       /* save the last move to detect duplicates */
+       Video last_video = null;
+       int videocount = 0;
+
         foreach (Video v in p.videos) {
+            /* check for duplicates */
+            if (last_video != null && v.page_url == last_video.page_url) {
+              last_video = v;
+              continue;
+            }
+            last_video = v;
+            videocount++;
+
             listmodel.append (out iter);
 
             string desc_str;
@@ -596,6 +609,7 @@ class ArtePlugin : Totem.Plugin
         tree_lock.unlock ();
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
+        GLib.message ("Unique video count: %d", videocount);
         return false;
     }
 
