@@ -60,26 +60,28 @@ public string proxy_username;
 public string proxy_password;
 
 public static Soup.SessionAsync create_session ()
-    {
-        Soup.SessionAsync session;
-        if (use_proxy) {
-            session = new Soup.SessionAsync.with_options (
-                Soup.SESSION_USER_AGENT, USER_AGENT, Soup.SESSION_PROXY_URI, proxy_uri, null);
+{
+    Soup.SessionAsync session;
+    if (use_proxy) {
+        session = new Soup.SessionAsync.with_options (
+                Soup.SESSION_USER_AGENT, USER_AGENT,
+                Soup.SESSION_PROXY_URI, proxy_uri, null);
 
-            session.authenticate.connect((sess, msg, auth, retrying) => { /* watch if authentication is needed */
-                if (!retrying) {
-                    auth.authenticate (proxy_username, proxy_password);
-                } else {
-                    GLib.warning ("Proxy authentication failed!\n");
-                }
-            });
-
-        } else {
-            session = new Soup.SessionAsync.with_options (
+        session.authenticate.connect((sess, msg, auth, retrying) => {
+            /* watch if authentication is needed */
+            if (!retrying) {
+                auth.authenticate (proxy_username, proxy_password);
+            } else {
+                GLib.warning ("Proxy authentication failed!\n");
+            }
+        });
+    } else {
+        session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
-        }
-    return session;
     }
+    session.timeout = 10; /* 10 seconds timeout, until we give up and show an error message */
+    return session;
+}
 
 public class Video : GLib.Object
 {
@@ -144,7 +146,7 @@ public abstract class ArteParser : GLib.Object
 
         Soup.SessionAsync session = create_session ();
 
-        session.send_message(msg);
+        session.send_message (msg);
 
         if (msg.status_code != Soup.KnownStatusCode.OK) {
             throw new IOError.HOST_NOT_FOUND ("plus7.arte.tv could not be accessed.");
