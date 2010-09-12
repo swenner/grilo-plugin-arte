@@ -1,3 +1,10 @@
+2010 September - Totem Arte Plugin 0.9.0
+
+ * Proxy support using the GNOME proxy settings (Nicolas Delvaux)
+ * The plugin tries to guess the user language at the first run (Nicolas Delvaux)
+ * Add an RTMP stream extractor, remove the deprecated WMV extractor (Nicolas Delvaux)
+ * Improved fetching of the XML feed
+
 2010 May - Totem Arte Plugin 0.8.4
 
  * Arte changed their video service
