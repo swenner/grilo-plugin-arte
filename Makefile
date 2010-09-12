@@ -15,6 +15,10 @@ install:
 	cp -f libarteplus7.so $(DESTDIR)/usr/lib/totem/plugins/arteplus7
 	cp -f arteplus7-default.png $(DESTDIR)/usr/share/totem/plugins/arteplus7
 
+	mkdir -p $(DESTDIR)/usr/share/glib-2.0/schemas
+	cp -f org.gnome.totem.plugins.arteplus7.gschema.xml $(DESTDIR)/usr/share/glib-2.0/schemas
+	glib-compile-schemas $(DESTDIR)/usr/share/glib-2.0/schemas/
+
 	mkdir -p $(DESTDIR)/usr/share/locale/de/LC_MESSAGES
 	mkdir -p $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES
 	cp -f po/de.mo $(DESTDIR)/usr/share/locale/de/LC_MESSAGES/totem-arte.mo
@@ -22,6 +26,8 @@ install:
 
 uninstall:
 	rm -r $(DESTDIR)/usr/lib/totem/plugins/arteplus7 $(DESTDIR)/usr/share/totem/plugins/arteplus7
+	rm $(DESTDIR)/usr/share/glib-2.0/schemas/org.gnome.totem.plugins.arteplus7.gschema.xml
+	glib-compile-schemas $(DESTDIR)/usr/share/glib-2.0/schemas/
 	rm $(DESTDIR)/usr/share/locale/de/LC_MESSAGES/totem-arte.mo
 	rm $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/totem-arte.mo
 

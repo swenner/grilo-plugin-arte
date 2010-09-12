@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<schemalist>
+  <schema id="org.gnome.totem.plugins.arteplus7" path="/apps/totem/plugins/arteplus7/">
+    <key name="quality" type="i">
+      <default>0</default>
+      <summary>Quality</summary>
+      <description>TODO</description>
+    </key>
+    <key name="language" type="i">
+      <default>0</default>
+      <summary>Language</summary>
+      <description>TODO</description>
+    </key>
+  </schema>
+</schemalist>

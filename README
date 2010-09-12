@@ -12,6 +12,7 @@ libtotem-plparser
 Vala >= 0.7.10
 Gtk+2.0
 libsoup2.4
+libglib >= 2.25.15
 gconf
 gstreamer-plugins-bad >= 0.10.20
 

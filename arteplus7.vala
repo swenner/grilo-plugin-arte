@@ -51,6 +51,7 @@ public enum Language
 public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.10) Gecko/20100915 Firefox/3.6.10";
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
+public const string DCONF_ID = "org.gnome.totem.plugins.arteplus7";
 public const string GCONF_HTTP_PROXY = "/system/http_proxy";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
@@ -683,28 +684,29 @@ class ArtePlugin : Totem.Plugin
         }
     }
 
-    /* stores properties in gconf */
+    /* stores properties in dconf */
     private void store_properties ()
     {
-        var gc = GConf.Client.get_default ();
-        try {
-            gc.set_int (GCONF_ROOT + "/quality", (int) quality);
-            gc.set_int (GCONF_ROOT + "/language", (int) language);
-        } catch (GLib.Error e) {
-            GLib.warning ("%s", e.message);
+        var settings = new GLib.Settings (DCONF_ID);
+        if (!settings.set_int ("quality", (int) quality)) {
+            GLib.warning ("Storing the quality setting failed.");
+        }
+        if (!settings.set_int ("language", (int) language)) {
+            GLib.warning ("Storing the language setting failed.");
         }
     }
 
-    /* loads properties from gconf */
+    /* loads properties from dconf */
     private void load_properties ()
     {
         var gc = GConf.Client.get_default ();
+        var settings = new GLib.Settings (DCONF_ID);
         string parsed_proxy_uri = "";
         int proxy_port;
-        
+
         try {
-            quality = (VideoQuality) gc.get_int (GCONF_ROOT + "/quality");
-            language = (Language) gc.get_int (GCONF_ROOT + "/language");
+            quality = (VideoQuality) settings.get_int ("quality");
+            language = (Language) settings.get_int ("language");
             use_proxy = gc.get_bool (GCONF_HTTP_PROXY + "/use_http_proxy");
             if (use_proxy) {
                 parsed_proxy_uri = gc.get_string (GCONF_HTTP_PROXY + "/host");
