@@ -4,6 +4,7 @@
  * The plugin tries to guess the user language at the first run (Nicolas Delvaux)
  * Add an RTMP stream extractor, remove the deprecated WMV extractor (Nicolas Delvaux)
  * Improved fetching of the XML feed
+ * Minor bugfixes
 
 2010 May - Totem Arte Plugin 0.8.4
 

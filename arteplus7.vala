@@ -49,7 +49,7 @@ public enum Language
 }
 
 public const string USER_AGENT =
-    "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.3) Gecko/20100403 Firefox/3.6.3";
+    "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8";
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string GCONF_HTTP_PROXY = "/system/http_proxy";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
@@ -79,7 +79,7 @@ public static Soup.SessionAsync create_session ()
         session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
     }
-    session.timeout = 10; /* 10 seconds timeout, until we give up and show an error message */
+    session.timeout = 15; /* 15 seconds timeout, until we give up and show an error message */
     return session;
 }
 
