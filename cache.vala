@@ -97,7 +97,7 @@ public class Cache : GLib.Object
             try {
                 pb = new Gdk.Pixbuf.from_file (file_path);
             } catch (Error e) {
-                GLib.error ("%s", e.message);
+                GLib.warning ("%s", e.message);
                 return null;
             }
             return pb;
@@ -120,7 +120,7 @@ public class Cache : GLib.Object
             pb = new Gdk.Pixbuf.from_stream_at_scale (img_stream,
                     THUMBNAIL_WIDTH, -1, true, null);
         } catch (GLib.Error e) {
-            GLib.error ("%s", e.message);
+            GLib.warning ("%s", e.message);
             return null;
         }
 
