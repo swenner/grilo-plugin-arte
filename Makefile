@@ -10,10 +10,10 @@ all:
 	msgfmt --output-file=po/fr.mo po/fr.po
 
 install:
-	mkdir -p $(DESTDIR)/usr/lib/totem/plugins/arteplus7
+	mkdir -p $(DESTDIR)/usr/lib/totem/plugins/arteplus7 $(DESTDIR)/usr/share/totem/plugins/arteplus7
 	cp -f arteplus7.totem-plugin $(DESTDIR)/usr/lib/totem/plugins/arteplus7
 	cp -f libarteplus7.so $(DESTDIR)/usr/lib/totem/plugins/arteplus7
-	cp -f arteplus7-default.png $(DESTDIR)/usr/lib/totem/plugins/arteplus7
+	cp -f arteplus7-default.png $(DESTDIR)/usr/share/totem/plugins/arteplus7
 
 	mkdir -p $(DESTDIR)/usr/share/locale/de/LC_MESSAGES
 	mkdir -p $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES
@@ -27,7 +27,7 @@ install-home:
 	cp -f arteplus7-default.png ~/.local/share/totem/plugins/
 
 uninstall:
-	rm -r $(DESTDIR)/usr/lib/totem/plugins/arteplus7
+	rm -r $(DESTDIR)/usr/lib/totem/plugins/arteplus7 $(DESTDIR)/usr/share/totem/plugins/arteplus7
 	rm $(DESTDIR)/usr/share/locale/de/LC_MESSAGES/totem-arte.mo
 	rm $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/totem-arte.mo
 

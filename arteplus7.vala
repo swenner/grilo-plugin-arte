@@ -54,7 +54,7 @@ public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string GCONF_HTTP_PROXY = "/system/http_proxy";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
-public const string DEFAULT_THUMBNAIL = "/usr/lib/totem/plugins/arteplus7/arteplus7-default.png";
+public const string DEFAULT_THUMBNAIL = "/usr/share/totem/plugins/arteplus7/arteplus7-default.png";
 public bool use_proxy = false;
 public Soup.URI proxy_uri;
 public string proxy_username;
