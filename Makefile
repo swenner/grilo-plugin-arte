@@ -13,6 +13,7 @@ install:
 	mkdir -p $(DESTDIR)/usr/lib/totem/plugins/arteplus7
 	cp -f arteplus7.totem-plugin $(DESTDIR)/usr/lib/totem/plugins/arteplus7
 	cp -f libarteplus7.so $(DESTDIR)/usr/lib/totem/plugins/arteplus7
+	cp -f arteplus7-default.png $(DESTDIR)/usr/lib/totem/plugins/arteplus7
 
 	mkdir -p $(DESTDIR)/usr/share/locale/de/LC_MESSAGES
 	mkdir -p $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES
@@ -23,6 +24,7 @@ install-home:
 	mkdir -p ~/.local/share/totem/plugins/
 	cp -f arteplus7.totem-plugin ~/.local/share/totem/plugins/
 	cp -f libarteplus7.so ~/.local/share/totem/plugins/
+	cp -f arteplus7-default.png ~/.local/share/totem/plugins/
 
 uninstall:
 	rm -r $(DESTDIR)/usr/lib/totem/plugins/arteplus7
@@ -32,6 +34,7 @@ uninstall:
 uninstall-home:
 	rm ~/.local/share/totem/plugins/arteplus7.totem-plugin
 	rm ~/.local/share/totem/plugins/libarteplus7.so
+	rm ~/.local/share/totem/plugins/arteplus7-default.png
 
 clean:
 	rm arteplus7.c cache.c url-extractor.c libarteplus7.so
