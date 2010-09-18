@@ -60,7 +60,7 @@ public class Cache : GLib.Object
             try {
                 default_pb = new Gdk.Pixbuf.from_file (DEFAULT_THUMBNAIL);
             } catch (Error e) {
-                GLib.warning ("%s", e.message);
+                GLib.critical ("%s", e.message);
             }
         }
     }
@@ -113,7 +113,7 @@ public class Cache : GLib.Object
             try {
                 pb = new Gdk.Pixbuf.from_file (file_path);
             } catch (Error e) {
-                GLib.warning ("%s", e.message);
+                GLib.critical ("%s", e.message);
                 return default_pb;
             }
             return pb;
@@ -172,7 +172,7 @@ public class Cache : GLib.Object
             pb = new Gdk.Pixbuf.from_stream_at_scale (img_stream,
                     THUMBNAIL_WIDTH, -1, true, null);
         } catch (GLib.Error e) {
-            GLib.warning ("%s", e.message);
+            GLib.critical ("%s", e.message);
             return null;
         }
 
@@ -180,7 +180,7 @@ public class Cache : GLib.Object
         try {
             pb.save (file_path, "png", null);
         } catch (Error e) {
-            GLib.warning ("%s", e.message);
+            GLib.critical ("%s", e.message);
         }
 
         return pb;
@@ -213,7 +213,7 @@ public class Cache : GLib.Object
             enumerator.close(null);
 
         } catch (Error e) {
-            GLib.warning ("%s", e.message);
+            GLib.critical ("%s", e.message);
         }
     }
 }
