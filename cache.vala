@@ -34,7 +34,7 @@ public class Cache : GLib.Object
 {
     public string cache_path {get; set;}
     private Soup.SessionAsync session;
-    private Gdk.Pixbuf default_pb;
+    public Gdk.Pixbuf default_pb;
 
     public Cache (string path)
     {
@@ -122,32 +122,6 @@ public class Cache : GLib.Object
         /* otherwise, use the default thumbnail */
         return default_pb;
     }
-
-    public void check_and_download_missing_thumbnails (ListStore list)
-    {
-        TreeIter iter;
-        Gdk.Pixbuf pb;
-        string md5_pb;
-        Video v;
-        var path = new TreePath.first ();
-
-        string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5, default_pb.get_pixels ());
-
-        for (int i=1; i<=list.length; i++) {
-            list.get_iter (out iter, path);
-            list.get (iter, ArtePlugin.Col.IMAGE, out pb);
-            md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
-            if (md5_pb == md5_default_pb) {
-                list.get (iter, ArtePlugin.Col.VIDEO_OBJECT, out v);
-                if (v.image_url != null) {
-                    GLib.message ("Missing thumbnail: %s", v.title); // Debug
-                    list.set (iter, ArtePlugin.Col.IMAGE, download_pixbuf (v.image_url));
-                }
-            }
-            path.next ();
-        }
-    }
-    
 
     public Gdk.Pixbuf? download_pixbuf (string url)
     {
