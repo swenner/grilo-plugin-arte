@@ -49,11 +49,12 @@ public enum Language
 }
 
 public const string USER_AGENT =
-    "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8";
+    "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.10) Gecko/20100915 Firefox/3.6.10";
 public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string GCONF_HTTP_PROXY = "/system/http_proxy";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
+public const string DEFAULT_THUMBNAIL = "/usr/lib/totem/plugins/arteplus7/arteplus7-default.png";
 public bool use_proxy = false;
 public Soup.URI proxy_uri;
 public string proxy_username;
@@ -343,7 +344,7 @@ class ArtePlugin : Totem.Plugin
     private string? filter = null;
 
     /* TreeView column names */
-    private enum Col {
+    public enum Col {
         IMAGE,
         NAME,
         DESCRIPTION,
@@ -597,7 +598,7 @@ class ArtePlugin : Totem.Plugin
             }
 
             listmodel.set (iter,
-                    Col.IMAGE, v.image_url != null ? cache.get_pixbuf (v.image_url) : null,
+                    Col.IMAGE, cache.load_pixbuf (v.image_url),
                     Col.NAME, v.title,
                     Col.DESCRIPTION, desc_str,
                     Col.VIDEO_OBJECT, v, -1);
@@ -612,6 +613,10 @@ class ArtePlugin : Totem.Plugin
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
         GLib.message ("Unique video count: %d", videocount);
+
+        /* Download missing thumbnails */
+        cache.check_and_download_missing_thumbnails (listmodel);
+
         return false;
     }
 
