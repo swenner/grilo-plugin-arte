@@ -223,6 +223,7 @@ public class ArteRSSParser : ArteParser
             size_t text_len) throws MarkupError
     {
         if (current_video != null) {
+            current_video.image_url = null;
             switch (current_data) {
                 case "title":
                     current_video.title = text;

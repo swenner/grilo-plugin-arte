@@ -98,8 +98,11 @@ public class Cache : GLib.Object
         return file_path;
     }
 
-    public Gdk.Pixbuf? load_pixbuf (string url)
+    public Gdk.Pixbuf? load_pixbuf (string? url)
     {
+        if (url == null)
+            return default_pb;
+
         /* check if file exists in cache */
         string file_path = cache_path
                 + Checksum.compute_for_string (ChecksumType.MD5, url);
@@ -136,8 +139,10 @@ public class Cache : GLib.Object
             md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
             if (md5_pb == md5_default_pb) {
                 list.get (iter, ArtePlugin.Col.VIDEO_OBJECT, out v);
-                GLib.message ("Missing thumbnail: %s", v.title); // Debug
-                list.set (iter, ArtePlugin.Col.IMAGE, download_pixbuf (v.image_url));
+                if (v.image_url != null) {
+                    GLib.message ("Missing thumbnail: %s", v.title); // Debug
+                    list.set (iter, ArtePlugin.Col.IMAGE, download_pixbuf (v.image_url));
+                }
             }
             path.next ();
         }
