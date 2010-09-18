@@ -36,6 +36,7 @@ dist:
 	mkdir $(PACKAGE)/po
 	mkdir $(PACKAGE)/deps
 	cp -f arteplus7.vala cache.vala url-extractor.vala arteplus7.totem-plugin $(PACKAGE)/
+	cp -f arteplus7-default.png $(PACKAGE)/
 	cp -f Makefile README AUTHORS COPYING NEWS ChangeLog $(PACKAGE)/
 	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/
 	cp -f deps/*.h deps/totem.vapi deps/totem.deps deps/COPYING.LGPL deps/license_change $(PACKAGE)/deps/
