@@ -4,7 +4,7 @@ NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 
 all:
-	valac -C arteplus7.vala cache.vala url-extractor.vala --thread --pkg libsoup-2.4 --pkg totem --pkg gconf-2.0 --vapidir=./deps
+	valac -C arteplus7.vala cache.vala url-extractor.vala --pkg libsoup-2.4 --pkg totem --pkg gconf-2.0 --vapidir=./deps
 	gcc -shared -fPIC `pkg-config --cflags --libs glib-2.0 libsoup-2.4 gtk+-2.0 totem-plparser gconf-2.0` -o libarteplus7.so arteplus7.c cache.c url-extractor.c -I./deps -DGETTEXT_PACKAGE="\"totem-arte\""
 	msgfmt --output-file=po/de.mo po/de.po
 	msgfmt --output-file=po/fr.mo po/fr.po
