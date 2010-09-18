@@ -32,9 +32,9 @@ using Soup;
 
 public class Cache : GLib.Object
 {
-    public string cache_path {get; set;}
     private Soup.SessionAsync session;
-    public Gdk.Pixbuf default_pb;
+    public string cache_path {get; set;}
+    public Gdk.Pixbuf default_thumbnail {get; private set;}
 
     public Cache (string path)
     {
@@ -54,7 +54,7 @@ public class Cache : GLib.Object
 
         /* load the default thumbnail */
         try {
-            default_pb = new Gdk.Pixbuf.from_file (DEFAULT_THUMBNAIL);
+            default_thumbnail = new Gdk.Pixbuf.from_file (DEFAULT_THUMBNAIL);
         } catch (Error e) {
             GLib.critical ("%s", e.message);
         }
@@ -93,10 +93,11 @@ public class Cache : GLib.Object
         return file_path;
     }
 
-    public Gdk.Pixbuf? load_pixbuf (string? url)
+    public Gdk.Pixbuf load_pixbuf (string? url)
     {
-        if (url == null)
-            return default_pb;
+        if (url == null) {
+            return default_thumbnail;
+        }
 
         /* check if file exists in cache */
         string file_path = cache_path
@@ -109,17 +110,21 @@ public class Cache : GLib.Object
                 pb = new Gdk.Pixbuf.from_file (file_path);
             } catch (Error e) {
                 GLib.critical ("%s", e.message);
-                return default_pb;
+                return default_thumbnail;
             }
             return pb;
         }
 
         /* otherwise, use the default thumbnail */
-        return default_pb;
+        return default_thumbnail;
     }
 
-    public Gdk.Pixbuf? download_pixbuf (string url)
+    public Gdk.Pixbuf download_pixbuf (string? url)
     {
+        if (url == null) {
+            return default_thumbnail;
+        }
+
         string file_path = cache_path
                 + Checksum.compute_for_string (ChecksumType.MD5, url);
         Gdk.Pixbuf pb = null;
@@ -129,7 +134,7 @@ public class Cache : GLib.Object
         session.send_message (msg);
 
         if (msg.response_body.data == null) {
-            return null;
+            return default_thumbnail;
         }
 
         /* rescale it */
@@ -142,7 +147,7 @@ public class Cache : GLib.Object
                     THUMBNAIL_WIDTH, -1, true, null);
         } catch (GLib.Error e) {
             GLib.critical ("%s", e.message);
-            return null;
+            return default_thumbnail;
         }
 
         /* store the file on disk as PNG */

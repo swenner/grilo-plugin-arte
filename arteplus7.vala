@@ -223,7 +223,6 @@ public class ArteRSSParser : ArteParser
             size_t text_len) throws MarkupError
     {
         if (current_video != null) {
-            current_video.image_url = null;
             switch (current_data) {
                 case "title":
                     current_video.title = text;
@@ -631,7 +630,7 @@ class ArtePlugin : Totem.Plugin
             return false;
     }
 
-    private void check_and_download_missing_thumbnails (ListStore list)
+    private void check_and_download_missing_thumbnails (Gtk.ListStore list)
     {
         TreeIter iter;
         Gdk.Pixbuf pb;
@@ -639,17 +638,18 @@ class ArtePlugin : Totem.Plugin
         Video v;
         var path = new TreePath.first ();
 
-        string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5, cache.default_pb.get_pixels ());
+        string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
+                cache.default_thumbnail.get_pixels ());
 
         for (int i=1; i<=list.length; i++) {
             list.get_iter (out iter, path);
-            list.get (iter, ArtePlugin.Col.IMAGE, out pb);
+            list.get (iter, Col.IMAGE, out pb);
             md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
             if (md5_pb == md5_default_pb) {
-                list.get (iter, ArtePlugin.Col.VIDEO_OBJECT, out v);
+                list.get (iter, Col.VIDEO_OBJECT, out v);
                 if (v.image_url != null) {
                     GLib.message ("Missing thumbnail: %s", v.title); // Debug
-                    list.set (iter, ArtePlugin.Col.IMAGE, cache.download_pixbuf (v.image_url));
+                    list.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url));
                 }
             }
             path.next ();
