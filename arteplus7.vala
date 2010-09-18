@@ -551,9 +551,9 @@ class ArtePlugin : Totem.Plugin
         var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
                 typeof (string), typeof (string), typeof (Video));
 
-       /* save the last move to detect duplicates */
-       Video last_video = null;
-       int videocount = 0;
+        /* save the last move to detect duplicates */
+        Video last_video = null;
+        int videocount = 0;
 
         foreach (Video v in p.videos) {
             /* check for duplicates */
