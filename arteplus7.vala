@@ -54,7 +54,7 @@ public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string GCONF_HTTP_PROXY = "/system/http_proxy";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
-public const string DEFAULT_THUMBNAIL = "/usr/lib/totem/plugins/arteplus7/arteplus7-default.png";
+public const string DEFAULT_THUMBNAIL = "/usr/share/totem/plugins/arteplus7/arteplus7-default.png";
 public bool use_proxy = false;
 public Soup.URI proxy_uri;
 public string proxy_username;
@@ -223,6 +223,7 @@ public class ArteRSSParser : ArteParser
             size_t text_len) throws MarkupError
     {
         if (current_video != null) {
+            current_video.image_url = null;
             switch (current_data) {
                 case "title":
                     current_video.title = text;
@@ -344,7 +345,7 @@ class ArtePlugin : Totem.Plugin
     private string? filter = null;
 
     /* TreeView column names */
-    public enum Col {
+    private enum Col {
         IMAGE,
         NAME,
         DESCRIPTION,
@@ -615,7 +616,7 @@ class ArtePlugin : Totem.Plugin
         GLib.message ("Unique video count: %d", videocount);
 
         /* Download missing thumbnails */
-        cache.check_and_download_missing_thumbnails (listmodel);
+        check_and_download_missing_thumbnails (listmodel);
 
         return false;
     }
@@ -628,6 +629,31 @@ class ArtePlugin : Totem.Plugin
             return true;
         else
             return false;
+    }
+
+    private void check_and_download_missing_thumbnails (ListStore list)
+    {
+        TreeIter iter;
+        Gdk.Pixbuf pb;
+        string md5_pb;
+        Video v;
+        var path = new TreePath.first ();
+
+        string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5, cache.default_pb.get_pixels ());
+
+        for (int i=1; i<=list.length; i++) {
+            list.get_iter (out iter, path);
+            list.get (iter, ArtePlugin.Col.IMAGE, out pb);
+            md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
+            if (md5_pb == md5_default_pb) {
+                list.get (iter, ArtePlugin.Col.VIDEO_OBJECT, out v);
+                if (v.image_url != null) {
+                    GLib.message ("Missing thumbnail: %s", v.title); // Debug
+                    list.set (iter, ArtePlugin.Col.IMAGE, cache.download_pixbuf (v.image_url));
+                }
+            }
+            path.next ();
+        }
     }
 
     /* stores properties in gconf */

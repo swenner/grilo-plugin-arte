@@ -34,7 +34,7 @@ public class Cache : GLib.Object
 {
     public string cache_path {get; set;}
     private Soup.SessionAsync session;
-    private Gdk.Pixbuf default_pb;
+    public Gdk.Pixbuf default_pb;
 
     public Cache (string path)
     {
@@ -52,16 +52,11 @@ public class Cache : GLib.Object
             }
         }
 
-        /* load the default thumbnail (priority to the one in the user-directory) */
+        /* load the default thumbnail */
         try {
-            default_pb = new Gdk.Pixbuf.from_file (Environment.get_home_dir () + "/.local/share/totem/plugins/arteplus7-default.png");
+            default_pb = new Gdk.Pixbuf.from_file (DEFAULT_THUMBNAIL);
         } catch (Error e) {
-            GLib.message ("No thumbnail for this user, fallback to default.");
-            try {
-                default_pb = new Gdk.Pixbuf.from_file (DEFAULT_THUMBNAIL);
-            } catch (Error e) {
-                GLib.warning ("%s", e.message);
-            }
+            GLib.critical ("%s", e.message);
         }
     }
 
@@ -98,8 +93,11 @@ public class Cache : GLib.Object
         return file_path;
     }
 
-    public Gdk.Pixbuf? load_pixbuf (string url)
+    public Gdk.Pixbuf? load_pixbuf (string? url)
     {
+        if (url == null)
+            return default_pb;
+
         /* check if file exists in cache */
         string file_path = cache_path
                 + Checksum.compute_for_string (ChecksumType.MD5, url);
@@ -110,7 +108,7 @@ public class Cache : GLib.Object
             try {
                 pb = new Gdk.Pixbuf.from_file (file_path);
             } catch (Error e) {
-                GLib.warning ("%s", e.message);
+                GLib.critical ("%s", e.message);
                 return default_pb;
             }
             return pb;
@@ -119,30 +117,6 @@ public class Cache : GLib.Object
         /* otherwise, use the default thumbnail */
         return default_pb;
     }
-
-    public void check_and_download_missing_thumbnails (ListStore list)
-    {
-        TreeIter iter;
-        Gdk.Pixbuf pb;
-        string md5_pb;
-        Video v;
-        var path = new TreePath.first ();
-
-        string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5, default_pb.get_pixels ());
-
-        for (int i=1; i<=list.length; i++) {
-            list.get_iter (out iter, path);
-            list.get (iter, ArtePlugin.Col.IMAGE, out pb);
-            md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
-            if (md5_pb == md5_default_pb) {
-                list.get (iter, ArtePlugin.Col.VIDEO_OBJECT, out v);
-                GLib.message ("Missing thumbnail: %s", v.title); // Debug
-                list.set (iter, ArtePlugin.Col.IMAGE, download_pixbuf (v.image_url));
-            }
-            path.next ();
-        }
-    }
-    
 
     public Gdk.Pixbuf? download_pixbuf (string url)
     {
@@ -167,7 +141,7 @@ public class Cache : GLib.Object
             pb = new Gdk.Pixbuf.from_stream_at_scale (img_stream,
                     THUMBNAIL_WIDTH, -1, true, null);
         } catch (GLib.Error e) {
-            GLib.warning ("%s", e.message);
+            GLib.critical ("%s", e.message);
             return null;
         }
 
@@ -175,7 +149,7 @@ public class Cache : GLib.Object
         try {
             pb.save (file_path, "png", null);
         } catch (Error e) {
-            GLib.warning ("%s", e.message);
+            GLib.critical ("%s", e.message);
         }
 
         return pb;
@@ -208,7 +182,7 @@ public class Cache : GLib.Object
             enumerator.close(null);
 
         } catch (Error e) {
-            GLib.warning ("%s", e.message);
+            GLib.critical ("%s", e.message);
         }
     }
 }
