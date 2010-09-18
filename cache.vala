@@ -52,16 +52,11 @@ public class Cache : GLib.Object
             }
         }
 
-        /* load the default thumbnail (priority to the one in the user-directory) */
+        /* load the default thumbnail */
         try {
-            default_pb = new Gdk.Pixbuf.from_file (Environment.get_home_dir () + "/.local/share/totem/plugins/arteplus7-default.png");
+            default_pb = new Gdk.Pixbuf.from_file (DEFAULT_THUMBNAIL);
         } catch (Error e) {
-            GLib.message ("No thumbnail for this user, fallback to default.");
-            try {
-                default_pb = new Gdk.Pixbuf.from_file (DEFAULT_THUMBNAIL);
-            } catch (Error e) {
-                GLib.critical ("%s", e.message);
-            }
+            GLib.critical ("%s", e.message);
         }
     }
 
