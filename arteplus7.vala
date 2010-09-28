@@ -248,7 +248,7 @@ public class ArteXMLParser : ArteParser
     public int page = 1;
     /* Parses the XML feed of the Flash preview plugin */
     private const string xml_tmpl =
-        "http://videos.arte.tv/%s/do_delegate/videos/arte7/index-3211552,view,asXml.xml?hash=%s////%d/10/";
+        "http://videos.arte.tv/%s/do_delegate/videos/index-3188698,view,asXml.xml?hash=%s////%d/10/";
 
     public ArteXMLParser ()
     {
