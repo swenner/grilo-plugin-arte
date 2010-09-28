@@ -1,5 +1,5 @@
 DESTDIR=
-VERSION=0.9.1
+VERSION=0.9.2
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 

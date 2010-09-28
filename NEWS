@@ -1,3 +1,9 @@
+2010 September - Totem Arte Plugin 0.9.2
+
+ * Bugfix: Fallback to the rss feed on IO errors too
+ * Bugfix: Arte changed the XML feed url
+ * Make debug messages conditional at compiletime (-D DEBUG_MESSAGES)
+
 2010 September - Totem Arte Plugin 0.9.1
 
  * Asynchronous thumbnail download to speedup the startup time (Nicolas Delvaux)
