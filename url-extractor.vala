@@ -45,7 +45,6 @@ public interface Extractor : GLib.Object
 public class StreamUrlExtractor : GLib.Object
 {
   protected Soup.SessionAsync session;
-  protected const bool verbose = true; /* enables debug messages */
 
   public StreamUrlExtractor()
   {
@@ -83,8 +82,7 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
       throws ExtractionError
   {
     string regexp, url;
-    if (verbose)
-      stdout.printf ("Initial Page URL:\t\t%s\n", page_url);
+    GLib.debug ("Initial Page URL:\t\t%s", page_url);
 
     /* Setup the language string */
     string lang_str = "fr";
@@ -101,8 +99,7 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
     // var url_player = "http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf";
     regexp = "var url_player = \"(http://.*.swf)\";";
     var flash_player_uri = extract_string_from_page (page_url, regexp);
-    if (verbose)
-      stdout.printf ("Extract Flash player URI:\t%s\n", flash_player_uri);
+    GLib.debug ("Extract Flash player URI:\t%s", flash_player_uri);
     if (flash_player_uri == null)
       throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
@@ -111,8 +108,7 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
     // vars_player.videorefFileUrl = "http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219416,view,asPlayerXml.xml";
     regexp = "videorefFileUrl = \"(http://.*.xml)\";";
     url = extract_string_from_page (page_url, regexp);
-    if (verbose)
-      stdout.printf ("Extract Flash Videoref:\t\t%s\n", url);
+    GLib.debug ("Extract Flash Videoref:\t%s", url);
 
     if (url == null)
       throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
@@ -123,8 +119,7 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
     // <video lang="fr" ref="http://videos.arte.tv/fr/do_delegate/videos/secrets_de_plantes-3219420,view,asPlayerXml.xml"/>
     regexp = "video lang=\"" + lang_str + "\" ref=\"(http://.*.xml)\"";
     url = extract_string_from_page (url, regexp);
-    if (verbose)
-      stdout.printf ("Extract Flash Lang Videoref:\t%s\n", url);
+    GLib.debug ("Extract Flash Lang Videoref:\t%s", url);
 
     if (url == null)
       throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
@@ -135,24 +130,22 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
     // <url quality="sd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_06_037778-021-B_PG_MQ_FR?h=76c529bce0f034e74dc92a14549d6a4e</url>
     regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
     var rtmp_uri = extract_string_from_page (url, regexp);
-    if (verbose)
-      stdout.printf ("Extract RTMP URI:\t\t%s\n", rtmp_uri);
+    GLib.debug ("Extract RTMP URI:\t\t%s", rtmp_uri);
 
     /* sometimes only one quality level is available */
     if (rtmp_uri == null) {
       if (q == VideoQuality.WMV_HQ) {
         q = VideoQuality.WMV_MQ;
         quali_str = "sd";
-        GLib.message ("No high quality stream available. Fallback to medium quality.");
+        GLib.warning ("No high quality stream available. Fallback to medium quality.");
       } else if (q == VideoQuality.WMV_MQ) {
         q = VideoQuality.WMV_HQ;
         quali_str = "hd";
-        GLib.message ("No medium quality stream available. Fallback to high quality.");
+        GLib.warning ("No medium quality stream available. Fallback to high quality.");
       }
       regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
       rtmp_uri = extract_string_from_page (url, regexp);
-      if (verbose)
-        stdout.printf ("Extract RTMP URI:\t\t%s\n", rtmp_uri);
+      GLib.debug ("Extract RTMP URI:\t\t%s", rtmp_uri);
 
       if (rtmp_uri == null)
         throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
@@ -166,8 +159,7 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
     // Example:
     // rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_042143-002-A_PG_HQ_FR?h=d7878fae5c9726844d22da78e05f764e swfVfy=1 swfUrl=http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf
     string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + flash_player_uri;
-    if (verbose)
-      stdout.printf ("Build stream URI:\t\t%s\n", stream_uri);
+    GLib.debug ("Build stream URI:\t\t%s", stream_uri);
 
     return stream_uri;
   }
@@ -182,8 +174,7 @@ public class MP4StreamUrlExtractor : StreamUrlExtractor, Extractor
       throws ExtractionError
   {
     string regexp, url;
-    if (verbose)
-      stdout.printf ("Initial Page URL:\t\t%s\n", page_url);
+    GLib.debug ("Initial Page URL:\t\t%s", page_url);
 
     /* Setup the language string */
     string lang_str = "fr";
@@ -195,8 +186,7 @@ public class MP4StreamUrlExtractor : StreamUrlExtractor, Extractor
     // vars_player.videorefFileUrl = "http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219416,view,asPlayerXml.xml";
     regexp = "videorefFileUrl = \"(http://.*.xml)\";";
     url = extract_string_from_page (page_url, regexp);
-    if (verbose)
-      stdout.printf ("Extract Flash Videoref:\t\t%s\n", url);
+    GLib.debug ("Extract Flash Videoref:\t\t%s", url);
 
     if (url == null)
       throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
@@ -207,8 +197,7 @@ public class MP4StreamUrlExtractor : StreamUrlExtractor, Extractor
     // <video lang="fr" ref="http://videos.arte.tv/fr/do_delegate/videos/secrets_de_plantes-3219420,view,asPlayerXml.xml"/>
     regexp = "video lang=\"" + lang_str + "\" ref=\"(http://.*.xml)\"";
     url = extract_string_from_page (url, regexp);
-    if (verbose)
-      stdout.printf ("Extract Flash Lang Videoref:\t%s\n", url);
+    GLib.debug ("Extract Flash Lang Videoref:\t%s", url);
 
     if (url == null) {
       throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
@@ -219,16 +208,14 @@ public class MP4StreamUrlExtractor : StreamUrlExtractor, Extractor
     // <url quality="EQ">http://artestras.wmod.rd.llnw.net/geo/arte7/EUR_DE_FR/arteprod/A7_SGT_ENC_16_037778-021-B_PG_EQ_FR.mp4</url>
     regexp = "quality=\"EQ\">(http://.*.mp4)";
     var eq_uri = extract_string_from_page (url, regexp);
-    if (verbose)
-      stdout.printf ("Extract EQ URI:\t\t%s\n", eq_uri);
+    GLib.debug ("Extract EQ URI:\t\t%s", eq_uri);
 
     /* Extract the real url */
     // Example:
     // <REF HREF="mms://artestras.wmod.llnwd.net/a3903/o35/geo/arte7/EUR_DE_FR/arteprod/A7_SGT_ENC_16_037778-021-B_PG_EQ_FR.mp4?e=1280957332&amp;h=3ab8ed22003545b1f46c6a595d5c6475"/>
     regexp = "\"(mms://.*)\"";
     var real_url = extract_string_from_page (eq_uri, regexp);
-    if (verbose)
-      stdout.printf ("Extract Real WMV URL:\t\t%s\n", real_url);
+    GLib.debug ("Extract Real WMV URL:\t\t%s", real_url);
 
     return real_url;
   }

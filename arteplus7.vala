@@ -352,6 +352,18 @@ class ArtePlugin : Totem.Plugin
         N
     }
 
+    construct {
+        /* Debug log handling */
+        GLib.Log.set_handler ("\0", GLib.LogLevelFlags.LEVEL_DEBUG, debug_handler);
+    }
+
+    private void debug_handler (string? log_domain, GLib.LogLevelFlags log_levels, string message)
+    {
+#if DEBUG_MESSAGES
+        GLib.Log.default_handler (log_domain, log_levels, message);
+#endif
+    }
+
     public override bool activate (Totem.Object totem) throws GLib.Error
     {
         t = totem;
@@ -516,12 +528,12 @@ class ArtePlugin : Totem.Plugin
                 for (int i=1; i<10; i++) {
                     p.set_page (i);
                     p.parse (language);
-                    GLib.message ("Fetching page %d: Video count: %u", i, p.videos.length ());
+                    GLib.debug ("Fetching page %d: Video count: %u", i, p.videos.length ());
                 }
             } else {
                 p.parse (language);
             }
-            GLib.message ("Total video count: %u", p.videos.length ());
+            GLib.debug ("Total video count: %u", p.videos.length ());
             /* sort the videos by removal date */
             p.videos.sort ((a, b) => {
                 return (int) (((Video) a).offline_date.tv_sec > ((Video) b).offline_date.tv_sec);
@@ -627,7 +639,7 @@ class ArtePlugin : Totem.Plugin
         tree_lock.unlock ();
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
-        GLib.message ("Unique video count: %d", videocount);
+        GLib.debug ("Unique video count: %d", videocount);
 
         /* Download missing thumbnails */
         check_and_download_missing_thumbnails (listmodel);
@@ -663,7 +675,7 @@ class ArtePlugin : Totem.Plugin
             if (md5_pb == md5_default_pb) {
                 list.get (iter, Col.VIDEO_OBJECT, out v);
                 if (v.image_url != null) {
-                    GLib.message ("Missing thumbnail: %s", v.title); // Debug
+                    GLib.debug ("Missing thumbnail: %s", v.title);
                     list.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url));
                 }
             }
@@ -701,7 +713,7 @@ class ArtePlugin : Totem.Plugin
                     use_proxy = false; /* necessary to prevent a crash in this case */
                 } else {
                     proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
-                    GLib.message ("Using proxy: %s", proxy_uri.to_string (false));
+                    GLib.debug ("Using proxy: %s", proxy_uri.to_string (false));
                     proxy_username = gc.get_string (GCONF_HTTP_PROXY + "/authentication_user");
                     proxy_password = gc.get_string (GCONF_HTTP_PROXY + "/authentication_password");
                 }
