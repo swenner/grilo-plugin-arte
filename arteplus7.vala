@@ -512,10 +512,14 @@ class ArtePlugin : Totem.Plugin
         /* download and parse */
         try {
             p.reset ();
-            for (int i=1; i<10; i++) {
-                p.set_page (i);
+            if (!use_fallback_feed) {
+                for (int i=1; i<10; i++) {
+                    p.set_page (i);
+                    p.parse (language);
+                    GLib.message ("Fetching page %d: Video count: %u", i, p.videos.length ());
+                }
+            } else {
                 p.parse (language);
-                GLib.message ("Fetching page %d: Video count: %u", i, p.videos.length ());
             }
             GLib.message ("Total video count: %u", p.videos.length ());
             /* sort the videos by removal date */
@@ -538,12 +542,23 @@ class ArtePlugin : Totem.Plugin
                     _("Sorry, the plugin could not parse the Arte video feed."));
                 tree_lock.unlock ();
             }
+            search_entry.set_sensitive (true);
             return false;
         } catch (IOError e) {
-            /* Network problems */
-            t.action_error (_("Network problem"),
-                _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings."));
-            tree_lock.unlock ();
+            GLib.critical ("Network problems: %s", e.message);
+            if (!use_fallback_feed) {
+                /* The default XML feed parser failed.
+                 * Switch to the RSS fallback feed without thumbnails. */
+                p = new ArteRSSParser();
+                use_fallback_feed = true;
+                tree_lock.unlock ();
+                /* ... and try again. */
+                refresh_rss_feed ();
+            } else {
+                t.action_error (_("Network problem"),
+                    _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings."));
+                tree_lock.unlock ();
+            }
             search_entry.set_sensitive (true);
             return false;
         }
