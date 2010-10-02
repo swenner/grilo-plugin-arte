@@ -27,8 +27,3 @@ Install the plugin (with root access) to $(DESTDIR)/usr/lib/totem/plugins/
 $ make
 $ sudo make install
 
-Alternatively, you can install the plugin to ~/.local/share/totem/plugins/
-No root access is needed, but no translations will be installed.
-
-$ make
-$ make install-home
