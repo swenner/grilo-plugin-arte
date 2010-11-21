@@ -30,7 +30,6 @@ using GLib;
 using Soup;
 using Totem;
 using Gtk;
-using GConf;
 
 public enum VideoQuality
 {
@@ -50,9 +49,8 @@ public enum Language
 
 public const string USER_AGENT =
     "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.10) Gecko/20100915 Firefox/3.6.10";
-public const string GCONF_ROOT = "/apps/totem/plugins/arteplus7";
 public const string DCONF_ID = "org.gnome.totem.plugins.arteplus7";
-public const string GCONF_HTTP_PROXY = "/system/http_proxy";
+public const string DCONF_HTTP_PROXY = "org.gnome.system.proxy.http";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
 public const int THUMBNAIL_WIDTH = 160;
 public const string DEFAULT_THUMBNAIL = "/usr/share/totem/plugins/arteplus7/arteplus7-default.png";
@@ -699,25 +697,25 @@ class ArtePlugin : Totem.Plugin
     /* loads properties from dconf */
     private void load_properties ()
     {
-        var gc = GConf.Client.get_default ();
         var settings = new GLib.Settings (DCONF_ID);
+        var proxy_settings = new GLib.Settings (DCONF_HTTP_PROXY);
         string parsed_proxy_uri = "";
         int proxy_port;
 
         try {
             quality = (VideoQuality) settings.get_int ("quality");
             language = (Language) settings.get_int ("language");
-            use_proxy = gc.get_bool (GCONF_HTTP_PROXY + "/use_http_proxy");
+            use_proxy = proxy_settings.get_boolean ("enabled");
             if (use_proxy) {
-                parsed_proxy_uri = gc.get_string (GCONF_HTTP_PROXY + "/host");
-                proxy_port = gc.get_int (GCONF_HTTP_PROXY + "/port");
+                parsed_proxy_uri = proxy_settings.get_string ("host");
+                proxy_port = proxy_settings.get_int ("port");
                 if (parsed_proxy_uri == "") {
                     use_proxy = false; /* necessary to prevent a crash in this case */
                 } else {
                     proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
                     GLib.debug ("Using proxy: %s", proxy_uri.to_string (false));
-                    proxy_username = gc.get_string (GCONF_HTTP_PROXY + "/authentication_user");
-                    proxy_password = gc.get_string (GCONF_HTTP_PROXY + "/authentication_password");
+                    proxy_username = proxy_settings.get_string ("authentication_user");
+                    proxy_password = proxy_settings.get_string ("authentication_password");
                 }
             }
         } catch (GLib.Error e) {

@@ -4,8 +4,8 @@ NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 
 all:
-	valac -C arteplus7.vala cache.vala url-extractor.vala --pkg libsoup-2.4 --pkg totem --pkg gconf-2.0 --vapidir=./deps -D DEBUG_MESSAGES
-	gcc -shared -fPIC `pkg-config --cflags --libs glib-2.0 libsoup-2.4 gtk+-2.0 totem-plparser gconf-2.0` -o libarteplus7.so arteplus7.c cache.c url-extractor.c -I./deps -D GETTEXT_PACKAGE="\"totem-arte\""
+	valac -C arteplus7.vala cache.vala url-extractor.vala --pkg libsoup-2.4 --pkg totem --vapidir=./deps -D DEBUG_MESSAGES
+	gcc -shared -fPIC `pkg-config --cflags --libs glib-2.0 libsoup-2.4 gtk+-2.0 totem-plparser` -o libarteplus7.so arteplus7.c cache.c url-extractor.c -I./deps -D GETTEXT_PACKAGE="\"totem-arte\""
 	msgfmt --output-file=po/de.mo po/de.po
 	msgfmt --output-file=po/fr.mo po/fr.po
 
@@ -32,8 +32,8 @@ uninstall:
 	rm $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/totem-arte.mo
 
 clean:
-	rm arteplus7.c cache.c url-extractor.c libarteplus7.so
-	rm po/*mo
+	rm -f arteplus7.c cache.c url-extractor.c libarteplus7.so
+	rm -f po/*mo
 
 dist:
 	rm -f ChangeLog
@@ -42,7 +42,7 @@ dist:
 	mkdir $(PACKAGE)/po
 	mkdir $(PACKAGE)/deps
 	cp -f arteplus7.vala cache.vala url-extractor.vala arteplus7.totem-plugin $(PACKAGE)/
-	cp -f arteplus7-default.png $(PACKAGE)/
+	cp -f arteplus7-default.png org.gnome.totem.plugins.arteplus7.gschema.xml $(PACKAGE)/
 	cp -f Makefile README AUTHORS COPYING NEWS ChangeLog $(PACKAGE)/
 	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/
 	cp -f deps/*.h deps/totem.vapi deps/totem.deps deps/COPYING.LGPL deps/license_change $(PACKAGE)/deps/
