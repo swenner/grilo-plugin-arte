@@ -414,7 +414,7 @@ class ArtePlugin : Totem.Plugin
         /* cleanup or refresh on click */
         search_entry.icon_press.connect ((entry, position, event) => {
             if (position == Gtk.EntryIconPosition.PRIMARY)
-                callback_refresh_rss_feed (entry);
+                callback_refresh_rss_feed ();
             else
                 entry.set_text ("");
         });
@@ -771,7 +771,7 @@ class ArtePlugin : Totem.Plugin
         t.add_to_playlist_and_play (uri, v.title, false);
     }
 
-    private void callback_refresh_rss_feed (Gtk.Widget widget)
+    private void callback_refresh_rss_feed ()
     {
         use_fallback_feed = false;
         GLib.Idle.add (refresh_rss_feed);
@@ -806,13 +806,11 @@ class ArtePlugin : Totem.Plugin
         }
     }
 
-    private bool callback_F5_pressed (Gtk.Widget widget, Gdk.EventKey event)
+    private bool callback_F5_pressed (Gdk.EventKey event)
     {
         string key = Gdk.keyval_name (event.keyval);
         if (key == "F5")
-        {
-            callback_refresh_rss_feed (widget);
-        }
+            callback_refresh_rss_feed ();
 
         /* propagate the signal to the next handler */
         return false;
