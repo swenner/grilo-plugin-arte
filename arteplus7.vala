@@ -155,7 +155,7 @@ public abstract class ArteParser : GLib.Object
 
         var context = new MarkupParseContext (parser,
                 MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
-        context.parse (msg.response_body.flatten ().data,
+        context.parse ((string) msg.response_body.flatten ().data,
                 (ssize_t) msg.response_body.length);
         context.end_parse ();
     }
@@ -187,7 +187,7 @@ public class ArteRSSParser : ArteParser
             "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3188666,view,rss.xml";
     }
 
-    private override void open_tag (MarkupParseContext ctx,
+    protected override void open_tag (MarkupParseContext ctx,
             string elem,
             string[] attribute_names,
             string[] attribute_values) throws MarkupError
@@ -202,7 +202,7 @@ public class ArteRSSParser : ArteParser
         }
     }
 
-    private override void close_tag (MarkupParseContext ctx,
+    protected override void close_tag (MarkupParseContext ctx,
             string elem) throws MarkupError
     {
         switch (elem) {
@@ -218,7 +218,7 @@ public class ArteRSSParser : ArteParser
         }
     }
 
-    private override void process_text (MarkupParseContext ctx,
+    protected override void process_text (MarkupParseContext ctx,
             string text,
             size_t text_len) throws MarkupError
     {
@@ -270,7 +270,7 @@ public class ArteXMLParser : ArteParser
         xml_de = xml_tmpl.printf ("de", "de", page);
     }
 
-    private override void open_tag (MarkupParseContext ctx,
+    protected override void open_tag (MarkupParseContext ctx,
             string elem,
             string[] attribute_names,
             string[] attribute_values) throws MarkupError
@@ -285,7 +285,7 @@ public class ArteXMLParser : ArteParser
         }
     }
 
-    private override void close_tag (MarkupParseContext ctx,
+    protected override void close_tag (MarkupParseContext ctx,
             string elem) throws MarkupError
     {
         switch (elem) {
@@ -301,7 +301,7 @@ public class ArteXMLParser : ArteParser
         }
     }
 
-    private override void process_text (MarkupParseContext ctx,
+    protected override void process_text (MarkupParseContext ctx,
             string text,
             size_t text_len) throws MarkupError
     {

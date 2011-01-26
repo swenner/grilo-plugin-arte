@@ -29,7 +29,7 @@
 using GLib;
 using Soup;
 
-errordomain ExtractionError
+public errordomain ExtractionError
 {
     DOWNLOAD_FAILED,
     EXTRACTION_FAILED,
@@ -65,7 +65,7 @@ public class StreamUrlExtractor : GLib.Object
     try {
       MatchInfo match;
       var regex = new Regex (regexp);
-      regex.match(msg.response_body.flatten ().data, 0, out match);
+      regex.match((string) msg.response_body.flatten ().data, 0, out match);
       res = match.fetch(1);
     } catch (RegexError e) {
         GLib.warning ("%s", e.message);
