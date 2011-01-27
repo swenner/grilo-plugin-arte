@@ -409,6 +409,7 @@ class ArtePlugin : Totem.Plugin
         });
         /* set focus to the first video on return */
         search_entry.activate.connect ((entry) => {
+            tree_view.set_cursor(new TreePath.first (), null, false);
             tree_view.grab_focus ();
         });
         /* cleanup or refresh on click */
