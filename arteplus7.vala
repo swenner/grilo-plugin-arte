@@ -386,6 +386,12 @@ class ArtePlugin : Totem.Plugin
         scroll_win.set_shadow_type (ShadowType.IN);
         scroll_win.add (tree_view);
 
+        /* context menu on right click */
+        tree_view.button_press_event.connect (callback_right_click);
+
+        /* context menu on shift-f10 (or menu key) */
+        tree_view.popup_menu.connect (callback_menu_key);
+
         /* add a search entry with a refresh and a cleanup icon */
         search_entry = new Gtk.Entry ();
         search_entry.set_icon_from_stock (Gtk.EntryIconPosition.PRIMARY,
@@ -737,6 +743,27 @@ class ArtePlugin : Totem.Plugin
         }
     }
 
+    private void show_popup_menu (Gdk.EventButton? event)
+    {
+        var menu = new Gtk.Menu ();
+        var menu_web = new MenuItem.with_mnemonic (_("_Open in Web Browser"));
+        
+        menu_web.activate.connect (callback_open_in_web_browser);
+        
+        menu.attach (menu_web, 0, 1, 0, 1);
+
+        menu.attach_to_widget (tree_view, null);
+        menu.show_all();
+        menu.select_first (false);
+
+        if (event == null) {
+            /* called by menu key */
+            menu.popup (null, null, menu_position, 0, get_current_event_time ());
+        } else {
+            menu.popup (null, null, null, 3, event.time);
+        }
+    }
+
     private void callback_select_video_in_tree_view (Gtk.TreeView tree_view,
         Gtk.TreePath path,
         Gtk.TreeViewColumn column)
@@ -815,6 +842,62 @@ class ArtePlugin : Totem.Plugin
 
         /* propagate the signal to the next handler */
         return false;
+    }
+
+    private void callback_open_in_web_browser ()
+    {
+        TreeIter iter;
+        TreePath path;
+        Video v;
+        string url;
+
+        /* retrieve url of the selected video */
+        path = tree_view.get_selection ().get_selected_rows (null).data;
+        tree_view.model.get_iter (out iter, path);
+        tree_view.model.get (iter, Col.VIDEO_OBJECT, out v);
+        url = v.page_url;
+
+        try {
+            Process.spawn_command_line_async ("xdg-open " + url);
+        } catch (SpawnError e) {
+            GLib.critical ("Fail to spawn process: " + e.message);
+        }
+    }
+
+    private bool callback_right_click (Gdk.EventButton event)
+    {
+        if (event.button == 3)
+            show_popup_menu (event);
+
+        return false;
+    }
+
+    private bool callback_menu_key ()
+    {
+        show_popup_menu (null);
+
+        /* do NOT propagate the signal */
+        return true;
+    }
+
+    private void menu_position (Menu menu, out int x, out int y, out bool push_in)
+    {
+        int wy;
+        Gdk.Rectangle rect;
+        Gtk.Requisition requisition;
+        TreePath path = tree_view.get_selection ().get_selected_rows (null).data;
+        tree_view.get_cell_area (path, null, out rect);
+
+        wy = rect.y;
+        tree_view.window.get_origin (out x, out y);
+        menu.size_request (out requisition);
+
+        x += 10;
+        wy = int.max (y + 5, y + wy + 5);
+        wy = int.min (wy, y + tree_view.allocation.height - requisition.height - 5);
+        y = wy;
+
+        push_in = true;
     }
 }
 
