@@ -1,6 +1,6 @@
 /*
  * Totem Arte Plugin allows you to watch streams from arte.tv
- * Copyright (C) 2009, 2010 Simon Wenner <simon@wenner.ch>
+ * Copyright (C) 2009, 2010, 2011 Simon Wenner <simon@wenner.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ public enum Language
 }
 
 public const string USER_AGENT =
-    "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.10) Gecko/20100915 Firefox/3.6.10";
+    "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.13) Gecko/20101206 Firefox/3.6.13";
 public const string DCONF_ID = "org.gnome.totem.plugins.arteplus7";
 public const string DCONF_HTTP_PROXY = "org.gnome.system.proxy.http";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
@@ -154,7 +154,7 @@ public abstract class ArteParser : GLib.Object
 
         var context = new MarkupParseContext (parser,
                 MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null);
-        context.parse (msg.response_body.flatten ().data,
+        context.parse ((string) msg.response_body.flatten ().data,
                 (ssize_t) msg.response_body.length);
         context.end_parse ();
     }
@@ -186,7 +186,7 @@ public class ArteRSSParser : ArteParser
             "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3188666,view,rss.xml";
     }
 
-    private override void open_tag (MarkupParseContext ctx,
+    protected override void open_tag (MarkupParseContext ctx,
             string elem,
             string[] attribute_names,
             string[] attribute_values) throws MarkupError
@@ -201,7 +201,7 @@ public class ArteRSSParser : ArteParser
         }
     }
 
-    private override void close_tag (MarkupParseContext ctx,
+    protected override void close_tag (MarkupParseContext ctx,
             string elem) throws MarkupError
     {
         switch (elem) {
@@ -217,7 +217,7 @@ public class ArteRSSParser : ArteParser
         }
     }
 
-    private override void process_text (MarkupParseContext ctx,
+    protected override void process_text (MarkupParseContext ctx,
             string text,
             size_t text_len) throws MarkupError
     {
@@ -269,7 +269,7 @@ public class ArteXMLParser : ArteParser
         xml_de = xml_tmpl.printf ("de", "de", page);
     }
 
-    private override void open_tag (MarkupParseContext ctx,
+    protected override void open_tag (MarkupParseContext ctx,
             string elem,
             string[] attribute_names,
             string[] attribute_values) throws MarkupError
@@ -284,7 +284,7 @@ public class ArteXMLParser : ArteParser
         }
     }
 
-    private override void close_tag (MarkupParseContext ctx,
+    protected override void close_tag (MarkupParseContext ctx,
             string elem) throws MarkupError
     {
         switch (elem) {
@@ -300,7 +300,7 @@ public class ArteXMLParser : ArteParser
         }
     }
 
-    private override void process_text (MarkupParseContext ctx,
+    protected override void process_text (MarkupParseContext ctx,
             string text,
             size_t text_len) throws MarkupError
     {
@@ -385,6 +385,12 @@ class ArtePlugin : Totem.Plugin
         scroll_win.set_shadow_type (ShadowType.IN);
         scroll_win.add (tree_view);
 
+        /* context menu on right click */
+        tree_view.button_press_event.connect (callback_right_click);
+
+        /* context menu on shift-f10 (or menu key) */
+        tree_view.popup_menu.connect (callback_menu_key);
+
         /* add a search entry with a refresh and a cleanup icon */
         search_entry = new Gtk.Entry ();
         search_entry.set_icon_from_stock (Gtk.EntryIconPosition.PRIMARY,
@@ -408,12 +414,13 @@ class ArtePlugin : Totem.Plugin
         });
         /* set focus to the first video on return */
         search_entry.activate.connect ((entry) => {
+            tree_view.set_cursor(new TreePath.first (), null, false);
             tree_view.grab_focus ();
         });
         /* cleanup or refresh on click */
         search_entry.icon_press.connect ((entry, position, event) => {
             if (position == Gtk.EntryIconPosition.PRIMARY)
-                callback_refresh_rss_feed (entry);
+                callback_refresh_rss_feed ();
             else
                 entry.set_text ("");
         });
@@ -736,6 +743,27 @@ class ArtePlugin : Totem.Plugin
         }
     }
 
+    private void show_popup_menu (Gdk.EventButton? event)
+    {
+        var menu = new Gtk.Menu ();
+        var menu_web = new MenuItem.with_mnemonic (_("_Open in Web Browser"));
+        
+        menu_web.activate.connect (callback_open_in_web_browser);
+        
+        menu.attach (menu_web, 0, 1, 0, 1);
+
+        menu.attach_to_widget (tree_view, null);
+        menu.show_all();
+        menu.select_first (false);
+
+        if (event == null) {
+            /* called by menu key */
+            menu.popup (null, null, menu_position, 0, get_current_event_time ());
+        } else {
+            menu.popup (null, null, null, 3, event.time);
+        }
+    }
+
     private void callback_select_video_in_tree_view (Gtk.TreeView tree_view,
         Gtk.TreePath path,
         Gtk.TreeViewColumn column)
@@ -771,7 +799,7 @@ class ArtePlugin : Totem.Plugin
         t.add_to_playlist_and_play (uri, v.title, false);
     }
 
-    private void callback_refresh_rss_feed (Gtk.Widget widget)
+    private void callback_refresh_rss_feed ()
     {
         use_fallback_feed = false;
         GLib.Idle.add (refresh_rss_feed);
@@ -806,16 +834,70 @@ class ArtePlugin : Totem.Plugin
         }
     }
 
-    private bool callback_F5_pressed (Gtk.Widget widget, Gdk.EventKey event)
+    private bool callback_F5_pressed (Gdk.EventKey event)
     {
         string key = Gdk.keyval_name (event.keyval);
         if (key == "F5")
-        {
-            callback_refresh_rss_feed (widget);
-        }
+            callback_refresh_rss_feed ();
 
         /* propagate the signal to the next handler */
         return false;
+    }
+
+    private void callback_open_in_web_browser ()
+    {
+        TreeIter iter;
+        TreePath path;
+        Video v;
+        string url;
+
+        /* retrieve url of the selected video */
+        path = tree_view.get_selection ().get_selected_rows (null).data;
+        tree_view.model.get_iter (out iter, path);
+        tree_view.model.get (iter, Col.VIDEO_OBJECT, out v);
+        url = v.page_url;
+
+        try {
+            Process.spawn_command_line_async ("xdg-open " + url);
+        } catch (SpawnError e) {
+            GLib.critical ("Fail to spawn process: " + e.message);
+        }
+    }
+
+    private bool callback_right_click (Gdk.EventButton event)
+    {
+        if (event.button == 3)
+            show_popup_menu (event);
+
+        return false;
+    }
+
+    private bool callback_menu_key ()
+    {
+        show_popup_menu (null);
+
+        /* do NOT propagate the signal */
+        return true;
+    }
+
+    private void menu_position (Menu menu, out int x, out int y, out bool push_in)
+    {
+        int wy;
+        Gdk.Rectangle rect;
+        Gtk.Requisition requisition;
+        TreePath path = tree_view.get_selection ().get_selected_rows (null).data;
+        tree_view.get_cell_area (path, null, out rect);
+
+        wy = rect.y;
+        tree_view.window.get_origin (out x, out y);
+        menu.size_request (out requisition);
+
+        x += 10;
+        wy = int.max (y + 5, y + wy + 5);
+        wy = int.min (wy, y + tree_view.allocation.height - requisition.height - 5);
+        y = wy;
+
+        push_in = true;
     }
 }
 
