@@ -83,8 +83,7 @@ public class Cache : GLib.Object
         try {
             var file_stream = file.create (FileCreateFlags.REPLACE_DESTINATION, null);
             var data_stream = new DataOutputStream (file_stream);
-            data_stream.write (msg.response_body.data,
-                    (ssize_t) msg.response_body.length, null);
+            data_stream.write (msg.response_body.data);
 
         } catch (Error e) {
             GLib.error ("%s", e.message);
@@ -138,8 +137,7 @@ public class Cache : GLib.Object
         }
 
         /* rescale it */
-        var img_stream = new MemoryInputStream.from_data (msg.response_body.data,
-                (ssize_t) msg.response_body.length, null);
+        var img_stream = new MemoryInputStream.from_data (msg.response_body.data, null);
 
         try {
             /* original size: 720px × 406px */

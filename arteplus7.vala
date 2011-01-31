@@ -394,11 +394,11 @@ class ArtePlugin : Totem.Plugin
         /* add a search entry with a refresh and a cleanup icon */
         search_entry = new Gtk.Entry ();
         search_entry.set_icon_from_stock (Gtk.EntryIconPosition.PRIMARY,
-                Gtk.STOCK_REFRESH);
+                Gtk.Stock.REFRESH);
         search_entry.set_icon_tooltip_text (Gtk.EntryIconPosition.PRIMARY,
                 _("Reload feed"));
         search_entry.set_icon_from_stock (Gtk.EntryIconPosition.SECONDARY,
-                Gtk.STOCK_CLEAR);
+                Gtk.Stock.CLEAR);
         search_entry.set_icon_tooltip_text (Gtk.EntryIconPosition.SECONDARY,
                 _("Clear the search text"));
         search_entry.set_icon_sensitive (Gtk.EntryIconPosition.SECONDARY, false);
@@ -491,7 +491,7 @@ class ArtePlugin : Totem.Plugin
 
         var dialog = new Dialog.with_buttons (_("Arte+7 Plugin Properties"),
                 null, Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE, null);
+                Gtk.Stock.CLOSE, Gtk.ResponseType.CLOSE, null);
         dialog.has_separator = false;
         dialog.resizable = false;
         dialog.border_width = 5;
@@ -709,25 +709,22 @@ class ArtePlugin : Totem.Plugin
         string parsed_proxy_uri = "";
         int proxy_port;
 
-        try {
-            quality = (VideoQuality) settings.get_int ("quality");
-            language = (Language) settings.get_int ("language");
-            use_proxy = proxy_settings.get_boolean ("enabled");
-            if (use_proxy) {
-                parsed_proxy_uri = proxy_settings.get_string ("host");
-                proxy_port = proxy_settings.get_int ("port");
-                if (parsed_proxy_uri == "") {
-                    use_proxy = false; /* necessary to prevent a crash in this case */
-                } else {
-                    proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
-                    GLib.debug ("Using proxy: %s", proxy_uri.to_string (false));
-                    proxy_username = proxy_settings.get_string ("authentication_user");
-                    proxy_password = proxy_settings.get_string ("authentication_password");
-                }
-            }
-        } catch (GLib.Error e) {
-            GLib.warning ("%s", e.message);
-        }
+		quality = (VideoQuality) settings.get_int ("quality");
+		language = (Language) settings.get_int ("language");
+		use_proxy = proxy_settings.get_boolean ("enabled");
+		if (use_proxy) {
+			parsed_proxy_uri = proxy_settings.get_string ("host");
+			proxy_port = proxy_settings.get_int ("port");
+			if (parsed_proxy_uri == "") {
+				use_proxy = false; /* necessary to prevent a crash in this case */
+			} else {
+				proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
+				GLib.debug ("Using proxy: %s", proxy_uri.to_string (false));
+				proxy_username = proxy_settings.get_string ("authentication_user");
+				proxy_password = proxy_settings.get_string ("authentication_password");
+			}
+		}
+
         if (quality == VideoQuality.UNKNOWN) { /* HQ is the default quality */
             quality = VideoQuality.WMV_HQ;
             store_properties ();
