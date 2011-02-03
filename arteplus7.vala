@@ -743,8 +743,8 @@ class ArtePlugin : Totem.Plugin
     private void show_popup_menu (Gdk.EventButton? event)
     {
         var menu = new Gtk.Menu ();
-        var menu_web = new MenuItem.with_mnemonic (_("_Open in Web Browser"));
-        
+        var menu_web = new ImageMenuItem.from_stock (Gtk.Stock.JUMP_TO, null);
+        menu_web.set_label (_("_Open in Web Browser"));
         menu_web.activate.connect (callback_open_in_web_browser);
         
         menu.attach (menu_web, 0, 1, 0, 1);
