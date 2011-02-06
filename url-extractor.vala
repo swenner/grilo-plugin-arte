@@ -150,7 +150,7 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
 
       if (rtmp_uri == null)
         throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
-      else if (rtmp_uri.contains ("/carton_23h_"))
+      else if (rtmp_uri.has_suffix ("/carton_23h_fr.mp4") || rtmp_uri.has_suffix ("/carton_23h_de.mp4"))
         throw new ExtractionError.ACCESS_RESTRICTED ("This video is not available currently");
     }
     
