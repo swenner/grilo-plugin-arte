@@ -33,7 +33,8 @@ public errordomain ExtractionError
 {
     DOWNLOAD_FAILED,
     EXTRACTION_FAILED,
-    STREAM_NOT_READY
+    STREAM_NOT_READY,
+    ACCESS_RESTRICTED
 }
 
 public interface Extractor : GLib.Object
@@ -149,6 +150,8 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
 
       if (rtmp_uri == null)
         throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
+      else if (rtmp_uri.contains ("/carton_23h_"))
+        throw new ExtractionError.ACCESS_RESTRICTED ("This video is not available currently");
     }
     
     /* Build the stream URI

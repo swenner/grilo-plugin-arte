@@ -777,7 +777,11 @@ class ArtePlugin : Totem.Plugin
         try {
             uri = v.get_stream_uri (quality, language);
         } catch (ExtractionError e) {
-            if(e is ExtractionError.STREAM_NOT_READY) {
+            if(e is ExtractionError.ACCESS_RESTRICTED) {
+                /* This video access is restricted */
+                t.action_error (_("This video access is restricted"),
+                        _("It seems that, because of its content, this video can only be watched in a precise time interval.\n\nYou may retry later, for example between 11 PM and 5 AM."));
+            } else if(e is ExtractionError.STREAM_NOT_READY) {
                 /* The video is part of the XML/RSS feed but no stream is available yet */
                 t.action_error (_("This video is not available yet"),
                         _("Sorry, the plugin could not find any stream URL.\nIt seems that this video is not available yet, even on the Arte web-player.\n\nPlease retry later."));
