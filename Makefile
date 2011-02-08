@@ -2,16 +2,18 @@ DESTDIR=
 VERSION=0.9.2
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
+VALA_DEPS=--pkg Totem-1.0 --pkg PeasGtk-1.0 --pkg libsoup-2.4 --pkg gtk+-3.0
+C_DEPS=`pkg-config --cflags --libs glib-2.0 libsoup-2.4 gtk+-3.0 totem libpeas-1.0`
 
 all:
-	valac -C arteplus7.vala cache.vala url-extractor.vala --pkg libsoup-2.4 --pkg totem --vapidir=./deps -D DEBUG_MESSAGES
-	gcc -shared -fPIC `pkg-config --cflags --libs glib-2.0 libsoup-2.4 gtk+-2.0 totem-plparser` -o libarteplus7.so arteplus7.c cache.c url-extractor.c -I./deps -D GETTEXT_PACKAGE="\"totem-arte\""
+	valac -C arteplus7.vala cache.vala url-extractor.vala $(VALA_DEPS) -D DEBUG_MESSAGES
+	gcc -shared -fPIC $(C_DEPS) -o libarteplus7.so arteplus7.c cache.c url-extractor.c -D GETTEXT_PACKAGE="\"totem-arte\""
 	msgfmt --output-file=po/de.mo po/de.po
 	msgfmt --output-file=po/fr.mo po/fr.po
 
 install:
 	mkdir -p $(DESTDIR)/usr/lib/totem/plugins/arteplus7 $(DESTDIR)/usr/share/totem/plugins/arteplus7
-	cp -f arteplus7.totem-plugin $(DESTDIR)/usr/lib/totem/plugins/arteplus7
+	cp -f arteplus7.plugin $(DESTDIR)/usr/lib/totem/plugins/arteplus7
 	cp -f libarteplus7.so $(DESTDIR)/usr/lib/totem/plugins/arteplus7
 	cp -f arteplus7-default.png $(DESTDIR)/usr/share/totem/plugins/arteplus7
 
@@ -41,7 +43,7 @@ dist:
 	mkdir $(PACKAGE)
 	mkdir $(PACKAGE)/po
 	mkdir $(PACKAGE)/deps
-	cp -f arteplus7.vala cache.vala url-extractor.vala arteplus7.totem-plugin $(PACKAGE)/
+	cp -f arteplus7.vala cache.vala url-extractor.vala arteplus7.plugin $(PACKAGE)/
 	cp -f arteplus7-default.png org.gnome.totem.plugins.arteplus7.gschema.xml $(PACKAGE)/
 	cp -f Makefile README AUTHORS COPYING NEWS ChangeLog $(PACKAGE)/
 	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/

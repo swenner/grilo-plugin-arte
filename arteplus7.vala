@@ -30,6 +30,8 @@ using GLib;
 using Soup;
 using Totem;
 using Gtk;
+using Peas;
+using PeasGtk;
 
 public enum VideoQuality
 {
@@ -329,8 +331,9 @@ public class ArteXMLParser : ArteParser
     }
 }
 
-class ArtePlugin : Totem.Plugin
+class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 {
+    public GLib.Object object { get; construct; }
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private Gtk.TreeView tree_view; /* list of movie thumbnails */
@@ -351,7 +354,10 @@ class ArtePlugin : Totem.Plugin
         N
     }
 
-    construct {
+    public ArtePlugin () {
+        /* constructor chain up hint */
+        GLib.Object ();
+
         /* Debug log handling */
         GLib.Log.set_handler ("\0", GLib.LogLevelFlags.LEVEL_DEBUG, debug_handler);
     }
@@ -363,9 +369,12 @@ class ArtePlugin : Totem.Plugin
 #endif
     }
 
-    public override bool activate (Totem.Object totem) throws GLib.Error
+    /* Gir doesn't allow marking functions as non-abstract */
+    public void update_state () {}
+
+    public void activate ()
     {
-        t = totem;
+        t = (Totem.Object) object;
         load_properties ();
         cache = new Cache (Environment.get_user_cache_dir ()
              + CACHE_PATH_SUFFIX);
@@ -430,7 +439,7 @@ class ArtePlugin : Totem.Plugin
         main_box.pack_start (scroll_win, true, true, 0);
         main_box.show_all ();
 
-        totem.add_sidebar_page ("arte", _("Arte+7"), main_box);
+        t.add_sidebar_page ("arte", _("Arte+7"), main_box);
         GLib.Idle.add (refresh_rss_feed);
         /* delete all files in the cache that are older than 8 days
          * with probability 1/5 at every startup */
@@ -444,28 +453,27 @@ class ArtePlugin : Totem.Plugin
         /* Refresh the feed on pressing 'F5' */
         var window = t.get_main_window ();
         window.key_press_event.connect (callback_F5_pressed);
-
-        return true;
     }
 
-    public override void deactivate (Totem.Object totem)
+    public void deactivate ()
     {
         /* Remove the 'F5' key event handler */
         var window = t.get_main_window ();
         window.key_press_event.disconnect (callback_F5_pressed);
         /* Remove the plugin tab */
-        totem.remove_sidebar_page ("arte");
+        t.remove_sidebar_page ("arte");
     }
 
-    public override Gtk.Widget create_configure_dialog ()
+    public Gtk.Widget create_configure_widget ()
     {
-        var langs = new Gtk.ComboBox.text ();
+        var langs = new Gtk.ComboBoxText ();
         langs.append_text (_("German"));
         langs.append_text (_("French"));
         if (language == Language.GERMAN)
             langs.set_active (0);
         else
             langs.set_active (1);
+        // FIXME: GTK3: does no longer work!
         langs.changed.connect (callback_language_changed);
 
         var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, _("_medium"));
@@ -489,23 +497,11 @@ class ArtePlugin : Totem.Plugin
         quali_box.pack_start (quali_radio_medium, false, true, 0);
         quali_box.pack_start (quali_radio_high, true, true, 0);
 
-        var dialog = new Dialog.with_buttons (_("Arte+7 Plugin Properties"),
-                null, Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.Stock.CLOSE, Gtk.ResponseType.CLOSE, null);
-        dialog.has_separator = false;
-        dialog.resizable = false;
-        dialog.border_width = 5;
-        dialog.vbox.spacing = 10;
-        dialog.vbox.pack_start (langs_box, false, true, 0);
-        dialog.vbox.pack_start (quali_box, false, true, 0);
-        dialog.show_all ();
+        var vbox = new Gtk.VBox (true, 20);
+        vbox.pack_start (langs_box, false, true, 0);
+        vbox.pack_start (quali_box, false, true, 0);
 
-        dialog.response.connect ((source, response_id) => {
-            if (response_id == Gtk.ResponseType.CLOSE)
-                dialog.destroy ();
-        });
-
-        return dialog;
+        return vbox;
     }
 
     public bool refresh_rss_feed ()
@@ -674,7 +670,7 @@ class ArtePlugin : Totem.Plugin
         string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
                 cache.default_thumbnail.get_pixels ());
 
-        for (int i=1; i<=list.length; i++) {
+        for (int i=1; i<=list.get_n_columns (); i++) {
             list.get_iter (out iter, path);
             list.get (iter, Col.IMAGE, out pb);
             md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
@@ -809,7 +805,7 @@ class ArtePlugin : Totem.Plugin
     private void callback_language_changed (Gtk.ComboBox box)
     {
         Language last = language;
-        string text = box.get_active_text ();
+        string text = ((Gtk.ComboBoxText) box).get_active_text ();
         if (text == _("German")) {
             language = Language.GERMAN;
         } else {
@@ -883,6 +879,7 @@ class ArtePlugin : Totem.Plugin
 
     private void menu_position (Menu menu, out int x, out int y, out bool push_in)
     {
+        /* FIXME: GTK3: Needs the Vala fix for Gdk.Rectangle
         int wy;
         Gdk.Rectangle rect;
         Gtk.Requisition requisition;
@@ -890,7 +887,7 @@ class ArtePlugin : Totem.Plugin
         tree_view.get_cell_area (path, null, out rect);
 
         wy = rect.y;
-        tree_view.window.get_origin (out x, out y);
+        tree_view.get_bin_window ().get_origin (out x, out y);
         menu.size_request (out requisition);
 
         x += 10;
@@ -899,11 +896,14 @@ class ArtePlugin : Totem.Plugin
         y = wy;
 
         push_in = true;
+        */
     }
 }
 
 [ModuleInit]
-public GLib.Type register_totem_plugin (GLib.TypeModule module)
+public void peas_register_types (GLib.TypeModule module)
 {
-    return typeof (ArtePlugin);
+    var objmodule = module as Peas.ObjectModule;
+    objmodule.register_extension_type (typeof(Peas.Activatable), typeof(ArtePlugin));
+    objmodule.register_extension_type (typeof(PeasGtk.Configurable), typeof(ArtePlugin));
 }
