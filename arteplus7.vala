@@ -750,7 +750,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         menu.select_first (false);
 
         if (event == null) {
-            /* called by menu key */
+            /* called by menu key (Shift + F10) */
             menu.popup (null, null, menu_position, 0, get_current_event_time ());
         } else {
             menu.popup (null, null, null, 3, event.time);
@@ -879,24 +879,25 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
     private void menu_position (Menu menu, out int x, out int y, out bool push_in)
     {
-        /* FIXME: GTK3: Needs the Vala fix for Gdk.Rectangle
         int wy;
         Gdk.Rectangle rect;
         Gtk.Requisition requisition;
+        Gtk.Allocation allocation;
+
         TreePath path = tree_view.get_selection ().get_selected_rows (null).data;
         tree_view.get_cell_area (path, null, out rect);
 
         wy = rect.y;
         tree_view.get_bin_window ().get_origin (out x, out y);
-        menu.size_request (out requisition);
+        menu.get_preferred_size (null, out requisition);
+        tree_view.get_allocation(out allocation);
 
         x += 10;
         wy = int.max (y + 5, y + wy + 5);
-        wy = int.min (wy, y + tree_view.allocation.height - requisition.height - 5);
+        wy = int.min (wy, y + allocation.height - requisition.height - 5);
         y = wy;
 
         push_in = true;
-        */
     }
 }
 
