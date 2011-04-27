@@ -716,8 +716,8 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 			} else {
 				proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
 				GLib.debug ("Using proxy: %s", proxy_uri.to_string (false));
-				proxy_username = proxy_settings.get_string ("authentication_user");
-				proxy_password = proxy_settings.get_string ("authentication_password");
+				proxy_username = proxy_settings.get_string ("authentication-user");
+				proxy_password = proxy_settings.get_string ("authentication-password");
 			}
 		}
 
