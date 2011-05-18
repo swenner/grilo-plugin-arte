@@ -183,9 +183,9 @@ public class ArteRSSParser : ArteParser
     {
         /* Parses the official RSS feed */
         xml_fr =
-            "http://videos.arte.tv/fr/do_delegate/videos/arte7/index-3188666,view,rss.xml";
+            "http://videos.arte.tv/fr/do_delegate/videos/index-3188626,view,rss.xml";
         xml_de =
-            "http://videos.arte.tv/de/do_delegate/videos/arte7/index-3188666,view,rss.xml";
+            "http://videos.arte.tv/de/do_delegate/videos/index-3188626,view,rss.xml";
     }
 
     protected override void open_tag (MarkupParseContext ctx,
