@@ -670,7 +670,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
                 cache.default_thumbnail.get_pixels ());
 
-        for (int i=1; i<=list.get_n_columns (); i++) {
+        for (int i=1; i<=list.iter_n_children (null); i++) {
             list.get_iter (out iter, path);
             list.get (iter, Col.IMAGE, out pb);
             md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
