@@ -344,7 +344,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
     private string? filter = null;
     public static unowned ArtePlugin main_instance = null;
     public Language language;
-    public VideoQuality quality = VideoQuality.WMV_HQ;
+    public VideoQuality quality;
 
     /* TreeView column names */
     private enum Col {
