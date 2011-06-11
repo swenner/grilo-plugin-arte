@@ -339,7 +339,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
     private Gtk.TreeView tree_view; /* list of movie thumbnails */
     private ArteParser p;
     private Cache cache; /* image thumbnail cache */
-    private GLib.StaticMutex tree_lock;
     private bool use_fallback_feed = false;
     private string? filter = null;
     public static unowned ArtePlugin main_instance = null;
@@ -472,9 +471,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
 
     public bool refresh_rss_feed ()
     {
-        if (!tree_lock.trylock ())
-            return false;
-
         search_entry.set_sensitive (false);
 
         TreeIter iter;
@@ -513,14 +509,12 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
                  * Switch to the RSS fallback feed without thumbnails. */
                 p = new ArteRSSParser();
                 use_fallback_feed = true;
-                tree_lock.unlock ();
                 /* ... and try again. */
                 refresh_rss_feed ();
             } else {
                 /* We are screwed! */
                 t.action_error (_("Markup Parser Error"),
                     _("Sorry, the plugin could not parse the Arte video feed."));
-                tree_lock.unlock ();
             }
             search_entry.set_sensitive (true);
             return false;
@@ -531,13 +525,11 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
                  * Switch to the RSS fallback feed without thumbnails. */
                 p = new ArteRSSParser();
                 use_fallback_feed = true;
-                tree_lock.unlock ();
                 /* ... and try again. */
                 refresh_rss_feed ();
             } else {
                 t.action_error (_("Network problem"),
                     _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings."));
-                tree_lock.unlock ();
             }
             search_entry.set_sensitive (true);
             return false;
@@ -604,7 +596,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
 
         tree_view.set_model (model_filter);
 
-        tree_lock.unlock ();
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
         GLib.debug ("Unique video count: %d", videocount);
