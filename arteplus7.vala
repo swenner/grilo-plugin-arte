@@ -726,31 +726,33 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
         model.get_iter (out iter, path);
         model.get (iter, Col.VIDEO_OBJECT, out v);
 
-        string uri = null;
-        try {
-            uri = v.get_stream_uri (quality, language);
-        } catch (ExtractionError e) {
-            if(e is ExtractionError.ACCESS_RESTRICTED) {
-                /* This video access is restricted */
-                t.action_error (_("This video access is restricted"),
-                        _("It seems that, because of its content, this video can only be watched in a precise time interval.\n\nYou may retry later, for example between 11 PM and 5 AM."));
-            } else if(e is ExtractionError.STREAM_NOT_READY) {
-                /* The video is part of the XML/RSS feed but no stream is available yet */
-                t.action_error (_("This video is not available yet"),
-                        _("Sorry, the plugin could not find any stream URL.\nIt seems that this video is not available yet, even on the Arte web-player.\n\nPlease retry later."));
-            } else if (e is ExtractionError.DOWNLOAD_FAILED) {
-                /* Network problems */
-                t.action_error (_("Video URL Extraction Error"),
-                        _("Sorry, the plugin could not extract a valid stream URL.\nPlease verify your network settings and (if any) your proxy settings."));
-            } else {
-                /* ExtractionError.EXTRACTION_ERROR or an unspecified error */
-                t.action_error (_("Video URL Extraction Error"),
-                        _("Sorry, the plugin could not extract a valid stream URL.\nPerhaps this stream is not yet available, you may retry in a few minutes.\n\nBe aware that this service is only available for IPs within Austria, Belgium, Germany, France and Switzerland."));
+        if (v != null) {
+            string uri = null;
+            try {
+                uri = v.get_stream_uri (quality, language);
+            } catch (ExtractionError e) {
+                if(e is ExtractionError.ACCESS_RESTRICTED) {
+                    /* This video access is restricted */
+                    t.action_error (_("This video access is restricted"),
+                            _("It seems that, because of its content, this video can only be watched in a precise time interval.\n\nYou may retry later, for example between 11 PM and 5 AM."));
+                } else if(e is ExtractionError.STREAM_NOT_READY) {
+                    /* The video is part of the XML/RSS feed but no stream is available yet */
+                    t.action_error (_("This video is not available yet"),
+                            _("Sorry, the plugin could not find any stream URL.\nIt seems that this video is not available yet, even on the Arte web-player.\n\nPlease retry later."));
+                } else if (e is ExtractionError.DOWNLOAD_FAILED) {
+                    /* Network problems */
+                    t.action_error (_("Video URL Extraction Error"),
+                            _("Sorry, the plugin could not extract a valid stream URL.\nPlease verify your network settings and (if any) your proxy settings."));
+                } else {
+                    /* ExtractionError.EXTRACTION_ERROR or an unspecified error */
+                    t.action_error (_("Video URL Extraction Error"),
+                            _("Sorry, the plugin could not extract a valid stream URL.\nPerhaps this stream is not yet available, you may retry in a few minutes.\n\nBe aware that this service is only available for IPs within Austria, Belgium, Germany, France and Switzerland."));
+                }
+                return;
             }
-            return;
-        }
 
-        t.add_to_playlist_and_play (uri, v.title, false);
+            t.add_to_playlist_and_play (uri, v.title, false);
+        }
     }
 
     private void callback_refresh_rss_feed ()
