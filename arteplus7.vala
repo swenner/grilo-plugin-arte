@@ -331,7 +331,7 @@ public class ArteXMLParser : ArteParser
     }
 }
 
-class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
+class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 {
     public GLib.Object object { get; construct; }
     private Totem.Object t;
@@ -339,11 +339,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
     private Gtk.TreeView tree_view; /* list of movie thumbnails */
     private ArteParser p;
     private Cache cache; /* image thumbnail cache */
+    private Language language = Language.FRENCH;
+    private VideoQuality quality = VideoQuality.WMV_HQ;
     private bool use_fallback_feed = false;
     private string? filter = null;
-    public static unowned ArtePlugin main_instance = null;
-    public Language language;
-    public VideoQuality quality;
 
     /* TreeView column names */
     private enum Col {
@@ -360,11 +359,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
 
         /* Debug log handling */
         GLib.Log.set_handler ("\0", GLib.LogLevelFlags.LEVEL_DEBUG, debug_handler);
-    }
-
-    construct
-    {
-        main_instance = this;
     }
 
     private void debug_handler (string? log_domain, GLib.LogLevelFlags log_levels, string message)
@@ -467,6 +461,46 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
         window.key_press_event.disconnect (callback_F5_pressed);
         /* Remove the plugin tab */
         t.remove_sidebar_page ("arte");
+    }
+
+    public Gtk.Widget create_configure_widget ()
+    {
+        var langs = new Gtk.ComboBoxText ();
+        langs.append_text (_("German"));
+        langs.append_text (_("French"));
+        if (language == Language.GERMAN)
+            langs.set_active (0);
+        else
+            langs.set_active (1);
+        // FIXME: GTK3: does no longer work!
+        langs.changed.connect (callback_language_changed);
+
+        var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, _("_medium"));
+        var quali_radio_high = new Gtk.RadioButton.with_mnemonic_from_widget (
+                quali_radio_medium, _("_high"));
+        if (quality == VideoQuality.WMV_MQ)
+            quali_radio_medium.set_active (true);
+        else
+            quali_radio_high.set_active (true);
+
+        quali_radio_medium.toggled.connect (callback_quality_toggled);
+
+        var langs_label = new Gtk.Label (_("Language:"));
+        var langs_box = new HBox (false, 20);
+        langs_box.pack_start (langs_label, false, true, 0);
+        langs_box.pack_start (langs, true, true, 0);
+
+        var quali_label = new Gtk.Label (_("Video quality:"));
+        var quali_box = new HBox (false, 20);
+        quali_box.pack_start (quali_label, false, true, 0);
+        quali_box.pack_start (quali_radio_medium, false, true, 0);
+        quali_box.pack_start (quali_radio_high, true, true, 0);
+
+        var vbox = new Gtk.VBox (true, 20);
+        vbox.pack_start (langs_box, false, true, 0);
+        vbox.pack_start (quali_box, false, true, 0);
+
+        return vbox;
     }
 
     public bool refresh_rss_feed ()
@@ -643,7 +677,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
     }
 
     /* stores properties in dconf */
-    public void store_properties ()
+    private void store_properties ()
     {
         var settings = new GLib.Settings (DCONF_ID);
         if (!settings.set_int ("quality", (int) quality)) {
@@ -761,10 +795,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
         GLib.Idle.add (refresh_rss_feed);
     }
 
-    public void callback_language_changed (Gtk.ComboBox box)
+    private void callback_language_changed (Gtk.ComboBox box)
     {
         Language last = language;
-        string text = ((Gtk.ComboBoxText) box).get_active_text (); // TODO something better than reading the label (and so its translation)?
+        string text = ((Gtk.ComboBoxText) box).get_active_text ();
         if (text == _("German")) {
             language = Language.GERMAN;
         } else {
@@ -776,7 +810,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
         }
     }
 
-    public void callback_quality_toggled (Gtk.ToggleButton button)
+    private void callback_quality_toggled (Gtk.ToggleButton button)
     {
         VideoQuality last = quality;
         bool mq_active = button.get_active ();
@@ -860,61 +894,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable
     }
 }
 
-class ArtePluginConf : Peas.ExtensionBase, PeasGtk.Configurable
-{
-    private ArtePlugin mi = ArtePlugin.main_instance;
-
-    public ArtePluginConf ()
-    {
-        GLib.Object ();
-    }
-
-    /* This code must be independent from the rest of the plugin. */
-    public Gtk.Widget create_configure_widget ()
-    {
-        var langs = new Gtk.ComboBoxText ();
-        langs.append_text (_("German"));
-        langs.append_text (_("French"));
-
-        if (mi.language == Language.GERMAN)
-            langs.set_active (0);
-        else
-            langs.set_active (1);
-        langs.changed.connect (mi.callback_language_changed);
-
-        var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, _("_medium"));
-        var quali_radio_high = new Gtk.RadioButton.with_mnemonic_from_widget (
-                quali_radio_medium, _("_high"));
-        if (mi.quality == VideoQuality.WMV_MQ)
-            quali_radio_medium.set_active (true);
-        else
-            quali_radio_high.set_active (true);
-
-        quali_radio_medium.toggled.connect (mi.callback_quality_toggled);
-
-        var langs_label = new Gtk.Label (_("Language:"));
-        var langs_box = new HBox (false, 20);
-        langs_box.pack_start (langs_label, false, true, 0);
-        langs_box.pack_start (langs, true, true, 0);
-
-        var quali_label = new Gtk.Label (_("Video quality:"));
-        var quali_box = new HBox (false, 20);
-        quali_box.pack_start (quali_label, false, true, 0);
-        quali_box.pack_start (quali_radio_medium, false, true, 0);
-        quali_box.pack_start (quali_radio_high, true, true, 0);
-
-        var vbox = new Gtk.VBox (true, 20);
-        vbox.pack_start (langs_box, false, true, 0);
-        vbox.pack_start (quali_box, false, true, 0);
-
-        return vbox;
-    }
-}
-
 [ModuleInit]
 public void peas_register_types (GLib.TypeModule module)
 {
     var objmodule = module as Peas.ObjectModule;
     objmodule.register_extension_type (typeof(Peas.Activatable), typeof(ArtePlugin));
-    objmodule.register_extension_type (typeof(PeasGtk.Configurable), typeof(ArtePluginConf));
+    objmodule.register_extension_type (typeof(PeasGtk.Configurable), typeof(ArtePlugin));
 }
