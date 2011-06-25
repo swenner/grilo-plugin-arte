@@ -92,7 +92,7 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
 
     /* Setup quality string */
     string quali_str = "hd";
-    if (q == VideoQuality.WMV_MQ)
+    if (q == VideoQuality.MEDIUM)
       quali_str = "sd";
 
     /* Get the Arte Flash player URI */
@@ -135,12 +135,12 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
 
     /* sometimes only one quality level is available */
     if (rtmp_uri == null) {
-      if (q == VideoQuality.WMV_HQ) {
-        q = VideoQuality.WMV_MQ;
+      if (q == VideoQuality.HIGH) {
+        q = VideoQuality.MEDIUM;
         quali_str = "sd";
         GLib.warning ("No high quality stream available. Fallback to medium quality.");
-      } else if (q == VideoQuality.WMV_MQ) {
-        q = VideoQuality.WMV_HQ;
+      } else if (q == VideoQuality.MEDIUM) {
+        q = VideoQuality.HIGH;
         quali_str = "hd";
         GLib.warning ("No medium quality stream available. Fallback to high quality.");
       }

@@ -35,11 +35,8 @@ using PeasGtk;
 
 public enum VideoQuality
 {
-    UNKNOWN = 0,
-    WMV_MQ,
-    WMV_HQ,
-    FLV_MQ,
-    FLV_HQ
+    MEDIUM = 0,
+    HIGH
 }
 
 public enum Language
@@ -338,9 +335,11 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private Gtk.TreeView tree_view; /* list of movie thumbnails */
     private ArteParser p;
+    private GLib.Settings settings;
+    private GLib.Settings proxy_settings;
     private Cache cache; /* image thumbnail cache */
-    private Language language = Language.FRENCH;
-    private VideoQuality quality = VideoQuality.WMV_HQ;
+    private Language language;
+    private VideoQuality quality;
     private bool use_fallback_feed = false;
     private string? filter = null;
 
@@ -361,6 +360,13 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         GLib.Log.set_handler ("\0", GLib.LogLevelFlags.LEVEL_DEBUG, debug_handler);
     }
 
+    construct
+    {
+        settings = new GLib.Settings (DCONF_ID);
+        proxy_settings = new GLib.Settings (DCONF_HTTP_PROXY);
+        load_properties ();
+    }
+
     private void debug_handler (string? log_domain, GLib.LogLevelFlags log_levels, string message)
     {
 #if DEBUG_MESSAGES
@@ -373,8 +379,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
     public void activate ()
     {
+        settings.changed.connect ((key) => {on_settings_changed (key);});
+        proxy_settings.changed.connect ((key) => {on_settings_changed (key);});
+
         t = (Totem.Object) object;
-        load_properties ();
         cache = new Cache (Environment.get_user_cache_dir ()
              + CACHE_PATH_SUFFIX);
         p = new ArteXMLParser ();
@@ -463,27 +471,70 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         t.remove_sidebar_page ("arte");
     }
 
+    /* This code must be independent from the rest of the plugin */
     public Gtk.Widget create_configure_widget ()
     {
         var langs = new Gtk.ComboBoxText ();
-        langs.append_text (_("German"));
         langs.append_text (_("French"));
+        langs.append_text (_("German"));
         if (language == Language.GERMAN)
-            langs.set_active (0);
-        else
             langs.set_active (1);
-        // FIXME: GTK3: does no longer work!
-        langs.changed.connect (callback_language_changed);
+        else
+            langs.set_active (0);
+
+        langs.changed.connect (() => {
+            Language last = language;
+            if (langs.get_active () == 1) {
+                language = Language.GERMAN;
+            } else {
+                language = Language.FRENCH;
+            }
+            if (last != language) {
+                if (!settings.set_enum ("language", (int) language))
+                    GLib.warning ("Storing the language setting failed.");
+            };
+        });
+
+        settings.changed["language"].connect (() => {
+            var l = settings.get_enum ("language");
+            if (l == 1) {
+                language = Language.FRENCH;
+                langs.set_active (0);
+            } else if (l == 2) {
+                language = Language.GERMAN;
+                langs.set_active (1);
+            }
+        });
 
         var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, _("_medium"));
         var quali_radio_high = new Gtk.RadioButton.with_mnemonic_from_widget (
                 quali_radio_medium, _("_high"));
-        if (quality == VideoQuality.WMV_MQ)
+        if (quality == VideoQuality.MEDIUM)
             quali_radio_medium.set_active (true);
         else
             quali_radio_high.set_active (true);
 
-        quali_radio_medium.toggled.connect (callback_quality_toggled);
+        quali_radio_medium.toggled.connect (() => {
+            VideoQuality last = quality;
+            if (quali_radio_medium.get_active ())
+                quality = VideoQuality.MEDIUM;
+            else
+                quality = VideoQuality.HIGH;
+            if (last != quality) {
+                if (!settings.set_enum ("quality", (int) quality))
+                    GLib.warning ("Storing the quality setting failed.");
+            }
+        });
+
+        settings.changed["quality"].connect (() => {
+            if (settings.get_enum ("quality") == 0) {
+                quality = VideoQuality.MEDIUM;
+                quali_radio_medium.set_active (true);
+            } else {
+                quality = VideoQuality.HIGH;
+                quali_radio_high.set_active (true);
+            }
+        });
 
         var langs_label = new Gtk.Label (_("Language:"));
         var langs_box = new HBox (false, 20);
@@ -676,28 +727,14 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         }
     }
 
-    /* stores properties in dconf */
-    private void store_properties ()
-    {
-        var settings = new GLib.Settings (DCONF_ID);
-        if (!settings.set_int ("quality", (int) quality)) {
-            GLib.warning ("Storing the quality setting failed.");
-        }
-        if (!settings.set_int ("language", (int) language)) {
-            GLib.warning ("Storing the language setting failed.");
-        }
-    }
-
     /* loads properties from dconf */
     private void load_properties ()
     {
-        var settings = new GLib.Settings (DCONF_ID);
-        var proxy_settings = new GLib.Settings (DCONF_HTTP_PROXY);
         string parsed_proxy_uri = "";
         int proxy_port;
 
-        quality = (VideoQuality) settings.get_int ("quality");
-        language = (Language) settings.get_int ("language");
+        quality = (VideoQuality) settings.get_enum ("quality");
+        language = (Language) settings.get_enum ("language");
         use_proxy = proxy_settings.get_boolean ("enabled");
         if (use_proxy) {
             parsed_proxy_uri = proxy_settings.get_string ("host");
@@ -712,18 +749,27 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
             }
         }
 
-        if (quality == VideoQuality.UNKNOWN) { /* HQ is the default quality */
-            quality = VideoQuality.WMV_HQ;
-            store_properties ();
-        }
         if (language == Language.UNKNOWN) { /* Try to guess user prefer language at first run */
             var env_lang = Environment.get_variable ("LANG");
-            if (env_lang != null && env_lang.substring (0,2) == "de") {
+            if (env_lang != null
+            & env_lang.substring (0,2) == "de") {
                 language = Language.GERMAN;
             } else {
                 language = Language.FRENCH; /* Otherwise, French is the default language */
             }
-            store_properties ();
+            if (!settings.set_enum ("language", (int) language))
+                GLib.warning ("Storing the language setting failed.");
+        }
+    }
+
+    private void on_settings_changed (string key)
+    {
+        if (key == "quality")
+            load_properties ();
+        else {/* Reload the feed if the language or proxy settings changed */
+            load_properties ();
+            use_fallback_feed = false;
+            GLib.Idle.add (refresh_rss_feed);
         }
     }
 
@@ -793,35 +839,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
     {
         use_fallback_feed = false;
         GLib.Idle.add (refresh_rss_feed);
-    }
-
-    private void callback_language_changed (Gtk.ComboBox box)
-    {
-        Language last = language;
-        string text = ((Gtk.ComboBoxText) box).get_active_text ();
-        if (text == _("German")) {
-            language = Language.GERMAN;
-        } else {
-            language = Language.FRENCH;
-        }
-        if (last != language) {
-            GLib.Idle.add (refresh_rss_feed);
-            store_properties ();
-        }
-    }
-
-    private void callback_quality_toggled (Gtk.ToggleButton button)
-    {
-        VideoQuality last = quality;
-        bool mq_active = button.get_active ();
-        if (mq_active) {
-            quality = VideoQuality.WMV_MQ;
-        } else {
-            quality = VideoQuality.WMV_HQ;
-        }
-        if (last != quality) {
-            store_properties ();
-        }
     }
 
     private bool callback_F5_pressed (Gdk.EventKey event)
