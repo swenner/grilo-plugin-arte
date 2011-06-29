@@ -3,13 +3,18 @@ VERSION=3.0.0
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 VALA_DEPS=--pkg Totem-1.0 --pkg PeasGtk-1.0 --pkg libsoup-2.4 --pkg gtk+-3.0
+CC_ARGS=-X -fPIC -X -shared --Xcc='-D GETTEXT_PACKAGE="\"totem-arte\""'
+VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS)
 VALA_SOURCE=\
 	arteplus7.vala \
 	arteparser.vala \
 	cache.vala \
 	url-extractor.vala
-CC_ARGS=-X -fPIC -X -shared --Xcc='-D GETTEXT_PACKAGE="\"totem-arte\""'
-VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS)
+EXTRA_DIST=\
+	arteplus7.plugin \
+	arteplus7-default.png \
+	org.gnome.totem.plugins.arteplus7.gschema.xml \
+	Makefile README AUTHORS COPYING NEWS ChangeLog
 
 all:
 	valac --library=arteplus7 $(VALA_SOURCE) $(VALA_DEPS) $(VALA_ARGS) -o libarteplus7.so 
@@ -48,12 +53,8 @@ dist:
 	git log --pretty=short > ChangeLog
 	mkdir $(PACKAGE)
 	mkdir $(PACKAGE)/po
-	mkdir $(PACKAGE)/deps
-	cp -f $(VALA_SOURCE) arteplus7.plugin $(PACKAGE)/
-	cp -f arteplus7-default.png org.gnome.totem.plugins.arteplus7.gschema.xml $(PACKAGE)/
-	cp -f Makefile README AUTHORS COPYING NEWS ChangeLog $(PACKAGE)/
+	cp -f $(VALA_SOURCE) $(PACKAGE)/
+	cp -f $(EXTRA_DIST) $(PACKAGE)/
 	cp -f po/POTFILES.in po/de.po po/fr.po $(PACKAGE)/po/
-	cp -f deps/*.h deps/totem.vapi deps/totem.deps deps/COPYING.LGPL deps/license_change $(PACKAGE)/deps/
 	tar -pczf $(PACKAGE).tar.gz $(PACKAGE)/
 	rm -rf $(PACKAGE)
-
