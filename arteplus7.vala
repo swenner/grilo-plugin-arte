@@ -83,42 +83,12 @@ public static Soup.SessionAsync create_session ()
     return session;
 }
 
-public class Video : GLib.Object
-{
-    public string title = null;
-    public string page_url = null;
-    public string image_url = null;
-    public string desc = null;
-    public GLib.TimeVal publication_date;
-    public GLib.TimeVal offline_date;
-
-    public Video()
-    {
-         publication_date.tv_sec = 0;
-         offline_date.tv_sec = 0;
-    }
-
-    public void print ()
-    {
-        stdout.printf ("Video: %s: %s, %s, %s\n", title,
-                publication_date.to_iso8601 (),
-                offline_date.to_iso8601 (), page_url);
-    }
-
-    public string get_stream_uri (VideoQuality q, Language lang)
-        throws ExtractionError
-    {
-        var extractor = new RTMPStreamUrlExtractor ();
-        return extractor.get_url (q, lang, page_url);
-    }
-}
-
 class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 {
     public GLib.Object object { get; construct; }
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
-    private Gtk.TreeView tree_view; /* list of movie thumbnails */
+    private VideoListView tree_view; /* list of movie thumbnails */
     private ArteParser p;
     private GLib.Settings settings;
     private GLib.Settings proxy_settings;
@@ -128,7 +98,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
     private bool use_fallback_feed = false;
     private string? filter = null;
 
-    /* TreeView column names */
+    /* FIXME TreeView column names */
     private enum Col {
         IMAGE,
         NAME,
@@ -171,26 +141,14 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         cache = new Cache (Environment.get_user_cache_dir ()
              + CACHE_PATH_SUFFIX);
         p = new ArteXMLParser ();
-        tree_view = new Gtk.TreeView ();
+        tree_view = new VideoListView ();
 
-        var renderer = new Totem.CellRendererVideo (false);
-        tree_view.insert_column_with_attributes (0, "", renderer,
-                "thumbnail", Col.IMAGE,
-                "title", Col.NAME, null);
-        tree_view.set_headers_visible (false);
-        tree_view.set_tooltip_column (Col.DESCRIPTION);
         tree_view.row_activated.connect (callback_select_video_in_tree_view);
 
         var scroll_win = new Gtk.ScrolledWindow (null, null);
         scroll_win.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
         scroll_win.set_shadow_type (ShadowType.IN);
         scroll_win.add (tree_view);
-
-        /* context menu on right click */
-        tree_view.button_press_event.connect (callback_right_click);
-
-        /* context menu on shift-f10 (or menu key) */
-        tree_view.popup_menu.connect (callback_menu_key);
 
         /* add a search entry with a refresh and a cleanup icon */
         search_entry = new Gtk.Entry ();
@@ -552,31 +510,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
     {
         if (key == "quality")
             load_properties ();
-        else {/* Reload the feed if the language or proxy settings changed */
+        else { /* Reload the feed if the language or proxy settings changed */
             load_properties ();
             use_fallback_feed = false;
             GLib.Idle.add (refresh_rss_feed);
-        }
-    }
-
-    private void show_popup_menu (Gdk.EventButton? event)
-    {
-        var menu = new Gtk.Menu ();
-        var menu_web = new ImageMenuItem.from_stock (Gtk.Stock.JUMP_TO, null);
-        menu_web.set_label (_("_Open in Web Browser"));
-        menu_web.activate.connect (callback_open_in_web_browser);
-        
-        menu.attach (menu_web, 0, 1, 0, 1);
-
-        menu.attach_to_widget (tree_view, null);
-        menu.show_all();
-        menu.select_first (false);
-
-        if (event == null) {
-            /* called by menu key (Shift + F10) */
-            menu.popup (null, null, menu_position, 0, get_current_event_time ());
-        } else {
-            menu.popup (null, null, null, 3, event.time);
         }
     }
 
@@ -635,65 +572,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
         /* propagate the signal to the next handler */
         return false;
-    }
-
-    private void callback_open_in_web_browser ()
-    {
-        TreeIter iter;
-        TreePath path;
-        Video v;
-        string url;
-
-        /* retrieve url of the selected video */
-        path = tree_view.get_selection ().get_selected_rows (null).data;
-        tree_view.model.get_iter (out iter, path);
-        tree_view.model.get (iter, Col.VIDEO_OBJECT, out v);
-        url = v.page_url;
-
-        try {
-            Process.spawn_command_line_async ("xdg-open " + url);
-        } catch (SpawnError e) {
-            GLib.critical ("Fail to spawn process: " + e.message);
-        }
-    }
-
-    private bool callback_right_click (Gdk.EventButton event)
-    {
-        if (event.button == 3)
-            show_popup_menu (event);
-
-        return false;
-    }
-
-    private bool callback_menu_key ()
-    {
-        show_popup_menu (null);
-
-        /* do NOT propagate the signal */
-        return true;
-    }
-
-    private void menu_position (Menu menu, out int x, out int y, out bool push_in)
-    {
-        int wy;
-        Gdk.Rectangle rect;
-        Gtk.Requisition requisition;
-        Gtk.Allocation allocation;
-
-        TreePath path = tree_view.get_selection ().get_selected_rows (null).data;
-        tree_view.get_cell_area (path, null, out rect);
-
-        wy = rect.y;
-        tree_view.get_bin_window ().get_origin (out x, out y);
-        menu.get_preferred_size (null, out requisition);
-        tree_view.get_allocation(out allocation);
-
-        x += 10;
-        wy = int.max (y + 5, y + wy + 5);
-        wy = int.min (wy, y + allocation.height - requisition.height - 5);
-        y = wy;
-
-        push_in = true;
     }
 }
 

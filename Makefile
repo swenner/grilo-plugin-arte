@@ -9,7 +9,9 @@ VALA_SOURCE=\
 	arteplus7.vala \
 	arteparser.vala \
 	cache.vala \
-	url-extractor.vala
+	url-extractor.vala \
+	video.vala \
+	video-list-view.vala
 EXTRA_DIST=\
 	arteplus7.plugin \
 	arteplus7-default.png \
