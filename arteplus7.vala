@@ -35,7 +35,8 @@ using PeasGtk;
 
 public enum VideoQuality
 {
-    MEDIUM = 0,
+    UNKNOWN = 0,
+    MEDIUM,
     HIGH
 }
 
@@ -497,12 +498,12 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
         settings.changed["language"].connect (() => {
             var l = settings.get_enum ("language");
-            if (l == 1) {
-                language = Language.FRENCH;
-                langs.set_active (0);
-            } else if (l == 2) {
+            if (l == Language.GERMAN) {
                 language = Language.GERMAN;
                 langs.set_active (1);
+            } else {
+                language = Language.FRENCH;
+                langs.set_active (0);
             }
         });
 
@@ -520,6 +521,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
                 quality = VideoQuality.MEDIUM;
             else
                 quality = VideoQuality.HIGH;
+
             if (last != quality) {
                 if (!settings.set_enum ("quality", (int) quality))
                     GLib.warning ("Storing the quality setting failed.");
@@ -527,7 +529,8 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         });
 
         settings.changed["quality"].connect (() => {
-            if (settings.get_enum ("quality") == 0) {
+            var q = settings.get_enum ("quality");
+            if (q == VideoQuality.MEDIUM) {
                 quality = VideoQuality.MEDIUM;
                 quali_radio_medium.set_active (true);
             } else {

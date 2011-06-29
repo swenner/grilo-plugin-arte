@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <schemalist>
   <enum id="org.gnome.totem.plugins.arteplus7.quality">
-    <value value="0" nick="Medium"/>
-    <value value="1" nick="High"/>
+    <value value="0" nick="Unknown"/>
+    <value value="1" nick="Medium"/>
+    <value value="2" nick="High"/>
   </enum>
   <enum id="org.gnome.totem.plugins.arteplus7.language">
-    <value value="0" nick="Try to guess"/>
+    <value value="0" nick="Unknown"/>
     <value value="1" nick="French"/>
     <value value="2" nick="German"/>
   </enum>
@@ -16,7 +17,7 @@
       <description>The video stream quality.</description>
     </key>
     <key name="language" enum="org.gnome.totem.plugins.arteplus7.language">
-      <default>'Try to guess'</default>
+      <default>'Unknown'</default>
       <summary>Language</summary>
       <description>The language of the video stream (French or German).</description>
     </key>
