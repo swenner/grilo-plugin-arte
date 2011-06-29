@@ -86,6 +86,11 @@ public abstract class ArteParser : GLib.Object
     protected virtual void process_text (MarkupParseContext ctx,
             string text,
             size_t text_len) throws MarkupError {}
+
+    protected string sanitise_markup(string str)
+    {
+        return str.replace("&", "&amp;");
+    }
 }
 
 public class ArteRSSParser : ArteParser
@@ -146,7 +151,7 @@ public class ArteRSSParser : ArteParser
                     current_video.page_url = text;
                     break;
                 case "description":
-                    current_video.desc = text;
+                    current_video.desc = sanitise_markup(text);
                     break;
                 case "pubDate":
                     current_video.publication_date.from_iso8601 (text);
@@ -232,7 +237,7 @@ public class ArteXMLParser : ArteParser
                     current_video.image_url = "http://videos.arte.tv" + text;
                     break;
                 case "teaserText":
-                    current_video.desc = text;
+                    current_video.desc = sanitise_markup(text);
                     break;
                 case "startDate":
                     current_video.publication_date.from_iso8601 (text);
