@@ -39,134 +39,134 @@ public errordomain ExtractionError
 
 public interface Extractor : GLib.Object
 {
-  public abstract string get_url (VideoQuality q, Language lang, string page_url)
-      throws ExtractionError;
+    public abstract string get_url (VideoQuality q, Language lang, string page_url)
+            throws ExtractionError;
 }
 
 public class StreamUrlExtractor : GLib.Object
 {
-  protected Soup.SessionAsync session;
+    protected Soup.SessionAsync session;
 
-  public StreamUrlExtractor()
-  {
-    session = create_session ();
-  }
-
-  protected string extract_string_from_page (string url, string regexp)
-      throws ExtractionError
-  {
-    /* Download */
-    var msg = new Soup.Message ("GET", url);
-    this.session.send_message(msg);
-    if (msg.response_body.data == null)
-      throw new ExtractionError.DOWNLOAD_FAILED ("Video URL Extraction Error");
-
-    /* Extract */
-    string res = null;
-    try {
-      MatchInfo match;
-      var regex = new Regex (regexp);
-      regex.match((string) msg.response_body.flatten ().data, 0, out match);
-      res = match.fetch(1);
-    } catch (RegexError e) {
-        GLib.warning ("%s", e.message);
-        throw new ExtractionError.EXTRACTION_FAILED (e.message);
+    public StreamUrlExtractor()
+    {
+        session = create_session ();
     }
 
-    return res;
-  }
+    protected string extract_string_from_page (string url, string regexp)
+            throws ExtractionError
+    {
+        /* Download */
+        var msg = new Soup.Message ("GET", url);
+        this.session.send_message(msg);
+        if (msg.response_body.data == null)
+            throw new ExtractionError.DOWNLOAD_FAILED ("Video URL Extraction Error");
+
+        /* Extract */
+        string res = null;
+        try {
+            MatchInfo match;
+            var regex = new Regex (regexp);
+            regex.match((string) msg.response_body.flatten ().data, 0, out match);
+            res = match.fetch(1);
+        } catch (RegexError e) {
+            GLib.warning ("%s", e.message);
+            throw new ExtractionError.EXTRACTION_FAILED (e.message);
+        }
+
+        return res;
+    }
 }
 
 public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
 {
-  public string get_url (VideoQuality q, Language lang, string page_url)
-      throws ExtractionError
-  {
-    string regexp, url;
-    GLib.debug ("Initial Page URL:\t\t'%s'", page_url);
+    public string get_url (VideoQuality q, Language lang, string page_url)
+            throws ExtractionError
+    {
+        string regexp, url;
+        GLib.debug ("Initial Page URL:\t\t'%s'", page_url);
 
-    /* Setup the language string */
-    string lang_str = "fr";
-    if (lang == Language.GERMAN)
-      lang_str = "de";
+        /* Setup the language string */
+        string lang_str = "fr";
+        if (lang == Language.GERMAN)
+            lang_str = "de";
 
-    /* Setup quality string */
-    string quali_str = "hd";
-    if (q == VideoQuality.MEDIUM)
-      quali_str = "sd";
+        /* Setup quality string */
+        string quali_str = "hd";
+        if (q == VideoQuality.MEDIUM)
+            quali_str = "sd";
 
-    /* Get the Arte Flash player URI */
-    // Example:
-    // var url_player = "http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf";
-    regexp = "var url_player = \"(http://.*.swf)\";";
-    var flash_player_uri = extract_string_from_page (page_url, regexp);
-    GLib.debug ("Extract Flash player URI:\t'%s'", flash_player_uri);
-    if (flash_player_uri == null)
-      throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
+        /* Get the Arte Flash player URI */
+        // Example:
+        // var url_player = "http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf";
+        regexp = "var url_player = \"(http://.*.swf)\";";
+        var flash_player_uri = extract_string_from_page (page_url, regexp);
+        GLib.debug ("Extract Flash player URI:\t'%s'", flash_player_uri);
+        if (flash_player_uri == null)
+            throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
-    /* Get the Flash XML data */
-    // Example:
-    // vars_player.videorefFileUrl = "http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219416,view,asPlayerXml.xml";
-    regexp = "videorefFileUrl = \"(http://.*.xml)\";";
-    url = extract_string_from_page (page_url, regexp);
-    GLib.debug ("Extract Flash Videoref:\t'%s'", url);
+        /* Get the Flash XML data */
+        // Example:
+        // vars_player.videorefFileUrl = "http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219416,view,asPlayerXml.xml";
+        regexp = "videorefFileUrl = \"(http://.*.xml)\";";
+        url = extract_string_from_page (page_url, regexp);
+        GLib.debug ("Extract Flash Videoref:\t'%s'", url);
 
-    if (url == null)
-      throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
+        if (url == null)
+            throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
-    /* Get the language specific flash XML data */
-    // Example:
-    // <video lang="de" ref="http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219418,view,asPlayerXml.xml"/>
-    // <video lang="fr" ref="http://videos.arte.tv/fr/do_delegate/videos/secrets_de_plantes-3219420,view,asPlayerXml.xml"/>
-    regexp = "video lang=\"" + lang_str + "\" ref=\"(http://.*.xml)\"";
-    url = extract_string_from_page (url, regexp);
-    GLib.debug ("Extract Flash Lang Videoref:\t'%s'", url);
+        /* Get the language specific flash XML data */
+        // Example:
+        // <video lang="de" ref="http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219418,view,asPlayerXml.xml"/>
+        // <video lang="fr" ref="http://videos.arte.tv/fr/do_delegate/videos/secrets_de_plantes-3219420,view,asPlayerXml.xml"/>
+        regexp = "video lang=\"" + lang_str + "\" ref=\"(http://.*.xml)\"";
+        url = extract_string_from_page (url, regexp);
+        GLib.debug ("Extract Flash Lang Videoref:\t'%s'", url);
 
-    if (url == null)
-      throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
+        if (url == null)
+            throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
-    /* Get the RTMP uri. */
-    // Example:
-    // <url quality="hd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_037778-021-B_PG_HQ_FR?h=7258f52f54eb0d320f6650e647432f03</url>
-    // <url quality="sd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_06_037778-021-B_PG_MQ_FR?h=76c529bce0f034e74dc92a14549d6a4e</url>
-    regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
-    var rtmp_uri = extract_string_from_page (url, regexp);
-    GLib.debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
+        /* Get the RTMP uri. */
+        // Example:
+        // <url quality="hd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_037778-021-B_PG_HQ_FR?h=7258f52f54eb0d320f6650e647432f03</url>
+        // <url quality="sd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_06_037778-021-B_PG_MQ_FR?h=76c529bce0f034e74dc92a14549d6a4e</url>
+        regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
+        var rtmp_uri = extract_string_from_page (url, regexp);
+        GLib.debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
 
-    /* sometimes only one quality level is available */
-    if (rtmp_uri == null) {
-      if (q == VideoQuality.HIGH) {
-        q = VideoQuality.MEDIUM;
-        quali_str = "sd";
-        GLib.warning ("No high quality stream available. Fallback to medium quality.");
-      } else if (q == VideoQuality.MEDIUM) {
-        q = VideoQuality.HIGH;
-        quali_str = "hd";
-        GLib.warning ("No medium quality stream available. Fallback to high quality.");
-      }
-      regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
-      rtmp_uri = extract_string_from_page (url, regexp);
-      GLib.debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
+        /* sometimes only one quality level is available */
+        if (rtmp_uri == null) {
+            if (q == VideoQuality.HIGH) {
+                q = VideoQuality.MEDIUM;
+                quali_str = "sd";
+                GLib.warning ("No high quality stream available. Fallback to medium quality.");
+            } else if (q == VideoQuality.MEDIUM) {
+                q = VideoQuality.HIGH;
+                quali_str = "hd";
+                GLib.warning ("No medium quality stream available. Fallback to high quality.");
+            }
+            regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
+            rtmp_uri = extract_string_from_page (url, regexp);
+            GLib.debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
 
-      if (rtmp_uri == null)
-        throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
+            if (rtmp_uri == null)
+                throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
+        }
+
+        /* detect videos with temporal restrictions */
+        if (rtmp_uri.has_suffix ("/carton_23h_fr.mp4") || rtmp_uri.has_suffix ("/carton_23h_de.mp4"))
+            throw new ExtractionError.ACCESS_RESTRICTED ("This video is not available currently");
+
+        /* Build the stream URI
+         * To prevent regular disconnections (and so to keep the plugin usable),
+         * we need to pass the Flash player uri to GStreamer.
+         * We do that by appending it to the stream uri.
+         * (see the librtmp manual for more information) */
+        // Example:
+        // rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_042143-002-A_PG_HQ_FR?h=d7878fae5c9726844d22da78e05f764e swfVfy=1 swfUrl=http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf
+        string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + flash_player_uri;
+        GLib.debug ("Build stream URI:\t\t'%s'", stream_uri);
+
+        return stream_uri;
     }
-
-    /* detect videos with temporal restrictions */
-    if (rtmp_uri.has_suffix ("/carton_23h_fr.mp4") || rtmp_uri.has_suffix ("/carton_23h_de.mp4"))
-      throw new ExtractionError.ACCESS_RESTRICTED ("This video is not available currently");
-    
-    /* Build the stream URI
-     * To prevent regular disconnections (and so to keep the plugin usable),
-     * we need to pass the Flash player uri to GStreamer.
-     * We do that by appending it to the stream uri.
-     * (see the librtmp manual for more information) */
-    // Example:
-    // rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_042143-002-A_PG_HQ_FR?h=d7878fae5c9726844d22da78e05f764e swfVfy=1 swfUrl=http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf
-    string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + flash_player_uri;
-    GLib.debug ("Build stream URI:\t\t'%s'", stream_uri);
-
-    return stream_uri;
-  }
 }
 
