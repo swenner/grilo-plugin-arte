@@ -34,6 +34,8 @@ public class VideoListView : Gtk.TreeView
 {
     private Cache cache;
     private string? filter = null;
+    private Gtk.ListStore listmodel = null;
+    private Gtk.TreeModelFilter listmodel_filter = null;
 
     /* TreeView column names */
     private enum Col {
@@ -56,6 +58,8 @@ public class VideoListView : Gtk.TreeView
         set_headers_visible (false);
         set_tooltip_column (Col.DESCRIPTION);
 
+        /* NOTE: the tree model and filter can not be setup in the constructor */
+
         /* context menu on right click */
         this.button_press_event.connect (callback_right_click);
 
@@ -72,7 +76,7 @@ public class VideoListView : Gtk.TreeView
     {
         TreeIter iter;
 
-        var msg_ls = new ListStore (3, typeof (Gdk.Pixbuf),
+        var msg_ls = new Gtk.ListStore (3, typeof (Gdk.Pixbuf),
                 typeof (string), typeof (string));
         msg_ls.prepend (out iter);
         msg_ls.set (iter,
@@ -85,19 +89,22 @@ public class VideoListView : Gtk.TreeView
     public void set_filter (string? str)
     {
         filter = str;
+
+        if(listmodel_filter != null)
+            listmodel_filter.refilter ();
     }
 
     public void clear ()
     {
-        // TODO
+        if(listmodel != null)
+            listmodel.clear();
     }
 
     public void add_videos (GLib.SList<Video> videos)
     {
         TreeIter iter;
 
-        var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
-                typeof (string), typeof (string), typeof (Video));
+        setup_tree_model ();
 
         /* save the last move to detect duplicates */
         Video last_video = null;
@@ -151,10 +158,7 @@ public class VideoListView : Gtk.TreeView
                     Col.VIDEO_OBJECT, v, -1);
         }
 
-        var model_filter = new Gtk.TreeModelFilter (listmodel, null);
-        model_filter.set_visible_func (callback_filter_tree);
-
-        this.set_model (model_filter);
+        this.set_model (listmodel_filter);
 
         GLib.debug ("Unique video count: %d", videocount);
     }
@@ -166,24 +170,38 @@ public class VideoListView : Gtk.TreeView
         string md5_pb;
         Video v;
         var path = new TreePath.first ();
-        Gtk.ListStore list = (Gtk.ListStore)((Gtk.TreeModelFilter) this.get_model()).get_model();
 
         string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
                 cache.default_thumbnail.get_pixels ());
 
-        for (int i=1; i<=list.iter_n_children (null); i++) {
-            list.get_iter (out iter, path);
-            list.get (iter, Col.IMAGE, out pb);
+        for (int i=1; i<=listmodel.iter_n_children (null); i++) {
+            listmodel.get_iter (out iter, path);
+            listmodel.get (iter, Col.IMAGE, out pb);
             md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
             if (md5_pb == md5_default_pb) {
-                list.get (iter, Col.VIDEO_OBJECT, out v);
+                listmodel.get (iter, Col.VIDEO_OBJECT, out v);
                 if (v.image_url != null) {
                     GLib.debug ("Download missing thumbnail: %s", v.title);
-                    list.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url));
+                    listmodel.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url));
                 }
             }
             path.next ();
         }
+    }
+
+    public void setup_tree_model ()
+    {
+        /* setup the tree model and filter if needed */
+        if(listmodel == null) {
+            listmodel = new Gtk.ListStore (Col.N, typeof (Gdk.Pixbuf),
+                    typeof (string), typeof (string), typeof (Video));
+        }
+        if(listmodel_filter == null) {
+            assert(listmodel != null);
+            listmodel_filter = new Gtk.TreeModelFilter (listmodel, null);
+            listmodel_filter.set_visible_func (callback_filter_tree);
+        }
+
     }
 
     private bool callback_right_click (Gdk.EventButton event)
@@ -270,7 +288,7 @@ public class VideoListView : Gtk.TreeView
     {
         string title;
         model.get (iter, Col.NAME, out title);
-        if (filter == null || title.down ().contains (filter))
+        if (filter == null || title == null || title.down ().contains (filter))
             return true;
         else
             return false;

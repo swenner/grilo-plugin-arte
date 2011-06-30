@@ -124,8 +124,8 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
     public void activate ()
     {
-        settings.changed.connect ((key) => {on_settings_changed (key);});
-        proxy_settings.changed.connect ((key) => {on_settings_changed (key);});
+        settings.changed.connect ((key) => { on_settings_changed (key); });
+        proxy_settings.changed.connect ((key) => { on_settings_changed (key); });
 
         t = (Totem.Object) object;
         cache = new Cache (Environment.get_user_cache_dir ()
@@ -159,8 +159,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
             var filter = entry.get_text ().down ();
             tree_view.set_filter(filter);
-            var model = (Gtk.TreeModelFilter) tree_view.get_model ();
-            model.refilter ();
         });
         /* set focus to the first video on return */
         search_entry.activate.connect ((entry) => {
@@ -182,6 +180,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
         t.add_sidebar_page ("arte", _("Arte+7"), main_box);
         GLib.Idle.add (refresh_rss_feed);
+
         /* delete all files in the cache that are older than 8 days
          * with probability 1/5 at every startup */
         if (GLib.Random.next_int () % 5 == 0) {
@@ -296,6 +295,9 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
         /* display loading message */
         tree_view.display_loading_message ();
+
+        /* remove all existing videos */
+        tree_view.clear ();
 
         /* download and parse */
         try {
