@@ -32,6 +32,9 @@ using Totem;
 
 public class VideoListView : Gtk.TreeView
 {
+    private Cache cache;
+    private string? filter = null;
+
     /* TreeView column names */
     private enum Col {
         IMAGE,
@@ -41,8 +44,11 @@ public class VideoListView : Gtk.TreeView
         N
     }
 
-    construct
+    public VideoListView (Cache c)
     {
+        cache = c;
+
+        /* setup cell style */
         var renderer = new Totem.CellRendererVideo (false);
         insert_column_with_attributes (0, "", renderer,
                 "thumbnail", Col.IMAGE,
@@ -55,6 +61,129 @@ public class VideoListView : Gtk.TreeView
 
         /* context menu on shift-f10 (or menu key) */
         this.popup_menu.connect (callback_menu_key);
+
+        /* double click a video */
+        this.row_activated.connect (callback_select_video_in_tree_view);
+    }
+
+    public signal void video_selected (string url, string title);
+
+    public void display_loading_message ()
+    {
+        TreeIter iter;
+
+        var msg_ls = new ListStore (3, typeof (Gdk.Pixbuf),
+                typeof (string), typeof (string));
+        msg_ls.prepend (out iter);
+        msg_ls.set (iter,
+                Col.IMAGE, null,
+                Col.NAME, _("Loading..."),
+                Col.DESCRIPTION, null, -1);
+        this.set_model (msg_ls);
+    }
+
+    public void set_filter (string? str)
+    {
+        filter = str;
+    }
+
+    public void clear ()
+    {
+        // TODO
+    }
+
+    public void add_videos (GLib.SList<Video> videos)
+    {
+        TreeIter iter;
+
+        var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
+                typeof (string), typeof (string), typeof (Video));
+
+        /* save the last move to detect duplicates */
+        Video last_video = null;
+        int videocount = 0;
+
+        foreach (Video v in videos) {
+            /* check for duplicates */
+            if (last_video != null && v.page_url == last_video.page_url) {
+              last_video = v;
+              continue;
+            }
+            last_video = v;
+            videocount++;
+
+            listmodel.append (out iter);
+
+            string desc_str;
+            /* use the description if available, fallback to the title otherwise */
+            if (v.desc != null) {
+              desc_str = v.desc;
+            } else {
+              desc_str = v.title;
+            }
+
+            if (v.offline_date.tv_sec > 0) {
+                desc_str += "\n";
+                var now = GLib.TimeVal ();
+                now.get_current_time ();
+                double minutes_left = (v.offline_date.tv_sec - now.tv_sec) / 60.0;
+                if (minutes_left < 59.0) {
+                    if (minutes_left < 1.0)
+                        desc_str += _("Less than 1 minute until removal");
+                    else
+                        desc_str += _("Less than %.0f minutes until removal").printf (minutes_left + 1.0);
+                } else if (minutes_left < 60.0 * 24.0) {
+                    if (minutes_left <= 60.0)
+                        desc_str += _("Less than 1 hour until removal");
+                    else
+                        desc_str += _("Less than %.0f hours until removal").printf ((minutes_left / 60.0) + 1.0);
+                } else if (minutes_left < (60.0 * 24.0) * 2.0) {
+                    desc_str += _("1 day until removal");
+                } else {
+                    desc_str += _("%.0f days until removal").printf (minutes_left / (60.0 * 24.0));
+                }
+            }
+
+            listmodel.set (iter,
+                    Col.IMAGE, cache.load_pixbuf (v.image_url),
+                    Col.NAME, v.title,
+                    Col.DESCRIPTION, desc_str,
+                    Col.VIDEO_OBJECT, v, -1);
+        }
+
+        var model_filter = new Gtk.TreeModelFilter (listmodel, null);
+        model_filter.set_visible_func (callback_filter_tree);
+
+        this.set_model (model_filter);
+
+        GLib.debug ("Unique video count: %d", videocount);
+    }
+
+    public void check_and_download_missing_thumbnails ()
+    {
+        TreeIter iter;
+        Gdk.Pixbuf pb;
+        string md5_pb;
+        Video v;
+        var path = new TreePath.first ();
+        Gtk.ListStore list = (Gtk.ListStore)((Gtk.TreeModelFilter) this.get_model()).get_model();
+
+        string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
+                cache.default_thumbnail.get_pixels ());
+
+        for (int i=1; i<=list.iter_n_children (null); i++) {
+            list.get_iter (out iter, path);
+            list.get (iter, Col.IMAGE, out pb);
+            md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
+            if (md5_pb == md5_default_pb) {
+                list.get (iter, Col.VIDEO_OBJECT, out v);
+                if (v.image_url != null) {
+                    GLib.debug ("Download missing thumbnail: %s", v.title);
+                    list.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url));
+                }
+            }
+            path.next ();
+        }
     }
 
     private bool callback_right_click (Gdk.EventButton event)
@@ -137,13 +266,30 @@ public class VideoListView : Gtk.TreeView
         push_in = true;
     }
 
-    public void clear ()
+    private bool callback_filter_tree (Gtk.TreeModel model, Gtk.TreeIter iter)
     {
-        // TODO
+        string title;
+        model.get (iter, Col.NAME, out title);
+        if (filter == null || title.down ().contains (filter))
+            return true;
+        else
+            return false;
     }
 
-    public void add_videos (GLib.SList<Video> videos)
+    private void callback_select_video_in_tree_view (Gtk.TreeView tree_view,
+        Gtk.TreePath path,
+        Gtk.TreeViewColumn column)
     {
-        // TODO
+        Gtk.TreeIter iter;
+        Video v;
+
+        var model = this.get_model ();
+        model.get_iter (out iter, path);
+        model.get (iter, Col.VIDEO_OBJECT, out v);
+
+        if (v != null) {
+            /* emmit signal */
+            video_selected (v.page_url, v.title);
+        }
     }
 }

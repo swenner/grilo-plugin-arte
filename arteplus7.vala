@@ -68,7 +68,7 @@ public static Soup.SessionAsync create_session ()
                 Soup.SESSION_PROXY_URI, proxy_uri, null);
 
         session.authenticate.connect((sess, msg, auth, retrying) => {
-            /* watch if authentication is needed */
+            /* check if authentication is needed */
             if (!retrying) {
                 auth.authenticate (proxy_username, proxy_password);
             } else {
@@ -96,16 +96,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
     private Language language;
     private VideoQuality quality;
     private bool use_fallback_feed = false;
-    private string? filter = null;
-
-    /* FIXME TreeView column names */
-    private enum Col {
-        IMAGE,
-        NAME,
-        DESCRIPTION,
-        VIDEO_OBJECT,
-        N
-    }
 
     public ArtePlugin () {
         /* constructor chain up hint */
@@ -141,9 +131,9 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         cache = new Cache (Environment.get_user_cache_dir ()
              + CACHE_PATH_SUFFIX);
         p = new ArteXMLParser ();
-        tree_view = new VideoListView ();
+        tree_view = new VideoListView (cache);
 
-        tree_view.row_activated.connect (callback_select_video_in_tree_view);
+        tree_view.video_selected.connect (callback_video_selected);
 
         var scroll_win = new Gtk.ScrolledWindow (null, null);
         scroll_win.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
@@ -167,7 +157,8 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
             entry.set_icon_sensitive (Gtk.EntryIconPosition.SECONDARY,
                     (entry.get_text () != ""));
 
-            filter = entry.get_text ().down ();
+            var filter = entry.get_text ().down ();
+            tree_view.set_filter(filter);
             var model = (Gtk.TreeModelFilter) tree_view.get_model ();
             model.refilter ();
         });
@@ -303,17 +294,8 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
     {
         search_entry.set_sensitive (false);
 
-        TreeIter iter;
-
         /* display loading message */
-        var tmp_ls = new ListStore (3, typeof (Gdk.Pixbuf),
-                typeof (string), typeof (string));
-        tmp_ls.prepend (out iter);
-        tmp_ls.set (iter,
-                Col.IMAGE, null,
-                Col.NAME, _("Loading..."),
-                Col.DESCRIPTION, null, -1);
-        tree_view.set_model (tmp_ls);
+        tree_view.display_loading_message ();
 
         /* download and parse */
         try {
@@ -366,110 +348,15 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         }
 
         /* load the video list */
-        var listmodel = new ListStore (Col.N, typeof (Gdk.Pixbuf),
-                typeof (string), typeof (string), typeof (Video));
-
-        /* save the last move to detect duplicates */
-        Video last_video = null;
-        int videocount = 0;
-
-        foreach (Video v in p.videos) {
-            /* check for duplicates */
-            if (last_video != null && v.page_url == last_video.page_url) {
-              last_video = v;
-              continue;
-            }
-            last_video = v;
-            videocount++;
-
-            listmodel.append (out iter);
-
-            string desc_str;
-            /* use the description if available, fallback to the title otherwise */
-            if (v.desc != null) {
-              desc_str = v.desc;
-            } else {
-              desc_str = v.title;
-            }
-
-            if (v.offline_date.tv_sec > 0) {
-                desc_str += "\n";
-                var now = GLib.TimeVal ();
-                now.get_current_time ();
-                double minutes_left = (v.offline_date.tv_sec - now.tv_sec) / 60.0;
-                if (minutes_left < 59.0) {
-                    if (minutes_left < 1.0)
-                        desc_str += _("Less than 1 minute until removal");
-                    else
-                        desc_str += _("Less than %.0f minutes until removal").printf (minutes_left + 1.0);
-                } else if (minutes_left < 60.0 * 24.0) {
-                    if (minutes_left <= 60.0)
-                        desc_str += _("Less than 1 hour until removal");
-                    else
-                        desc_str += _("Less than %.0f hours until removal").printf ((minutes_left / 60.0) + 1.0);
-                } else if (minutes_left < (60.0 * 24.0) * 2.0) {
-                    desc_str += _("1 day until removal");
-                } else {
-                    desc_str += _("%.0f days until removal").printf (minutes_left / (60.0 * 24.0));
-                }
-            }
-
-            listmodel.set (iter,
-                    Col.IMAGE, cache.load_pixbuf (v.image_url),
-                    Col.NAME, v.title,
-                    Col.DESCRIPTION, desc_str,
-                    Col.VIDEO_OBJECT, v, -1);
-        }
-
-        var model_filter = new Gtk.TreeModelFilter (listmodel, null);
-        model_filter.set_visible_func (callback_filter_tree);
-
-        tree_view.set_model (model_filter);
+        tree_view.add_videos (p.videos);
 
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
-        GLib.debug ("Unique video count: %d", videocount);
 
         /* Download missing thumbnails */
-        check_and_download_missing_thumbnails (listmodel);
+        tree_view.check_and_download_missing_thumbnails ();
 
         return false;
-    }
-
-    private bool callback_filter_tree (Gtk.TreeModel model, Gtk.TreeIter iter)
-    {
-        string title;
-        model.get (iter, Col.NAME, out title);
-        if (filter == null || title.down ().contains (filter))
-            return true;
-        else
-            return false;
-    }
-
-    private void check_and_download_missing_thumbnails (Gtk.ListStore list)
-    {
-        TreeIter iter;
-        Gdk.Pixbuf pb;
-        string md5_pb;
-        Video v;
-        var path = new TreePath.first ();
-
-        string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
-                cache.default_thumbnail.get_pixels ());
-
-        for (int i=1; i<=list.iter_n_children (null); i++) {
-            list.get_iter (out iter, path);
-            list.get (iter, Col.IMAGE, out pb);
-            md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
-            if (md5_pb == md5_default_pb) {
-                list.get (iter, Col.VIDEO_OBJECT, out v);
-                if (v.image_url != null) {
-                    GLib.debug ("Missing thumbnail: %s", v.title);
-                    list.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url));
-                }
-            }
-            path.next ();
-        }
     }
 
     /* loads properties from dconf */
@@ -517,45 +404,33 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         }
     }
 
-    private void callback_select_video_in_tree_view (Gtk.TreeView tree_view,
-        Gtk.TreePath path,
-        Gtk.TreeViewColumn column)
+    private void callback_video_selected (string url, string title)
     {
-        var model = tree_view.get_model ();
-
-        Gtk.TreeIter iter;
-        Video v;
-
-        model.get_iter (out iter, path);
-        model.get (iter, Col.VIDEO_OBJECT, out v);
-
-        if (v != null) {
-            string uri = null;
-            try {
-                uri = v.get_stream_uri (quality, language);
-            } catch (ExtractionError e) {
-                if(e is ExtractionError.ACCESS_RESTRICTED) {
-                    /* This video access is restricted */
-                    t.action_error (_("This video access is restricted"),
-                            _("It seems that, because of its content, this video can only be watched in a precise time interval.\n\nYou may retry later, for example between 11 PM and 5 AM."));
-                } else if(e is ExtractionError.STREAM_NOT_READY) {
-                    /* The video is part of the XML/RSS feed but no stream is available yet */
-                    t.action_error (_("This video is not available yet"),
-                            _("Sorry, the plugin could not find any stream URL.\nIt seems that this video is not available yet, even on the Arte web-player.\n\nPlease retry later."));
-                } else if (e is ExtractionError.DOWNLOAD_FAILED) {
-                    /* Network problems */
-                    t.action_error (_("Video URL Extraction Error"),
-                            _("Sorry, the plugin could not extract a valid stream URL.\nPlease verify your network settings and (if any) your proxy settings."));
-                } else {
-                    /* ExtractionError.EXTRACTION_ERROR or an unspecified error */
-                    t.action_error (_("Video URL Extraction Error"),
-                            _("Sorry, the plugin could not extract a valid stream URL.\nPerhaps this stream is not yet available, you may retry in a few minutes.\n\nBe aware that this service is only available for IPs within Austria, Belgium, Germany, France and Switzerland."));
-                }
-                return;
+        string stream_url = null;
+        try {
+            stream_url = get_stream_url (url, quality, language);
+        } catch (ExtractionError e) {
+            if(e is ExtractionError.ACCESS_RESTRICTED) {
+                /* This video access is restricted */
+                t.action_error (_("This video access is restricted"),
+                        _("It seems that, because of its content, this video can only be watched in a precise time interval.\n\nYou may retry later, for example between 11 PM and 5 AM."));
+            } else if(e is ExtractionError.STREAM_NOT_READY) {
+                /* The video is part of the XML/RSS feed but no stream is available yet */
+                t.action_error (_("This video is not available yet"),
+                        _("Sorry, the plugin could not find any stream URL.\nIt seems that this video is not available yet, even on the Arte web-player.\n\nPlease retry later."));
+            } else if (e is ExtractionError.DOWNLOAD_FAILED) {
+                /* Network problems */
+                t.action_error (_("Video URL Extraction Error"),
+                        _("Sorry, the plugin could not extract a valid stream URL.\nPlease verify your network settings and (if any) your proxy settings."));
+            } else {
+                /* ExtractionError.EXTRACTION_ERROR or an unspecified error */
+                t.action_error (_("Video URL Extraction Error"),
+                        _("Sorry, the plugin could not extract a valid stream URL.\nPerhaps this stream is not yet available, you may retry in a few minutes.\n\nBe aware that this service is only available for IPs within Austria, Belgium, Germany, France and Switzerland."));
             }
-
-            t.add_to_playlist_and_play (uri, v.title, false);
+            return;
         }
+
+        t.add_to_playlist_and_play (stream_url, title, false);
     }
 
     private void callback_refresh_rss_feed ()
@@ -572,6 +447,13 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
         /* propagate the signal to the next handler */
         return false;
+    }
+
+    private string get_stream_url (string page_url, VideoQuality q, Language lang)
+        throws ExtractionError
+    {
+        var extractor = new RTMPStreamUrlExtractor ();
+        return extractor.get_url (q, lang, page_url);
     }
 }
 

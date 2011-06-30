@@ -49,11 +49,4 @@ public class Video : GLib.Object
                 publication_date.to_iso8601 (),
                 offline_date.to_iso8601 (), page_url);
     }
-
-    public string get_stream_uri (VideoQuality q, Language lang)
-        throws ExtractionError
-    {
-        var extractor = new RTMPStreamUrlExtractor ();
-        return extractor.get_url (q, lang, page_url);
-    }
 }
