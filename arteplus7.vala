@@ -48,7 +48,7 @@ public enum Language
 }
 
 public const string USER_AGENT =
-    "Mozilla/5.0 (X11; U; Linux x86_64; fr; rv:1.9.2.13) Gecko/20101206 Firefox/3.6.13";
+    "Mozilla/5.0 (X11; Linux x86_64; fr; rv:2.0.1) Gecko/20110506 Firefox/4.0.1";
 public const string DCONF_ID = "org.gnome.totem.plugins.arteplus7";
 public const string DCONF_HTTP_PROXY = "org.gnome.system.proxy.http";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
