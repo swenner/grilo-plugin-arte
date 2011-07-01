@@ -189,7 +189,8 @@ public class ArteXMLParser : ArteParser
     private Video current_video = null;
     private string current_data = null;
     private uint page = 1;
-    private const uint page_limit = 10;
+    /* hard limit, but we stop as soon as no video could be extracted */
+    private const uint page_limit = 20;
     /* Parses the XML feed of the Flash video wall */
     private const string xml_tmpl =
         "http://videos.arte.tv/%s/do_delegate/videos/index-3188698,view,asXml.xml?hash=%s////%u/10/";
@@ -208,7 +209,7 @@ public class ArteXMLParser : ArteParser
     public override bool advance ()
     {
         page++;
-        has_data = page < page_limit;
+        has_data = page < page_limit && videos.length () > 0;
         if(has_data) {
             set_page (page);
         }
