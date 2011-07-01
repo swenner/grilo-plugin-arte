@@ -345,6 +345,8 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
 
+        tree_view.check_and_download_missing_image_urls ();
+
         /* Download missing thumbnails */
         tree_view.check_and_download_missing_thumbnails ();
 

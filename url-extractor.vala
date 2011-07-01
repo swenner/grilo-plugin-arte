@@ -37,17 +37,17 @@ public errordomain ExtractionError
     ACCESS_RESTRICTED
 }
 
-public interface Extractor : GLib.Object
+public interface UrlExtractor : GLib.Object
 {
     public abstract string get_url (VideoQuality q, Language lang, string page_url)
             throws ExtractionError;
 }
 
-public class StreamUrlExtractor : GLib.Object
+public class IndirectUrlExtractor : GLib.Object
 {
     protected Soup.SessionAsync session;
 
-    public StreamUrlExtractor()
+    public IndirectUrlExtractor()
     {
         session = create_session ();
     }
@@ -77,7 +77,7 @@ public class StreamUrlExtractor : GLib.Object
     }
 }
 
-public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
+public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
 {
     public string get_url (VideoQuality q, Language lang, string page_url)
             throws ExtractionError
@@ -170,3 +170,21 @@ public class RTMPStreamUrlExtractor : StreamUrlExtractor, Extractor
     }
 }
 
+public class ImageUrlExtractor : IndirectUrlExtractor, UrlExtractor
+{
+    public string get_url (VideoQuality q, Language lang, string page_url)
+            throws ExtractionError
+    {
+        // takes a video page url and returns the image url
+        // Example: <link rel="image_src" href="http://videos.arte.tv/image/web/i18n/view/ai_wei_wei_jpg_1-4008448-imageData-4966655,h,102,w,180.jpg"/>
+        string regexp, image_url;
+
+        regexp = "<link rel=\"image_src\" href=\"(http://.*.jpg)\"/>";
+        image_url = extract_string_from_page (page_url, regexp);
+        GLib.debug ("Extract Image URL:\t'%s'", image_url);
+        if (image_url == null)
+            throw new ExtractionError.EXTRACTION_FAILED ("Image URL Extraction Error");
+
+        return image_url;
+    }
+}
