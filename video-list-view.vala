@@ -106,24 +106,13 @@ public class VideoListView : Gtk.TreeView
     public void add_videos (GLib.SList<Video> videos)
     {
         TreeIter iter;
+        uint videocount = 0;
 
         setup_tree_model ();
 
-        GLib.debug ("Number of videos parsed: %u", videos.length ());
-
-        /* save the last move to detect duplicates */
-        Video last_video = null;
-        uint videocount = 0;
-
-        foreach (Video v in videos) {
-            /* check for duplicates */
-            if (last_video != null && v.page_url == last_video.page_url) {
-              last_video = v;
-              continue;
-            }
-            last_video = v;
+        foreach (Video v in videos)
+        {
             videocount++;
-
             listmodel.append (out iter);
 
             string desc_str;
@@ -134,6 +123,7 @@ public class VideoListView : Gtk.TreeView
               desc_str = v.title;
             }
 
+            /* create a nice removal time string */
             if (v.offline_date.tv_sec > 0) {
                 desc_str += "\n";
                 var now = GLib.TimeVal ();
@@ -156,6 +146,7 @@ public class VideoListView : Gtk.TreeView
                 }
             }
 
+            /* add the video to the liststore */
             listmodel.set (iter,
                     Col.IMAGE, cache.load_pixbuf (v.image_url),
                     Col.NAME, v.title,
@@ -163,11 +154,12 @@ public class VideoListView : Gtk.TreeView
                     Col.VIDEO_OBJECT, v, -1);
         }
 
+        /* ensure that we are using the right model */
         this.set_model (listmodel_filter);
 
         size += videocount;
 
-        GLib.debug ("Number of unique videos added: %u", videocount);
+        GLib.debug ("Number of videos added: %u", videocount);
     }
 
     public void check_and_download_missing_thumbnails ()
@@ -181,7 +173,8 @@ public class VideoListView : Gtk.TreeView
         string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
                 cache.default_thumbnail.get_pixels ());
 
-        for (int i=1; i<=listmodel.iter_n_children (null); i++) {
+        for (int i=1; i<=listmodel.iter_n_children (null); i++)
+        {
             listmodel.get_iter (out iter, path);
             listmodel.get (iter, Col.IMAGE, out pb);
             md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
@@ -203,7 +196,8 @@ public class VideoListView : Gtk.TreeView
         var path = new TreePath.first ();
         var extractor = new ImageUrlExtractor ();
 
-        for (int i=1; i<=listmodel.iter_n_children (null); i++) {
+        for (int i=1; i<=listmodel.iter_n_children (null); i++)
+        {
             listmodel.get_iter (out iter, path);
             listmodel.get (iter, Col.VIDEO_OBJECT, out v);
             if (v != null && v.image_url == null) {
@@ -214,6 +208,32 @@ public class VideoListView : Gtk.TreeView
                     GLib.critical ("Image url extraction failed: %s", e.message);
                 }
             }
+            path.next ();
+        }
+    }
+
+    public void check_and_remove_duplicates ()
+    {
+        TreeIter iter;
+        Video v;
+        var path = new TreePath.first ();
+
+        /* save the last move to detect duplicates */
+        Video last_video = null;
+
+        for (int i=1; i<=listmodel.iter_n_children (null); i++)
+        {
+            listmodel.get_iter (out iter, path);
+            listmodel.get (iter, Col.VIDEO_OBJECT, out v);
+
+            /* check for duplicates */
+            if (last_video != null && v.page_url == last_video.page_url) {
+                // remove the current row
+                listmodel.remove (iter);
+            } else {
+                last_video = v;
+            }
+
             path.next ();
         }
     }
