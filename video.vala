@@ -28,7 +28,13 @@
 
 using GLib;
 
-public class Video : GLib.Object
+public interface Serializable : GLib.Object
+{
+    public abstract string serialize ();
+    public abstract bool deserialize (string data);
+}
+
+public class Video : Serializable, GLib.Object
 {
     public string title = null;
     public string page_url = null;
@@ -36,6 +42,9 @@ public class Video : GLib.Object
     public string desc = null;
     public GLib.TimeVal publication_date;
     public GLib.TimeVal offline_date;
+
+    private string uuid = null;
+    const string VERSION = "1.0";
 
     public Video()
     {
@@ -48,5 +57,42 @@ public class Video : GLib.Object
         stdout.printf ("Video: %s: %s, %s, %s\n", title,
                 publication_date.to_iso8601 (),
                 offline_date.to_iso8601 (), page_url);
+    }
+
+    public string get_uuid ()
+    {
+        if (uuid == null)
+            uuid = Checksum.compute_for_string (ChecksumType.MD5, page_url);
+
+        return uuid;
+    }
+
+    public string serialize ()
+    {
+        string res;
+        res = "Video\n%s\n%s\n%s\n%s\n%s\n%l\n%l".printf (title, VERSION, page_url, image_url, desc,
+                publication_date.tv_sec, offline_date.tv_sec);
+        return res;
+    }
+
+    public bool deserialize (string data)
+    {
+        string t, vers, purl, iurl, d;
+        long pdate, odate;
+
+        data.scanf ("Video\n%s\n%s\n%s\n%s\n%s\n%l\n%l", out t, out vers,
+                out purl, out iurl, out d, out pdate, out odate);
+        if (VERSION == vers)
+            return false;
+
+        title = t;
+        page_url = purl;
+        image_url = iurl;
+        desc = d;
+        publication_date.tv_sec = pdate;
+        offline_date.tv_sec = odate;
+        // reset
+        uuid = null;
+        return true;
     }
 }
