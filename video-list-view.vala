@@ -218,7 +218,7 @@ public class VideoListView : Gtk.TreeView
         Video v;
         var path = new TreePath.first ();
 
-        /* save the last move to detect duplicates */
+        /* save the last video to detect duplicates */
         Video last_video = null;
 
         for (int i=1; i<=listmodel.iter_n_children (null); i++)
@@ -229,7 +229,9 @@ public class VideoListView : Gtk.TreeView
             /* check for duplicates */
             if (last_video != null && v.page_url == last_video.page_url) {
                 // remove the current row
+                GLib.debug ("Remove duplicate: %s", v.title);
                 listmodel.remove (iter);
+                size--;
             } else {
                 last_video = v;
             }
@@ -251,8 +253,13 @@ public class VideoListView : Gtk.TreeView
                     Video va, vb;
                     model.get (iterA, Col.VIDEO_OBJECT, out va);
                     model.get (iterB, Col.VIDEO_OBJECT, out vb);
-                    if(va == null || vb == null)
+                    // invalid row
+                    if (va == null || vb == null)
                         return 0;
+                    // rows without offline date values
+                    // sort by url to be able to remove duplicates
+                    if (va.offline_date.tv_sec == 0 || vb.offline_date.tv_sec == 0)
+                        return va.page_url.ascii_casecmp (vb.page_url);
                     return (int) (va.offline_date.tv_sec > vb.offline_date.tv_sec);
                 });
         }

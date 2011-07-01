@@ -159,8 +159,8 @@ public class Cache : GLib.Object
     }
 
     /* Delete files that were created more than x days ago. */
-    public void delete_cruft (int days) {
-        GLib.debug ("Cache: Delete files that are older than %d days.", days);
+    public void delete_cruft (uint days) {
+        GLib.debug ("Cache: Delete files that are older than %u days.", days);
         GLib.TimeVal now = TimeVal ();
         GLib.TimeVal mod_time = TimeVal ();
         now.get_current_time ();

@@ -362,12 +362,16 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
                 // request the next chunk of data
                 p.advance ();
             }
+
+            /* the RSS feeds have duplicates and no image urls */
+            tree_view.check_and_remove_duplicates ();
+            tree_view.check_and_download_missing_image_urls ();
         }
 
         GLib.debug ("Video Feed loaded, video count: %u", tree_view.size);
 
         // show user visible error messages
-        if(parse_errors > error_threshold)
+        if (parse_errors > error_threshold)
         {
             t.action_error (_("Markup Parser Error"),
                     _("Sorry, the plugin could not parse the Arte video feed."));
@@ -379,10 +383,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
 
-        /* the RSS feed has no image urls */
-        tree_view.check_and_download_missing_image_urls ();
-
-        /* while parsing we only used images from the cace */
+        /* while parsing we only used images from the cache */
         tree_view.check_and_download_missing_thumbnails ();
 
         return false;
