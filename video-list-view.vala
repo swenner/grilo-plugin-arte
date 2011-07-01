@@ -109,11 +109,6 @@ public class VideoListView : Gtk.TreeView
 
         setup_tree_model ();
 
-        /* sort the videos by removal date */
-        videos.sort ((a, b) => {
-            return (int) (((Video) a).offline_date.tv_sec > ((Video) b).offline_date.tv_sec);
-        });
-
         GLib.debug ("Number of videos parsed: %u", videos.length ());
 
         /* save the last move to detect duplicates */
@@ -229,6 +224,17 @@ public class VideoListView : Gtk.TreeView
         if(listmodel == null) {
             listmodel = new Gtk.ListStore (Col.N, typeof (Gdk.Pixbuf),
                     typeof (string), typeof (string), typeof (Video));
+            /* sort the videos by removal date */
+            listmodel.set_sort_column_id (Col.VIDEO_OBJECT, Gtk.SortType.ASCENDING);
+            listmodel.set_sort_func (Col.VIDEO_OBJECT, (model, iterA, iterB) =>
+                {
+                    Video va, vb;
+                    model.get (iterA, Col.VIDEO_OBJECT, out va);
+                    model.get (iterB, Col.VIDEO_OBJECT, out vb);
+                    if(va == null || vb == null)
+                        return 0;
+                    return (int) (va.offline_date.tv_sec > vb.offline_date.tv_sec);
+                });
         }
         if(listmodel_filter == null) {
             assert(listmodel != null);

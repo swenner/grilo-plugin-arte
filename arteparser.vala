@@ -106,7 +106,7 @@ public class ArteRSSParser : ArteParser
 {
     private Video current_video = null;
     private string current_data = null;
-    /* RSS feeds by topic, contains duplicats */
+    /* official RSS feeds by topic, contains duplicats, no image urls and dates */
     private const string[] feeds_fr = {
         "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/actualites/index-3188636,view,rss.xml",
         "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/documentaire/index-3188646,view,rss.xml",
@@ -138,7 +138,6 @@ public class ArteRSSParser : ArteParser
 
     public ArteRSSParser ()
     {
-        /* Parses the official RSS feed */
         xml_fr = feeds_fr[0];
         xml_de = feeds_de[0];
 

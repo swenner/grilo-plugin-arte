@@ -305,7 +305,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         /* remove all existing videos */
         tree_view.clear ();
 
-        // download and parse the XML feed
+        // download and parse the XML feed, the default feed
         {
             var p = parsers[0];
             p.reset ();
