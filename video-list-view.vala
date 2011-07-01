@@ -286,7 +286,11 @@ public class VideoListView : Gtk.TreeView
         path = this.get_selection ().get_selected_rows (null).data;
         this.model.get_iter (out iter, path);
         this.model.get (iter, Col.VIDEO_OBJECT, out v);
-        url = v.page_url;
+
+        if (v == null)
+            url = "http://videos.arte.tv/";
+        else
+            url = v.page_url;
 
         try {
             Process.spawn_command_line_async ("xdg-open " + url);
