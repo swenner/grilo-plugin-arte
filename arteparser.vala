@@ -31,9 +31,10 @@ using Soup;
 
 public abstract class ArteParser : GLib.Object
 {
-    public string xml_fr;
-    public string xml_de;
-    public GLib.SList<Video> videos;
+    public bool has_data { get; protected set; default = false; }
+    protected string xml_fr;
+    protected string xml_de;
+    protected GLib.SList<Video> videos;
 
     private const MarkupParser parser = {
             open_tag,
@@ -43,16 +44,22 @@ public abstract class ArteParser : GLib.Object
             null
         };
 
-    public ArteParser ()
+    public ArteParser () {}
+    public virtual void reset () {}
+
+    public virtual bool advance ()
     {
-        videos = new GLib.SList<Video>();
+        return has_data;
     }
 
-    public virtual void reset () {}
-    public virtual void set_page (int page) {}
-
-    public void parse (Language lang) throws MarkupError, IOError
+    public unowned GLib.SList<Video> parse (Language lang) throws MarkupError, IOError
     {
+        videos = new GLib.SList<Video> ();
+
+        if(!has_data) {
+            return videos;
+        }
+
         Soup.Message msg;
         if (lang == Language.GERMAN) {
             msg = new Soup.Message ("GET", xml_de);
@@ -73,6 +80,8 @@ public abstract class ArteParser : GLib.Object
         context.parse ((string) msg.response_body.flatten ().data,
                 (ssize_t) msg.response_body.length);
         context.end_parse ();
+
+        return videos;
     }
 
     protected virtual void open_tag (MarkupParseContext ctx,
@@ -105,6 +114,20 @@ public class ArteRSSParser : ArteParser
             "http://videos.arte.tv/fr/do_delegate/videos/index-3188626,view,rss.xml";
         xml_de =
             "http://videos.arte.tv/de/do_delegate/videos/index-3188626,view,rss.xml";
+
+        reset ();
+    }
+
+    public override void reset ()
+    {
+        has_data = true;
+    }
+
+    public override bool advance ()
+    {
+        has_data = false;
+
+        return has_data;
     }
 
     protected override void open_tag (MarkupParseContext ctx,
@@ -165,10 +188,11 @@ public class ArteXMLParser : ArteParser
 {
     private Video current_video = null;
     private string current_data = null;
-    public int page = 1;
-    /* Parses the XML feed of the Flash preview plugin */
+    private uint page = 1;
+    private uint page_limit = 10;
+    /* Parses the XML feed of the Flash video wall */
     private const string xml_tmpl =
-        "http://videos.arte.tv/%s/do_delegate/videos/index-3188698,view,asXml.xml?hash=%s////%d/10/";
+        "http://videos.arte.tv/%s/do_delegate/videos/index-3188698,view,asXml.xml?hash=%s////%u/10/";
 
     public ArteXMLParser ()
     {
@@ -177,13 +201,21 @@ public class ArteXMLParser : ArteParser
 
     public override void reset ()
     {
-        videos = new GLib.SList<Video>();
-        this.page = 1;
-        xml_fr = xml_tmpl.printf ("fr", "fr", page);
-        xml_de = xml_tmpl.printf ("de", "de", page);
+        set_page (1);
+        has_data = true;
     }
 
-    public override void set_page (int page)
+    public override bool advance ()
+    {
+        page++;
+        has_data = page < page_limit;
+        if(has_data) {
+            set_page (page);
+        }
+        return has_data;
+    }
+
+    private void set_page (uint page)
     {
         this.page = page;
         xml_fr = xml_tmpl.printf ("fr", "fr", page);

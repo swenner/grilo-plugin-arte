@@ -106,9 +106,16 @@ public class VideoListView : Gtk.TreeView
 
         setup_tree_model ();
 
+        /* sort the videos by removal date */
+        videos.sort ((a, b) => {
+            return (int) (((Video) a).offline_date.tv_sec > ((Video) b).offline_date.tv_sec);
+        });
+
+        GLib.debug ("Number of videos parsed: %u", videos.length ());
+
         /* save the last move to detect duplicates */
         Video last_video = null;
-        int videocount = 0;
+        uint videocount = 0;
 
         foreach (Video v in videos) {
             /* check for duplicates */
@@ -160,7 +167,7 @@ public class VideoListView : Gtk.TreeView
 
         this.set_model (listmodel_filter);
 
-        GLib.debug ("Unique video count: %d", videocount);
+        GLib.debug ("Number of unique videos added: %u", videocount);
     }
 
     public void check_and_download_missing_thumbnails ()

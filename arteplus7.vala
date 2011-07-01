@@ -89,13 +89,12 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private VideoListView tree_view; /* list of movie thumbnails */
-    private ArteParser p;
+    private ArteParser parsers[2];
     private GLib.Settings settings;
     private GLib.Settings proxy_settings;
     private Cache cache; /* image thumbnail cache */
     private Language language;
     private VideoQuality quality;
-    private bool use_fallback_feed = false;
 
     public ArtePlugin () {
         /* constructor chain up hint */
@@ -130,7 +129,8 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         t = (Totem.Object) object;
         cache = new Cache (Environment.get_user_cache_dir ()
              + CACHE_PATH_SUFFIX);
-        p = new ArteXMLParser ();
+        parsers[0] = new ArteXMLParser ();
+        parsers[1] = new ArteRSSParser ();
         tree_view = new VideoListView (cache);
 
         tree_view.video_selected.connect (callback_video_selected);
@@ -291,7 +291,12 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
     public bool refresh_rss_feed ()
     {
+        bool parse_error = false;
+        bool network_error = false;
+
         search_entry.set_sensitive (false);
+
+        GLib.debug ("Refreshing Video Feed...");
 
         /* display loading message */
         tree_view.display_loading_message ();
@@ -299,58 +304,43 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         /* remove all existing videos */
         tree_view.clear ();
 
-        /* download and parse */
-        try {
+        // FIXME download and parse with multiple parsers
+        var p = parsers[0];
+        {
             p.reset ();
-            if (!use_fallback_feed) {
-                for (int i=1; i<10; i++) {
-                    p.set_page (i);
-                    p.parse (language);
-                    GLib.debug ("Fetching page %d: Video count: %u", i, p.videos.length ());
+
+            // get all data chunks of a parser
+            while (p.has_data)
+            {
+                try {
+                    // parse
+                    unowned GLib.SList<Video> videos = p.parse (language);
+
+                    // add videos to the list
+                    tree_view.add_videos (videos);
+
+                } catch (MarkupError e) {
+                    GLib.critical ("XML Parse Error: %s", e.message);
+                } catch (IOError e) {
+                    GLib.critical ("Network problems: %s", e.message);
                 }
-            } else {
-                p.parse (language);
+
+                // request the next chunk of data
+                p.advance ();
             }
-            GLib.debug ("Total video count: %u", p.videos.length ());
-            /* sort the videos by removal date */
-            p.videos.sort ((a, b) => {
-                return (int) (((Video) a).offline_date.tv_sec > ((Video) b).offline_date.tv_sec);
-            });
-        } catch (MarkupError e) {
-            GLib.critical ("XML Parse Error: %s", e.message);
-            if (!use_fallback_feed) {
-                /* The default XML feed parser failed.
-                 * Switch to the RSS fallback feed without thumbnails. */
-                p = new ArteRSSParser();
-                use_fallback_feed = true;
-                /* ... and try again. */
-                refresh_rss_feed ();
-            } else {
-                /* We are screwed! */
-                t.action_error (_("Markup Parser Error"),
-                    _("Sorry, the plugin could not parse the Arte video feed."));
-            }
-            search_entry.set_sensitive (true);
-            return false;
-        } catch (IOError e) {
-            GLib.critical ("Network problems: %s", e.message);
-            if (!use_fallback_feed) {
-                /* The default XML feed parser failed.
-                 * Switch to the RSS fallback feed without thumbnails. */
-                p = new ArteRSSParser();
-                use_fallback_feed = true;
-                /* ... and try again. */
-                refresh_rss_feed ();
-            } else {
-                t.action_error (_("Network problem"),
-                    _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings."));
-            }
-            search_entry.set_sensitive (true);
-            return false;
         }
 
-        /* load the video list */
-        tree_view.add_videos (p.videos);
+        // FIXME: GLib.debug ("Video Feed loaded, video count: %u", ?);
+
+        // FIXME: real global error handling
+        if(parse_error)
+        {
+            t.action_error (_("Markup Parser Error"),
+                    _("Sorry, the plugin could not parse the Arte video feed."));
+        } else if (network_error) {
+            t.action_error (_("Network problem"),
+                    _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings."));
+        }
 
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
@@ -401,7 +391,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
             load_properties ();
         else { /* Reload the feed if the language or proxy settings changed */
             load_properties ();
-            use_fallback_feed = false;
             GLib.Idle.add (refresh_rss_feed);
         }
     }
@@ -437,7 +426,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
     private void callback_refresh_rss_feed ()
     {
-        use_fallback_feed = false;
         GLib.Idle.add (refresh_rss_feed);
     }
 
