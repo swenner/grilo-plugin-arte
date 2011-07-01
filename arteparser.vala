@@ -189,7 +189,7 @@ public class ArteXMLParser : ArteParser
     private Video current_video = null;
     private string current_data = null;
     private uint page = 1;
-    private uint page_limit = 10;
+    private const uint page_limit = 10;
     /* Parses the XML feed of the Flash video wall */
     private const string xml_tmpl =
         "http://videos.arte.tv/%s/do_delegate/videos/index-3188698,view,asXml.xml?hash=%s////%u/10/";

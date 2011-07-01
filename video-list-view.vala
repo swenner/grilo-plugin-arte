@@ -36,6 +36,7 @@ public class VideoListView : Gtk.TreeView
     private string? filter = null;
     private Gtk.ListStore listmodel = null;
     private Gtk.TreeModelFilter listmodel_filter = null;
+    public uint size { public get; private set; default = 0; }
 
     /* TreeView column names */
     private enum Col {
@@ -98,6 +99,8 @@ public class VideoListView : Gtk.TreeView
     {
         if(listmodel != null)
             listmodel.clear();
+
+        size = 0;
     }
 
     public void add_videos (GLib.SList<Video> videos)
@@ -166,6 +169,8 @@ public class VideoListView : Gtk.TreeView
         }
 
         this.set_model (listmodel_filter);
+
+        size += videocount;
 
         GLib.debug ("Number of unique videos added: %u", videocount);
     }

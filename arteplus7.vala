@@ -291,8 +291,9 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
     public bool refresh_rss_feed ()
     {
-        bool parse_error = false;
-        bool network_error = false;
+        uint parse_errors = 0;
+        uint network_errors = 0;
+        const uint error_threshold = 5;
 
         search_entry.set_sensitive (false);
 
@@ -304,9 +305,9 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         /* remove all existing videos */
         tree_view.clear ();
 
-        // FIXME download and parse with multiple parsers
-        var p = parsers[0];
+        // download and parse the XML feed
         {
+            var p = parsers[0];
             p.reset ();
 
             // get all data chunks of a parser
@@ -320,8 +321,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
                     tree_view.add_videos (videos);
 
                 } catch (MarkupError e) {
+                    parse_errors++;
                     GLib.critical ("XML Parse Error: %s", e.message);
                 } catch (IOError e) {
+                    network_errors++;
                     GLib.critical ("Network problems: %s", e.message);
                 }
 
@@ -330,14 +333,45 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
             }
         }
 
-        // FIXME: GLib.debug ("Video Feed loaded, video count: %u", ?);
+         // download and parse the RSS feed
+        if (parse_errors > error_threshold || network_errors > error_threshold)
+        {
+            parse_errors = 0;
+            network_errors = 0;
+            var p = parsers[1];
+            p.reset ();
 
-        // FIXME: real global error handling
-        if(parse_error)
+            // get all data chunks of a parser
+            while (p.has_data)
+            {
+                try {
+                    // parse
+                    unowned GLib.SList<Video> videos = p.parse (language);
+
+                    // add videos to the list
+                    tree_view.add_videos (videos);
+
+                } catch (MarkupError e) {
+                    parse_errors++;
+                    GLib.critical ("XML Parse Error: %s", e.message);
+                } catch (IOError e) {
+                    network_errors++;
+                    GLib.critical ("Network problems: %s", e.message);
+                }
+
+                // request the next chunk of data
+                p.advance ();
+            }
+        }
+
+        GLib.debug ("Video Feed loaded, video count: %u", tree_view.size);
+
+        // show user visible error messages
+        if(parse_errors > error_threshold)
         {
             t.action_error (_("Markup Parser Error"),
                     _("Sorry, the plugin could not parse the Arte video feed."));
-        } else if (network_error) {
+        } else if (network_errors > error_threshold) {
             t.action_error (_("Network problem"),
                     _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings."));
         }
@@ -345,9 +379,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
 
+        /* the RSS feed has no image urls */
         tree_view.check_and_download_missing_image_urls ();
 
-        /* Download missing thumbnails */
+        /* while parsing we only used images from the cace */
         tree_view.check_and_download_missing_thumbnails ();
 
         return false;
