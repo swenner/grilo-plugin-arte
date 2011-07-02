@@ -4,7 +4,7 @@ NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 VALA_DEPS=--pkg Totem-1.0 --pkg PeasGtk-1.0 --pkg libsoup-2.4 --pkg gtk+-3.0
 CC_ARGS=-X -fPIC -X -shared --Xcc='-D GETTEXT_PACKAGE="\"totem-arte\""'
-VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS)
+VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g
 VALA_SOURCE=\
 	arteplus7.vala \
 	arteparser.vala \
@@ -19,7 +19,7 @@ EXTRA_DIST=\
 	Makefile README AUTHORS COPYING NEWS ChangeLog
 
 all:
-	valac --library=arteplus7 $(VALA_SOURCE) $(VALA_DEPS) $(VALA_ARGS) -o libarteplus7.so 
+	valac --library=arteplus7 $(VALA_SOURCE) $(VALA_DEPS) $(VALA_ARGS) -o libarteplus7.so
 	msgfmt --output-file=po/de.mo po/de.po
 	msgfmt --output-file=po/fr.mo po/fr.po
 
