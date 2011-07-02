@@ -3,7 +3,7 @@ VERSION=3.0.0
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 VALA_DEPS=--pkg Totem-1.0 --pkg PeasGtk-1.0 --pkg libsoup-2.4 --pkg gtk+-3.0
-CC_ARGS=-X -fPIC -X -shared --Xcc='-D GETTEXT_PACKAGE="\"totem-arte\""'
+CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"totem-arte\""
 VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g
 VALA_SOURCE=\
 	arteplus7.vala \
