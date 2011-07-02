@@ -315,15 +315,19 @@ public class VideoListView : Gtk.TreeView
         Video v;
         string url;
 
-        /* retrieve url of the selected video */
-        path = this.get_selection ().get_selected_rows (null).data;
-        this.model.get_iter (out iter, path);
-        this.model.get (iter, Col.VIDEO_OBJECT, out v);
+        // retrieve url of the selected video
+        var selection = this.get_selection ();
+        var rows = selection.get_selected_rows (null);
 
-        if (v == null)
+        // empty tree view selection
+        if(rows == null) {
             url = "http://videos.arte.tv/";
-        else
+        } else {
+            path = rows.data;
+            this.model.get_iter (out iter, path);
+            this.model.get (iter, Col.VIDEO_OBJECT, out v);
             url = v.page_url;
+        }
 
         try {
             Process.spawn_command_line_async ("xdg-open " + url);
