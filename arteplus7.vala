@@ -350,7 +350,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         /* while parsing we only used images from the cache */
         tree_view.check_and_download_missing_thumbnails ();
 
-        GLib.debug ("Video Feed loaded, video count: %u", tree_view.size);
+        GLib.debug ("Video Feed loaded, video count: %u", tree_view.get_size ());
 
         // show user visible error messages
         if (parse_errors > error_threshold)
