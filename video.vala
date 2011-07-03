@@ -45,6 +45,7 @@ public class Video : Serializable, GLib.Object
 
     private string uuid = null;
     const string VERSION = "1.0"; // serialization file version
+    const string CLASS_NAME = "Video";
 
     public Video()
     {
@@ -71,25 +72,33 @@ public class Video : Serializable, GLib.Object
     {
         string res;
         // Video, Version, Title, PageURL, ImageURL, Description, PubDate, OfflineDate
-        res = "Video\n%s\n%s\n%s\n%s\n%s\n%ld\n%ld".printf (VERSION, title, page_url, image_url, desc,
+        res = "%s\n%s\n%s\n%s\n%s\n%s\n%ld\n%ld".printf (CLASS_NAME, VERSION, title, page_url, image_url, desc,
                 publication_date.tv_sec, offline_date.tv_sec);
         return res;
     }
 
     public bool deserialize (string data)
     {
+        // updates all unknown fields of a video object
         string[] str = data.split("\n");
-        if (VERSION != str[1])
+        if (CLASS_NAME != str[0] || VERSION != str[1])
             return false;
 
-        title = str[2];
-        //page_url = str[3];
-        image_url = str[4];
-        desc = str[5];
-        publication_date.tv_sec = long.parse(str[6]);
-        offline_date.tv_sec = long.parse(str[7]);
-        // reset uuid
-        uuid = null;
+        if (title == null)
+            title = str[2];
+        if (page_url == null) {
+            page_url = str[3];
+            // reset uuid
+            uuid = null;
+        }
+        if (image_url == null)
+            image_url = str[4];
+        if (desc == null)
+            desc = str[5];
+        if (publication_date.tv_sec == 0)
+            publication_date.tv_sec = long.parse(str[6]);
+        if (offline_date.tv_sec == 0)
+            offline_date.tv_sec = long.parse(str[7]);
 
         return true;
     }
