@@ -17,7 +17,7 @@ gstreamer-plugins-bad >= 0.10.20
 gsettings-desktop-schemas
 
 On Debian or Ubuntu:
-# aptitude install valac-0.12 libgtk3.0-dev libtotem-dev \
+# aptitude install valac-0.12 libgtk3.0-dev libtotem-dev libpeas-dev \
 libsoup2.4-dev gettext gstreamer0.10-plugins-bad gsettings-desktop-schemas
 
 ---------------
