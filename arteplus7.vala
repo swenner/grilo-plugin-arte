@@ -334,6 +334,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
                 // request the next chunk of data
                 p.advance ();
+
+                // leave the loop if we got too many errors
+                if (parse_errors >= error_threshold || network_errors >= error_threshold)
+                    break;
             }
 
             // the RSS feeds have duplicates and no image urls
