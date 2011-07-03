@@ -168,14 +168,13 @@ public class VideoListView : Gtk.TreeView
         Gdk.Pixbuf pb;
         string md5_pb;
         Video v;
-        var path = new TreePath.first ();
 
         string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
                 cache.default_thumbnail.get_pixels ());
 
-        for (int i=1; i<=listmodel.iter_n_children (null); i++)
+        listmodel.get_iter_first (out iter);
+        while (listmodel.iter_is_valid (iter))
         {
-            listmodel.get_iter (out iter, path);
             listmodel.get (iter, Col.IMAGE, out pb);
             md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
             if (md5_pb == md5_default_pb) {
@@ -185,7 +184,7 @@ public class VideoListView : Gtk.TreeView
                     listmodel.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url));
                 }
             }
-            path.next ();
+            listmodel.iter_next (ref iter);
         }
     }
 
@@ -193,16 +192,15 @@ public class VideoListView : Gtk.TreeView
     {
         TreeIter iter;
         Video v;
-        var path = new TreePath.first ();
 
-        for (int i=1; i<=listmodel.iter_n_children (null); i++)
+        listmodel.get_iter_first (out iter);
+        while (listmodel.iter_is_valid (iter))
         {
-            listmodel.get_iter (out iter, path);
             listmodel.get (iter, Col.VIDEO_OBJECT, out v);
             if (v != null && v.image_url == null) {
                 cache.get_video (ref v);
             }
-            path.next ();
+            listmodel.iter_next (ref iter);
         }
     }
 
@@ -210,14 +208,13 @@ public class VideoListView : Gtk.TreeView
     {
         TreeIter iter;
         Video v;
-        var path = new TreePath.first ();
-
         /* save the last video to detect duplicates */
         Video last_video = null;
 
-        for (int i=1; i<=listmodel.iter_n_children (null); i++)
+        listmodel.get_iter_first (out iter);
+
+        while (listmodel.iter_is_valid (iter))
         {
-            listmodel.get_iter (out iter, path);
             listmodel.get (iter, Col.VIDEO_OBJECT, out v);
 
             /* check for duplicates */
@@ -227,7 +224,7 @@ public class VideoListView : Gtk.TreeView
                 listmodel.remove (iter); // sets iter to the next valid row
             } else {
                 last_video = v;
-                path.next ();
+                listmodel.iter_next (ref iter);
             }
         }
     }
