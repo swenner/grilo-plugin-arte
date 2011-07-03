@@ -1,4 +1,5 @@
 TODO:
- * sort the movies by publishing date
+ * give some visual feedback while loading the video list
+ * support sorting the movies by publishing date
  * add a loading message or animation after selecting a video
  * support socks proxies

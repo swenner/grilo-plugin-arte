@@ -1,3 +1,17 @@
+2011 July 3th - Totem Arte Plugin 3.0.0
+
+Changes since 0.9.2:
+ * Port to Totem 3.0 (GtK+ 3.0 and Libpeas)
+ * Port from Gconf to Gsettings (Dconf)
+ * Rewite parsing and handling of multiple video feeds
+ * Improve the robustness and quality of all video feeds
+ * Many bugfixes
+
+All contributors to this release:
+ * Simon Wenner <simon@wenner.ch>
+ * Nicolas Delvaux <nicolas.delvaux@gmx.com>
+ * Stefan Kirrmann <stefan.kirrmann@gmail.com>
+
 2010 September - Totem Arte Plugin 0.9.2
 
  * Bugfix: Fallback to the rss feed on IO errors too
