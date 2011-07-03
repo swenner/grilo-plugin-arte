@@ -293,7 +293,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
     {
         uint parse_errors = 0;
         uint network_errors = 0;
-        const uint error_threshold = 5;
+        uint error_threshold = 0;
 
         search_entry.set_sensitive (false);
 
@@ -306,40 +306,13 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         tree_view.clear ();
 
         // download and parse the XML feed, the default feed
+        for (int i=0; i<parsers.length; i++)
         {
-            var p = parsers[0];
+            var p = parsers[i];
             p.reset ();
-
-            // get all data chunks of a parser
-            while (p.has_data)
-            {
-                try {
-                    // parse
-                    unowned GLib.SList<Video> videos = p.parse (language);
-
-                    // add videos to the list
-                    tree_view.add_videos (videos);
-
-                } catch (MarkupError e) {
-                    parse_errors++;
-                    GLib.critical ("XML Parse Error: %s", e.message);
-                } catch (IOError e) {
-                    network_errors++;
-                    GLib.critical ("Network problems: %s", e.message);
-                }
-
-                // request the next chunk of data
-                p.advance ();
-            }
-        }
-
-         // download and parse the RSS feed
-        if (parse_errors > error_threshold || network_errors > error_threshold)
-        {
             parse_errors = 0;
             network_errors = 0;
-            var p = parsers[1];
-            p.reset ();
+            error_threshold = p.get_error_threshold ();
 
             // get all data chunks of a parser
             while (p.has_data)
@@ -363,10 +336,19 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
                 p.advance ();
             }
 
-            /* the RSS feeds have duplicates and no image urls */
-            tree_view.check_and_remove_duplicates ();
-            tree_view.check_and_download_missing_image_urls ();
+            // the RSS feeds have duplicates and no image urls
+            if (p.has_duplicates ())
+                tree_view.check_and_remove_duplicates ();
+            if (!p.has_image_urls ())
+                tree_view.check_and_download_missing_image_urls ();
+
+            // leave the loop if we got enought videos
+            if (parse_errors < error_threshold && network_errors < error_threshold)
+                break;
         }
+
+        /* while parsing we only used images from the cache */
+        tree_view.check_and_download_missing_thumbnails ();
 
         GLib.debug ("Video Feed loaded, video count: %u", tree_view.size);
 
@@ -382,9 +364,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
         search_entry.set_sensitive (true);
         search_entry.grab_focus ();
-
-        /* while parsing we only used images from the cache */
-        tree_view.check_and_download_missing_thumbnails ();
 
         return false;
     }
