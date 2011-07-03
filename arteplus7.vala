@@ -408,6 +408,8 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
         if (quality == VideoQuality.UNKNOWN) {
             quality = VideoQuality.HIGH; // default quality
+            if (!settings.set_enum ("quality", (int) quality))
+                GLib.warning ("Storing the quality setting failed.");
         }
     }
 
