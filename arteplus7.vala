@@ -381,6 +381,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         quality = (VideoQuality) settings.get_enum ("quality");
         language = (Language) settings.get_enum ("language");
         use_proxy = proxy_settings.get_boolean ("enabled");
+
         if (use_proxy) {
             parsed_proxy_uri = proxy_settings.get_string ("host");
             proxy_port = proxy_settings.get_int ("port");
@@ -403,6 +404,10 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
             }
             if (!settings.set_enum ("language", (int) language))
                 GLib.warning ("Storing the language setting failed.");
+        }
+
+        if (quality == VideoQuality.UNKNOWN) {
+            quality = VideoQuality.HIGH; // default quality
         }
     }
 
