@@ -194,19 +194,13 @@ public class VideoListView : Gtk.TreeView
         TreeIter iter;
         Video v;
         var path = new TreePath.first ();
-        var extractor = new ImageUrlExtractor ();
 
         for (int i=1; i<=listmodel.iter_n_children (null); i++)
         {
             listmodel.get_iter (out iter, path);
             listmodel.get (iter, Col.VIDEO_OBJECT, out v);
             if (v != null && v.image_url == null) {
-                GLib.debug ("Download missing image url: %s", v.title);
-                try {
-                    v.image_url = extractor.get_url (VideoQuality.UNKNOWN, Language.UNKNOWN, v.page_url);
-                } catch (ExtractionError e) {
-                    GLib.critical ("Image url extraction failed: %s", e.message);
-                }
+                cache.get_video (ref v);
             }
             path.next ();
         }

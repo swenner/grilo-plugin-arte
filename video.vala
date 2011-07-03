@@ -44,7 +44,7 @@ public class Video : Serializable, GLib.Object
     public GLib.TimeVal offline_date;
 
     private string uuid = null;
-    const string VERSION = "1.0";
+    const string VERSION = "1.0"; // serialization file version
 
     public Video()
     {
@@ -70,29 +70,27 @@ public class Video : Serializable, GLib.Object
     public string serialize ()
     {
         string res;
-        res = "Video\n%s\n%s\n%s\n%s\n%s\n%l\n%l".printf (title, VERSION, page_url, image_url, desc,
+        // Video, Version, Title, PageURL, ImageURL, Description, PubDate, OfflineDate
+        res = "Video\n%s\n%s\n%s\n%s\n%s\n%ld\n%ld".printf (VERSION, title, page_url, image_url, desc,
                 publication_date.tv_sec, offline_date.tv_sec);
         return res;
     }
 
     public bool deserialize (string data)
     {
-        string t, vers, purl, iurl, d;
-        long pdate, odate;
-
-        data.scanf ("Video\n%s\n%s\n%s\n%s\n%s\n%l\n%l", out t, out vers,
-                out purl, out iurl, out d, out pdate, out odate);
-        if (VERSION == vers)
+        string[] str = data.split("\n");
+        if (VERSION != str[1])
             return false;
 
-        title = t;
-        page_url = purl;
-        image_url = iurl;
-        desc = d;
-        publication_date.tv_sec = pdate;
-        offline_date.tv_sec = odate;
-        // reset
+        title = str[2];
+        //page_url = str[3];
+        image_url = str[4];
+        desc = str[5];
+        publication_date.tv_sec = long.parse(str[6]);
+        offline_date.tv_sec = long.parse(str[7]);
+        // reset uuid
         uuid = null;
+
         return true;
     }
 }

@@ -92,6 +92,48 @@ public class Cache : GLib.Object
         return file_path;
     }
 
+    public bool get_video (ref Video v)
+    {
+        bool success = false;
+
+        // check the cache
+        string file_path = cache_path + v.get_uuid () + ".video";
+
+        var file = GLib.File.new_for_path (file_path);
+        if (file.query_exists (null)) {
+            string data;
+            try {
+                file.load_contents (null, out data);
+                success = v.deserialize (data);
+             } catch (Error e) {
+                GLib.error ("%s", e.message);
+            }
+
+            if (success)
+                return true;
+        }
+
+        // download it
+        var extractor = new ImageUrlExtractor ();
+        GLib.debug ("Download missing image url: %s", v.title);
+        try {
+            v.image_url = extractor.get_url (VideoQuality.UNKNOWN, Language.UNKNOWN, v.page_url);
+
+            // write to cache
+            var file_stream = file.create (FileCreateFlags.REPLACE_DESTINATION);
+            var data_stream = new DataOutputStream (file_stream);
+            data_stream.put_string (v.serialize());
+        } catch (ExtractionError e) {
+            GLib.critical ("Image url extraction failed: %s", e.message);
+            return false;
+        } catch (Error e) {
+            GLib.critical ("Caching video object failed: %s", e.message);
+            return false;
+        }
+
+        return true;
+    }
+
     public Gdk.Pixbuf load_pixbuf (string? url)
     {
         if (url == null) {

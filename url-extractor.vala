@@ -181,7 +181,7 @@ public class ImageUrlExtractor : IndirectUrlExtractor, UrlExtractor
 
         regexp = "<link rel=\"image_src\" href=\"(http://.*.jpg)\"/>";
         image_url = extract_string_from_page (page_url, regexp);
-        GLib.debug ("Extract Image URL:\t'%s'", image_url);
+
         if (image_url == null)
             throw new ExtractionError.EXTRACTION_FAILED ("Image URL Extraction Error");
 
