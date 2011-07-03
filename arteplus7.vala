@@ -79,7 +79,7 @@ public static Soup.SessionAsync create_session ()
         session = new Soup.SessionAsync.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
     }
-    session.timeout = 15; /* 15 seconds timeout, until we give up and show an error message */
+    session.timeout = 10; /* 10 seconds timeout, until we give up and show an error message */
     return session;
 }
 
