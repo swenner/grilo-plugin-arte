@@ -224,13 +224,12 @@ public class VideoListView : Gtk.TreeView
             if (last_video != null && v.page_url == last_video.page_url) {
                 // remove the current row
                 GLib.debug ("Remove duplicate: %s", v.title);
-                listmodel.remove (iter);
+                listmodel.remove (iter); // sets iter to the next valid row
                 size--;
             } else {
                 last_video = v;
+                path.next ();
             }
-
-            path.next ();
         }
     }
 
