@@ -159,7 +159,7 @@ public class VideoListView : Gtk.TreeView
         /* ensure that we are using the right model */
         this.set_model (listmodel_filter);
 
-        GLib.debug ("Number of videos added: %u", videocount);
+        debug ("Number of videos added: %u", videocount);
     }
 
     public void check_and_download_missing_thumbnails ()
@@ -180,7 +180,7 @@ public class VideoListView : Gtk.TreeView
             if (md5_pb == md5_default_pb) {
                 listmodel.get (iter, Col.VIDEO_OBJECT, out v);
                 if (v.image_url != null) {
-                    GLib.debug ("Download missing thumbnail: %s", v.title);
+                    debug ("Download missing thumbnail: %s", v.title);
                     listmodel.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url));
                 }
             }
@@ -220,7 +220,7 @@ public class VideoListView : Gtk.TreeView
             /* check for duplicates */
             if (last_video != null && v.page_url == last_video.page_url) {
                 // remove the current row
-                GLib.debug ("Remove duplicate: %s", v.title);
+                debug ("Remove duplicate: %s", v.title);
                 listmodel.remove (iter); // sets iter to the next valid row
             } else {
                 last_video = v;

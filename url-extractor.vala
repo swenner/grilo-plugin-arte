@@ -83,7 +83,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
             throws ExtractionError
     {
         string regexp, url;
-        GLib.debug ("Initial Page URL:\t\t'%s'", page_url);
+        debug ("Initial Page URL:\t\t'%s'", page_url);
 
         /* Setup the language string */
         string lang_str = "fr";
@@ -100,7 +100,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         // var url_player = "http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf";
         regexp = "var url_player = \"(http://.*.swf)\";";
         var flash_player_uri = extract_string_from_page (page_url, regexp);
-        GLib.debug ("Extract Flash player URI:\t'%s'", flash_player_uri);
+        debug ("Extract Flash player URI:\t'%s'", flash_player_uri);
         if (flash_player_uri == null)
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
@@ -109,7 +109,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         // vars_player.videorefFileUrl = "http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219416,view,asPlayerXml.xml";
         regexp = "videorefFileUrl = \"(http://.*.xml)\";";
         url = extract_string_from_page (page_url, regexp);
-        GLib.debug ("Extract Flash Videoref:\t'%s'", url);
+        debug ("Extract Flash Videoref:\t'%s'", url);
 
         if (url == null)
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
@@ -120,7 +120,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         // <video lang="fr" ref="http://videos.arte.tv/fr/do_delegate/videos/secrets_de_plantes-3219420,view,asPlayerXml.xml"/>
         regexp = "video lang=\"" + lang_str + "\" ref=\"(http://.*.xml)\"";
         url = extract_string_from_page (url, regexp);
-        GLib.debug ("Extract Flash Lang Videoref:\t'%s'", url);
+        debug ("Extract Flash Lang Videoref:\t'%s'", url);
 
         if (url == null)
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
@@ -131,7 +131,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         // <url quality="sd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_06_037778-021-B_PG_MQ_FR?h=76c529bce0f034e74dc92a14549d6a4e</url>
         regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
         var rtmp_uri = extract_string_from_page (url, regexp);
-        GLib.debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
+        debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
 
         /* sometimes only one quality level is available */
         if (rtmp_uri == null) {
@@ -146,7 +146,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
             }
             regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
             rtmp_uri = extract_string_from_page (url, regexp);
-            GLib.debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
+            debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
 
             if (rtmp_uri == null)
                 throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
@@ -164,7 +164,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         // Example:
         // rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_042143-002-A_PG_HQ_FR?h=d7878fae5c9726844d22da78e05f764e swfVfy=1 swfUrl=http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf
         string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + flash_player_uri;
-        GLib.debug ("Build stream URI:\t\t'%s'", stream_uri);
+        debug ("Build stream URI:\t\t'%s'", stream_uri);
 
         return stream_uri;
     }

@@ -83,6 +83,14 @@ public static Soup.SessionAsync create_session ()
     return session;
 }
 
+public void debug (string format, ...)
+{
+#if DEBUG_MESSAGES
+    var args = va_list();
+    GLib.logv ("TotemArte", GLib.LogLevelFlags.LEVEL_DEBUG, format, args);
+#endif
+}
+
 class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 {
     public GLib.Object object { get; construct; }
@@ -101,7 +109,12 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         GLib.Object ();
 
         /* Debug log handling */
-        GLib.Log.set_handler ("\0", GLib.LogLevelFlags.LEVEL_DEBUG, debug_handler);
+        GLib.Log.set_handler (null, GLib.LogLevelFlags.LEVEL_DEBUG, (domain, levels, msg) =>
+            {
+#if DEBUG_MESSAGES
+                GLib.Log.default_handler (domain, levels, msg);
+#endif
+            });
     }
 
     construct
@@ -109,13 +122,6 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         settings = new GLib.Settings (DCONF_ID);
         proxy_settings = new GLib.Settings (DCONF_HTTP_PROXY);
         load_properties ();
-    }
-
-    private void debug_handler (string? log_domain, GLib.LogLevelFlags log_levels, string message)
-    {
-#if DEBUG_MESSAGES
-        GLib.Log.default_handler (log_domain, log_levels, message);
-#endif
     }
 
     /* Gir doesn't allow marking functions as non-abstract */
@@ -297,7 +303,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
 
         search_entry.set_sensitive (false);
 
-        GLib.debug ("Refreshing Video Feed...");
+        debug ("Refreshing Video Feed...");
 
         /* display loading message */
         tree_view.display_loading_message ();
@@ -354,7 +360,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
         /* while parsing we only used images from the cache */
         tree_view.check_and_download_missing_thumbnails ();
 
-        GLib.debug ("Video Feed loaded, video count: %u", tree_view.get_size ());
+        debug ("Video Feed loaded, video count: %u", tree_view.get_size ());
 
         // show user visible error messages
         if (parse_errors > error_threshold)
@@ -389,7 +395,7 @@ class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
                 use_proxy = false; /* necessary to prevent a crash in this case */
             } else {
                 proxy_uri = new Soup.URI ("http://" + parsed_proxy_uri + ":" + proxy_port.to_string());
-                GLib.debug ("Using proxy: %s", proxy_uri.to_string (false));
+                debug ("Using proxy: %s", proxy_uri.to_string (false));
                 proxy_username = proxy_settings.get_string ("authentication-user");
                 proxy_password = proxy_settings.get_string ("authentication-password");
             }

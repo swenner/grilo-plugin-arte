@@ -46,7 +46,7 @@ public class Cache : GLib.Object
         if (!dir.query_exists (null)) {
             try {
                 dir.make_directory_with_parents (null);
-                GLib.debug ("Directory '%s' created", dir.get_path ());
+                debug ("Directory '%s' created", dir.get_path ());
             } catch (Error e) {
                 GLib.error ("Could not create caching directory.");
             }
@@ -115,7 +115,7 @@ public class Cache : GLib.Object
 
         // download it
         var extractor = new ImageUrlExtractor ();
-        GLib.debug ("Download missing image url: %s", v.title);
+        debug ("Download missing image url: %s", v.title);
         try {
             v.image_url = extractor.get_url (VideoQuality.UNKNOWN, Language.UNKNOWN, v.page_url);
 
@@ -202,7 +202,7 @@ public class Cache : GLib.Object
 
     /* Delete files that were created more than x days ago. */
     public void delete_cruft (uint days) {
-        GLib.debug ("Cache: Delete files that are older than %u days.", days);
+        debug ("Cache: Delete files that are older than %u days.", days);
         GLib.TimeVal now = TimeVal ();
         GLib.TimeVal mod_time = TimeVal ();
         now.get_current_time ();
@@ -219,7 +219,7 @@ public class Cache : GLib.Object
                 if (mod_time.tv_sec < deadline) {
                     var file = File.new_for_path (cache_path + file_info.get_name ());
                     file.delete (null);
-                    GLib.debug ("Cache: Deleted: %s", file_info.get_name ());
+                    debug ("Cache: Deleted: %s", file_info.get_name ());
                 }
             }
             enumerator.close(null);
