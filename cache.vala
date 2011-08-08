@@ -101,10 +101,10 @@ public class Cache : GLib.Object
 
         var file = GLib.File.new_for_path (file_path);
         if (file.query_exists (null)) {
-            string data;
+            uint8[] data;
             try {
                 file.load_contents (null, out data);
-                success = v.deserialize (data);
+                success = v.deserialize ((string) data);
              } catch (Error e) {
                 GLib.error ("%s", e.message);
             }
