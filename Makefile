@@ -31,7 +31,9 @@ install:
 
 	mkdir -p $(DESTDIR)/usr/share/glib-2.0/schemas
 	cp -f org.gnome.totem.plugins.arteplus7.gschema.xml $(DESTDIR)/usr/share/glib-2.0/schemas
+ifeq ($(DISABLE_SCHEMAS_COMPILE),)
 	glib-compile-schemas $(DESTDIR)/usr/share/glib-2.0/schemas/
+endif
 
 	mkdir -p $(DESTDIR)/usr/share/locale/de/LC_MESSAGES
 	mkdir -p $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES
