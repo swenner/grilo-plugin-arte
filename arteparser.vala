@@ -99,7 +99,7 @@ public abstract class ArteParser : GLib.Object
             string text,
             size_t text_len) throws MarkupError {}
 
-    protected string sanitise_markup(string str)
+    protected string sanitise_markup (string str)
     {
         return str.replace("&", "&amp;");
     }
