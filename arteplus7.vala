@@ -91,9 +91,9 @@ public void debug (string format, ...)
 #endif
 }
 
-class ArtePlugin : Peas.ExtensionBase, Peas.Activatable, PeasGtk.Configurable
+class ArtePlugin : GLib.Object, Peas.Activatable, PeasGtk.Configurable
 {
-    public GLib.Object object { get; construct; }
+    public GLib.Object object { owned get; construct; }
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private VideoListView tree_view; /* list of movie thumbnails */
