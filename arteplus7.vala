@@ -93,7 +93,7 @@ public void debug (string format, ...)
 
 class ArtePlugin : GLib.Object, Peas.Activatable, PeasGtk.Configurable
 {
-    public GLib.Object object { owned get; construct; }
+    public weak GLib.Object object { owned get; construct; }
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private VideoListView tree_view; /* list of movie thumbnails */
