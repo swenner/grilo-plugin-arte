@@ -165,19 +165,14 @@ public class VideoListView : Gtk.TreeView
     public void check_and_download_missing_thumbnails ()
     {
         TreeIter iter;
-        Gdk.Pixbuf pb;
-        string md5_pb;
+        Gdk.Pixbuf thumbnail;
         Video v;
-
-        string md5_default_pb = Checksum.compute_for_data (ChecksumType.MD5,
-                cache.default_thumbnail.get_pixels ());
 
         listmodel.get_iter_first (out iter);
         while (listmodel.iter_is_valid (iter))
         {
-            listmodel.get (iter, Col.IMAGE, out pb);
-            md5_pb = Checksum.compute_for_data (ChecksumType.MD5, pb.get_pixels ());
-            if (md5_pb == md5_default_pb) {
+            listmodel.get (iter, Col.IMAGE, out thumbnail);
+            if (thumbnail == cache.default_thumbnail) {
                 listmodel.get (iter, Col.VIDEO_OBJECT, out v);
                 if (v.image_url != null) {
                     debug ("Download missing thumbnail: %s", v.title);
