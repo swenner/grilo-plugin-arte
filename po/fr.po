@@ -1,5 +1,5 @@
 # I18n file for Arte+7 totem plugin
-# Copyright (C) 2010, 2011 Simon Wenner <simon@wenner.ch>
+# Copyright (C) 2010, 2011, 2012 Simon Wenner <simon@wenner.ch>
 # This file is distributed under the same license as the Totem Arte Plugin package.
 # This file was first created by Nicolas Delvaux <contact@nicolas-delvaux.org>, 2010.
 #

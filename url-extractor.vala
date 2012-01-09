@@ -1,6 +1,6 @@
 /*
  * Totem Arte Plugin allows you to watch streams from arte.tv
- * Copyright (C) 2010, 2011 Simon Wenner <simon@wenner.ch>
+ * Copyright (C) 2010, 2011, 2012 Simon Wenner <simon@wenner.ch>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
