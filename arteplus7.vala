@@ -179,7 +179,7 @@ class ArtePlugin : GLib.Object, Peas.Activatable, PeasGtk.Configurable
                 entry.set_text ("");
         });
 
-        var main_box = new Gtk.VBox (false, 4);
+        var main_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
         main_box.pack_start (search_entry, false, false, 0);
         main_box.pack_start (scroll_win, true, true, 0);
         main_box.show_all ();
@@ -278,17 +278,17 @@ class ArtePlugin : GLib.Object, Peas.Activatable, PeasGtk.Configurable
         });
 
         var langs_label = new Gtk.Label (_("Language:"));
-        var langs_box = new HBox (false, 20);
+        var langs_box = new Box (Gtk.Orientation.HORIZONTAL, 20);
         langs_box.pack_start (langs_label, false, true, 0);
         langs_box.pack_start (langs, true, true, 0);
 
         var quali_label = new Gtk.Label (_("Video quality:"));
-        var quali_box = new HBox (false, 20);
+        var quali_box = new Box (Gtk.Orientation.HORIZONTAL, 20);
         quali_box.pack_start (quali_label, false, true, 0);
         quali_box.pack_start (quali_radio_medium, false, true, 0);
         quali_box.pack_start (quali_radio_high, true, true, 0);
 
-        var vbox = new Gtk.VBox (true, 20);
+        var vbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 20);
         vbox.pack_start (langs_box, false, true, 0);
         vbox.pack_start (quali_box, false, true, 0);
 
