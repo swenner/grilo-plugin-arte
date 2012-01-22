@@ -91,9 +91,9 @@ public void debug (string format, ...)
 #endif
 }
 
-class ArtePlugin : GLib.Object, Peas.Activatable, PeasGtk.Configurable
+class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
 {
-    public weak GLib.Object object { owned get; construct; }
+    public GLib.Object object { owned get; construct; }
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private VideoListView tree_view; /* list of movie thumbnails */
@@ -132,7 +132,7 @@ class ArtePlugin : GLib.Object, Peas.Activatable, PeasGtk.Configurable
         settings.changed.connect ((key) => { on_settings_changed (key); });
         proxy_settings.changed.connect ((key) => { on_settings_changed (key); });
 
-        t = (Totem.Object) object;
+        t = object as Totem.Object;
         cache = new Cache (Environment.get_user_cache_dir ()
              + CACHE_PATH_SUFFIX);
         parsers[0] = new ArteXMLParser ();
