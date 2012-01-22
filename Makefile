@@ -1,5 +1,5 @@
 DESTDIR=
-VERSION=3.0.0
+VERSION=3.0.1
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 VALA_DEPS=--pkg Totem-1.0 --pkg Peas-1.0 --pkg PeasGtk-1.0 --pkg libsoup-2.4 --pkg gtk+-3.0
