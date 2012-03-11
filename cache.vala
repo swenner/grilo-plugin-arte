@@ -204,14 +204,14 @@ public class Cache : GLib.Object
     public void delete_cruft (uint days) {
         debug ("Cache: Delete files that are older than %u days.", days);
         GLib.TimeVal now = TimeVal ();
-        GLib.TimeVal mod_time = TimeVal ();
+        GLib.TimeVal mod_time;
         now.get_current_time ();
         long deadline = now.tv_sec - days * 24 * 60 * 60;
         uint deleted_file_count = 0;
 
         var directory = File.new_for_path (cache_path);
         try {
-            var enumerator = directory.enumerate_children ("*",
+            var enumerator = directory.enumerate_children (GLib.FILE_ATTRIBUTE_TIME_MODIFIED,
                     GLib.FileQueryInfoFlags.NONE, null);
 
             GLib.FileInfo file_info;
