@@ -207,6 +207,7 @@ public class Cache : GLib.Object
         GLib.TimeVal mod_time = TimeVal ();
         now.get_current_time ();
         long deadline = now.tv_sec - days * 24 * 60 * 60;
+        uint deleted_file_count = 0;
 
         var directory = File.new_for_path (cache_path);
         try {
@@ -219,7 +220,7 @@ public class Cache : GLib.Object
                 if (mod_time.tv_sec < deadline) {
                     var file = File.new_for_path (cache_path + file_info.get_name ());
                     file.delete (null);
-                    debug ("Cache: Deleted: %s", file_info.get_name ());
+                    deleted_file_count++;
                 }
             }
             enumerator.close(null);
@@ -227,5 +228,6 @@ public class Cache : GLib.Object
         } catch (Error e) {
             GLib.critical ("%s", e.message);
         }
+        debug ("Cache: Deleted %u files.", deleted_file_count);
     }
 }
