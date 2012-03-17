@@ -320,7 +320,7 @@ public class VideoListView : Gtk.TreeView
         }
     }
 
-    private void menu_position (Menu menu, out int x, out int y, out bool push_in)
+    private void menu_position (Gtk.Menu menu, out int x, out int y, out bool push_in)
     {
         int wy;
         Gdk.Rectangle rect;

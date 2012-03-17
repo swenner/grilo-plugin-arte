@@ -103,7 +103,7 @@ public class Cache : GLib.Object
         if (file.query_exists (null)) {
             uint8[] data;
             try {
-                file.load_contents (null, out data);
+                file.load_contents (null, out data, null);
                 success = v.deserialize ((string) data);
              } catch (Error e) {
                 GLib.error ("%s", e.message);
@@ -215,7 +215,7 @@ public class Cache : GLib.Object
 
             GLib.FileInfo file_info;
             while ((file_info = enumerator.next_file (null)) != null) {
-                file_info.get_modification_time (out mod_time);
+                mod_time = file_info.get_modification_time ();
                 if (mod_time.tv_sec < deadline) {
                     var file = File.new_for_path (cache_path + file_info.get_name ());
                     file.delete (null);
