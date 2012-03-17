@@ -75,7 +75,7 @@ public abstract class ArteParser : GLib.Object
         session.send_message (msg);
 
         if (msg.status_code != Soup.KnownStatusCode.OK) {
-            throw new IOError.HOST_NOT_FOUND ("plus7.arte.tv could not be accessed.");
+            throw new IOError.HOST_NOT_FOUND ("videos.arte.tv could not be accessed.");
         }
 
         var context = new MarkupParseContext (parser,
