@@ -2,7 +2,7 @@ DESTDIR=
 VERSION=3.0.1
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
-VALA_DEPS=--pkg Totem-1.0 --pkg Peas-1.0 --pkg PeasGtk-1.0 --pkg libsoup-2.4 --pkg gtk+-3.0
+VALA_DEPS=--pkg Totem-1.0 --pkg PeasGtk-1.0 --pkg libsoup-2.4 --pkg gtk+-3.0 --pkg gio-2.0
 CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"totem-arte\""
 VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g
 VALA_SOURCE=\
@@ -11,7 +11,8 @@ VALA_SOURCE=\
 	cache.vala \
 	url-extractor.vala \
 	video.vala \
-	video-list-view.vala
+	video-list-view.vala \
+	connection-status.vala
 EXTRA_DIST=\
 	arteplus7.plugin \
 	arteplus7-default.png \

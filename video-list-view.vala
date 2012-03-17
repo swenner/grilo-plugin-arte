@@ -72,7 +72,7 @@ public class VideoListView : Gtk.TreeView
 
     public signal void video_selected (string url, string title);
 
-    public void display_loading_message ()
+    public void display_message (string message)
     {
         TreeIter iter;
 
@@ -81,7 +81,7 @@ public class VideoListView : Gtk.TreeView
         msg_ls.prepend (out iter);
         msg_ls.set (iter,
                 Col.IMAGE, null,
-                Col.NAME, _("Loading..."),
+                Col.NAME, message,
                 Col.DESCRIPTION, null, -1);
         this.set_model (msg_ls);
     }
@@ -102,6 +102,9 @@ public class VideoListView : Gtk.TreeView
 
     public uint get_size ()
     {
+        if (listmodel == null)
+            return 0;
+
         return listmodel.iter_n_children (null);
     }
 
@@ -277,7 +280,7 @@ public class VideoListView : Gtk.TreeView
         var menu_web = new ImageMenuItem.from_stock (Gtk.Stock.JUMP_TO, null);
         menu_web.set_label (_("_Open in Web Browser"));
         menu_web.activate.connect (callback_open_in_web_browser);
-        
+
         menu.attach (menu_web, 0, 1, 0, 1);
 
         menu.attach_to_widget (this, null);

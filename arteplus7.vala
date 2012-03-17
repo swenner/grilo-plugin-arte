@@ -97,12 +97,13 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private VideoListView tree_view; /* list of movie thumbnails */
-    private ArteParser parsers[2];
+    private ArteParser parsers[2]; /* array of parsers */
     private GLib.Settings settings;
     private GLib.Settings proxy_settings;
     private Cache cache; /* image thumbnail cache */
     private Language language;
     private VideoQuality quality;
+    private ConnectionStatus cs;
 
     public ArtePlugin () {
         /* constructor chain up hint */
@@ -119,8 +120,8 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
 
     construct
     {
-        settings = new GLib.Settings (DCONF_ID);
-        proxy_settings = new GLib.Settings (DCONF_HTTP_PROXY);
+        this.settings = new GLib.Settings (DCONF_ID);
+        this.proxy_settings = new GLib.Settings (DCONF_HTTP_PROXY);
         load_properties ();
     }
 
@@ -129,6 +130,8 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
 
     public void activate ()
     {
+        this.cs = new ConnectionStatus ();
+
         settings.changed.connect ((key) => { on_settings_changed (key); });
         proxy_settings.changed.connect ((key) => { on_settings_changed (key); });
 
@@ -199,10 +202,21 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         /* Refresh the feed on pressing 'F5' */
         var window = t.get_main_window ();
         window.key_press_event.connect (callback_F5_pressed);
+
+        /* refresh the feed if we were offline and it has not been loaded */
+        this.cs.status_changed.connect ((is_online) => {
+            debug ("ConnectionStatus changed: is_online = %d", is_online);
+            if (is_online && tree_view.get_size () < 2) {
+                // delay it by 3 seconds to avoid timing issues
+                GLib.Timeout.add_seconds (3, refresh_rss_feed);
+            }
+        });
     }
 
     public void deactivate ()
     {
+        /* Disable connection updates */
+        this.cs = null;
         /* Remove the 'F5' key event handler */
         var window = t.get_main_window ();
         window.key_press_event.disconnect (callback_F5_pressed);
@@ -295,8 +309,18 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         return vbox;
     }
 
-    public bool refresh_rss_feed ()
+    private bool refresh_rss_feed ()
     {
+        if (!this.cs.is_online) {
+            // display offline message
+            tree_view.display_message (_("No internet connection."));
+
+            // invalidate all existing videos
+            tree_view.clear ();
+
+            return false;
+        }
+
         uint parse_errors = 0;
         uint network_errors = 0;
         uint error_threshold = 0;
@@ -306,7 +330,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         debug ("Refreshing Video Feed...");
 
         /* display loading message */
-        tree_view.display_loading_message ();
+        tree_view.display_message (_("Loading..."));
 
         /* remove all existing videos */
         tree_view.clear ();
