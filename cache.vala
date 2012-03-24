@@ -123,6 +123,12 @@ public class Cache : GLib.Object
             var file_stream = file.create (FileCreateFlags.REPLACE_DESTINATION);
             var data_stream = new DataOutputStream (file_stream);
             data_stream.put_string (v.serialize());
+
+            // set the last modification to the video offline date
+            GLib.FileInfo fi = file.query_info(GLib.FILE_ATTRIBUTE_TIME_MODIFIED,
+                GLib.FileQueryInfoFlags.NONE, null);
+            fi.set_modification_time(v.offline_date);
+            file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
         } catch (ExtractionError e) {
             GLib.critical ("Image url extraction failed: %s", e.message);
             return false;
@@ -160,7 +166,7 @@ public class Cache : GLib.Object
         return default_thumbnail;
     }
 
-    public Gdk.Pixbuf download_pixbuf (string? url)
+    public Gdk.Pixbuf download_pixbuf (string? url, TimeVal date)
     {
         if (url == null) {
             return default_thumbnail;
@@ -197,16 +203,29 @@ public class Cache : GLib.Object
             GLib.critical ("%s", e.message);
         }
 
+        /* set the last modification to the video offline date */
+        try {
+            GLib.File file = File.new_for_path (file_path);
+            GLib.FileInfo fi = file.query_info(GLib.FILE_ATTRIBUTE_TIME_MODIFIED,
+                GLib.FileQueryInfoFlags.NONE, null);
+            fi.set_modification_time(date);
+            file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
+        } catch (Error e) {
+            GLib.critical ("%s", e.message);
+        }
+
         return pb;
     }
 
-    /* Delete files that were created more than x days ago. */
-    public void delete_cruft (uint days) {
-        debug ("Cache: Delete files that are older than %u days.", days);
+    /* Delete outdated files (we set modification dates to relative videos offline dates). */
+    public void delete_cruft () {
+        debug ("Cache: Delete outdated files.");
         GLib.TimeVal now = TimeVal ();
         GLib.TimeVal mod_time;
         now.get_current_time ();
-        long deadline = now.tv_sec - days * 24 * 60 * 60;
+        /* Add a 2 hours margin (videos are not removed immediately) */
+        now.tv_sec -= 7200;
+
         uint deleted_file_count = 0;
 
         var directory = File.new_for_path (cache_path);
@@ -217,7 +236,7 @@ public class Cache : GLib.Object
             GLib.FileInfo file_info;
             while ((file_info = enumerator.next_file (null)) != null) {
                 mod_time = file_info.get_modification_time ();
-                if (mod_time.tv_sec < deadline) {
+                if (mod_time.tv_sec < now.tv_sec) {
                     var file = File.new_for_path (cache_path + file_info.get_name ());
                     file.delete (null);
                     deleted_file_count++;

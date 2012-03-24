@@ -190,11 +190,10 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         t.add_sidebar_page ("arte", _("Arte+7"), main_box);
         GLib.Idle.add (refresh_rss_feed);
 
-        /* delete all files in the cache that are older than 8 days
-         * with probability 1/5 at every startup */
+        /* delete outdated files in the cache with probability 1/5 at every startup */
         if (GLib.Random.next_int () % 5 == 0) {
             GLib.Idle.add (() => {
-                cache.delete_cruft (8);
+                cache.delete_cruft ();
                 return false;
             });
         }
