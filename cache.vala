@@ -60,38 +60,6 @@ public class Cache : GLib.Object
         }
     }
 
-    public string? get_data_path (string url)
-    {
-        /* check if file exists in cache */
-        string file_path = cache_path
-                + Checksum.compute_for_string (ChecksumType.MD5, url);
-
-        var file = GLib.File.new_for_path (file_path);
-        if (file.query_exists (null)) {
-            return file_path;
-        }
-
-        /* get file from the the net */
-        var msg = new Soup.Message ("GET", url);
-        session.send_message (msg);
-
-        if (msg.response_body.data == null) {
-            return null;
-        }
-
-        /* store the file on disk */
-        try {
-            var file_stream = file.create (FileCreateFlags.REPLACE_DESTINATION, null);
-            var data_stream = new DataOutputStream (file_stream);
-            data_stream.write (msg.response_body.data);
-
-        } catch (Error e) {
-            GLib.error ("%s", e.message);
-        }
-
-        return file_path;
-    }
-
     public bool get_video (ref Video v)
     {
         bool success = false;
