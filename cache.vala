@@ -211,8 +211,8 @@ public class Cache : GLib.Object
 
         var directory = File.new_for_path (cache_path);
         try {
-            var enumerator = directory.enumerate_children (GLib.FILE_ATTRIBUTE_TIME_MODIFIED,
-                    GLib.FileQueryInfoFlags.NONE, null);
+            var enumerator = directory.enumerate_children (GLib.FILE_ATTRIBUTE_TIME_MODIFIED+
+                ","+GLib.FILE_ATTRIBUTE_STANDARD_NAME, GLib.FileQueryInfoFlags.NONE, null);
 
             GLib.FileInfo file_info;
             while ((file_info = enumerator.next_file (null)) != null) {
