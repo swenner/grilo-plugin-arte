@@ -93,7 +93,7 @@ public class Cache : GLib.Object
             data_stream.put_string (v.serialize());
 
             // set the last modification to the video offline date
-            GLib.FileInfo fi = file.query_info(GLib.FILE_ATTRIBUTE_TIME_MODIFIED,
+            GLib.FileInfo fi = file.query_info(FileAttribute.TIME_MODIFIED,
                 GLib.FileQueryInfoFlags.NONE, null);
             fi.set_modification_time(v.offline_date);
             file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
@@ -174,7 +174,7 @@ public class Cache : GLib.Object
         /* set the last modification to the video offline date */
         try {
             GLib.File file = File.new_for_path (file_path);
-            GLib.FileInfo fi = file.query_info(GLib.FILE_ATTRIBUTE_TIME_MODIFIED,
+            GLib.FileInfo fi = file.query_info(FileAttribute.TIME_MODIFIED,
                 GLib.FileQueryInfoFlags.NONE, null);
             fi.set_modification_time(date);
             file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
@@ -198,8 +198,8 @@ public class Cache : GLib.Object
 
         var directory = File.new_for_path (cache_path);
         try {
-            var enumerator = directory.enumerate_children (GLib.FILE_ATTRIBUTE_TIME_MODIFIED+
-                ","+GLib.FILE_ATTRIBUTE_STANDARD_NAME, GLib.FileQueryInfoFlags.NONE, null);
+            var enumerator = directory.enumerate_children (FileAttribute.TIME_MODIFIED+
+                ","+FileAttribute.STANDARD_NAME, GLib.FileQueryInfoFlags.NONE, null);
 
             GLib.FileInfo file_info;
             while ((file_info = enumerator.next_file (null)) != null) {
