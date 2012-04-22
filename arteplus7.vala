@@ -191,7 +191,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         GLib.Idle.add (refresh_rss_feed);
 
         /* delete outdated files in the cache */
-        cache.delete_cruft ();
+        GLib.Idle.add(cache.delete_cruft);
 
         /* Refresh the feed on pressing 'F5' */
         var window = t.get_main_window ();
