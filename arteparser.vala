@@ -266,7 +266,7 @@ public class ArteRSSParser : ArteParser
             month = "04";
             break;
         case "May":
-            month = "04";
+            month = "05";
             break;
         case "Jun":
             month = "06";
