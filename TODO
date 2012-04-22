@@ -3,3 +3,4 @@ TODO:
  * support sorting the movies by publishing date
  * add a loading message or animation after selecting a video
  * support socks proxies
+ * investigate the usage of SoupCache for html/xml files
