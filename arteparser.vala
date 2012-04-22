@@ -224,10 +224,93 @@ public class ArteRSSParser : ArteParser
                     current_video.desc = sanitise_markup(text);
                     break;
                 case "pubDate":
-                    current_video.publication_date.from_iso8601 (text);
+                    // date is present, but it does not conform to ISO 8601
+                    // example fr:
+                    // Sun, 22 Apr 2012 11:46:27 +0200
+                    // example de:
+                    // Sun, 22 Apr 2012 09:07:19 +0200
+                    string iso_date = rss_date_to_iso8601 (text);
+
+                    if (!current_video.publication_date.from_iso8601 (iso_date)) {
+                        GLib.warning ("Publication date '%s' parsing failed.", text);
+                    }
                     break;
             }
         }
+    }
+
+    private static string rss_date_to_iso8601 (string date)
+    {
+        // in: Sun, 22 Apr 2012 11:46:27 +0200
+        // out: 2008-02-01T09:00:22+05:00
+        string[] s = date.split(" ");
+
+        if (s.length != 6) {
+            GLib.warning ("Conversion to ISO8601 failed.");
+            return "";
+        }
+
+        string month;
+        switch (s[2])
+        {
+        case "Jan":
+            month = "01";
+            break;
+        case "Feb":
+            month = "02";
+            break;
+        case "Mar":
+            month = "03";
+            break;
+        case "Apr":
+            month = "04";
+            break;
+        case "May":
+            month = "04";
+            break;
+        case "Jun":
+            month = "06";
+            break;
+        case "Jul":
+            month = "07";
+            break;
+        case "Aug":
+            month = "08";
+            break;
+        case "Sep":
+            month = "09";
+            break;
+        case "Oct":
+            month = "10";
+            break;
+        case "Nov":
+            month = "11";
+            break;
+        case "Dec":
+            month = "12";
+            break;
+        default:
+            GLib.warning("Conversion to ISO8601 failed. Unknown month: '%s'.", s[2]);
+            return "";
+            break;
+        }
+
+        string day = s[1];
+        if (day.length < 2) {
+            day = "0" + day;
+        }
+
+        var builder = new StringBuilder ();
+        builder.append (s[3]);
+        builder.append ("-");
+        builder.append (month);
+        builder.append ("-");
+        builder.append (day);
+        builder.append ("T");
+        builder.append (s[4]);
+        builder.append ("+0%c:00".printf(s[5][2]));
+
+        return builder.str;
     }
 }
 
@@ -332,10 +415,21 @@ public class ArteXMLParser : ArteParser
                     current_video.desc = sanitise_markup(text);
                     break;
                 case "startDate":
-                    current_video.publication_date.from_iso8601 (text);
+                    // date is present, but it does not conform to ISO 8601
+                    // GLib.Date.set_parse fails in about 90% of the cases
+
+                    // examples fr:
+                    // mer., 18 avr. 2012, 20h07
+                    // hier, 14h36
+
+                    // examples de:
+                    // Do, 19. Apr 2012, 00:33
+                    // gestern, 15:05
                     break;
                 case "endDate":
-                    current_video.offline_date.from_iso8601 (text);
+                    if (!current_video.offline_date.from_iso8601 (text)) {
+                        GLib.warning ("Offline date '%s' parsing failed.", text);
+                    }
                     break;
             }
         }
