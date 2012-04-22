@@ -2,6 +2,7 @@ DESTDIR=
 VERSION=3.0.1
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
+VALAC=valac
 VALA_DEPS=--pkg Totem-1.0 --pkg PeasGtk-1.0 --pkg libsoup-2.4 --pkg gtk+-3.0 --pkg gio-2.0
 CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"totem-arte\""
 VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g
@@ -20,7 +21,7 @@ EXTRA_DIST=\
 	Makefile README AUTHORS COPYING NEWS ChangeLog
 
 all:
-	valac --library=arteplus7 $(VALA_SOURCE) $(VALA_DEPS) $(VALA_ARGS) -o libarteplus7.so
+	$(VALAC) --library=arteplus7 $(VALA_SOURCE) $(VALA_DEPS) $(VALA_ARGS) -o libarteplus7.so
 	msgfmt --output-file=po/de.mo po/de.po
 	msgfmt --output-file=po/fr.mo po/fr.po
 
