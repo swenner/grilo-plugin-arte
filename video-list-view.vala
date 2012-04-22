@@ -179,7 +179,7 @@ public class VideoListView : Gtk.TreeView
                 listmodel.get (iter, Col.VIDEO_OBJECT, out v);
                 if (v.image_url != null) {
                     debug ("Download missing thumbnail: %s", v.title);
-                    listmodel.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url, v.offline_date));
+                    listmodel.set (iter, Col.IMAGE, cache.download_pixbuf (v.image_url, v.publication_date));
                 }
             }
             listmodel.iter_next (ref iter);

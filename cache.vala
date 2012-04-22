@@ -92,11 +92,13 @@ public class Cache : GLib.Object
             var data_stream = new DataOutputStream (file_stream);
             data_stream.put_string (v.serialize());
 
-            // set the last modification to the video offline date
-            GLib.FileInfo fi = file.query_info(FileAttribute.TIME_MODIFIED,
-                GLib.FileQueryInfoFlags.NONE, null);
-            fi.set_modification_time(v.offline_date);
-            file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
+            if (v.publication_date.tv_sec != 0) {
+                // set the last modification to the video offline date
+                GLib.FileInfo fi = file.query_info(FileAttribute.TIME_MODIFIED,
+                    GLib.FileQueryInfoFlags.NONE, null);
+                fi.set_modification_time(v.publication_date);
+                file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
+            }
         } catch (ExtractionError e) {
             GLib.critical ("Image url extraction failed: %s", e.message);
             return false;
@@ -134,7 +136,7 @@ public class Cache : GLib.Object
         return default_thumbnail;
     }
 
-    public Gdk.Pixbuf download_pixbuf (string? url, TimeVal date)
+    public Gdk.Pixbuf download_pixbuf (string? url, TimeVal pub_date)
     {
         if (url == null) {
             return default_thumbnail;
@@ -171,28 +173,30 @@ public class Cache : GLib.Object
             GLib.critical ("%s", e.message);
         }
 
-        /* set the last modification to the video offline date */
-        try {
-            GLib.File file = File.new_for_path (file_path);
-            GLib.FileInfo fi = file.query_info(FileAttribute.TIME_MODIFIED,
-                GLib.FileQueryInfoFlags.NONE, null);
-            fi.set_modification_time(date);
-            file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
-        } catch (Error e) {
-            GLib.critical ("%s", e.message);
+        /* set the last modification to the video publication date */
+        if (pub_date.tv_sec != 0) {
+            try {
+                GLib.File file = File.new_for_path (file_path);
+                GLib.FileInfo fi = file.query_info(FileAttribute.TIME_MODIFIED,
+                    GLib.FileQueryInfoFlags.NONE, null);
+                fi.set_modification_time(pub_date);
+                file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
+            } catch (Error e) {
+                GLib.critical ("%s", e.message);
+            }
         }
 
         return pb;
     }
 
-    /* Delete outdated files (we set modification dates to relative videos offline dates). */
+    /* Delete outdated files (we set modification dates to relative videos publication dates). */
     public bool delete_cruft () {
         debug ("Cache: Delete outdated files.");
-        GLib.TimeVal now = TimeVal ();
+        GLib.TimeVal time = TimeVal ();
         GLib.TimeVal mod_time;
-        now.get_current_time ();
-        /* Add a 2 hours margin (videos are not removed immediately) */
-        now.tv_sec -= 7200;
+        time.get_current_time ();
+        /* Subtract 7 days and 2 hours (because videos are not removed immediately) */
+        time.tv_sec -= 612000;
 
         uint deleted_file_count = 0;
 
@@ -204,7 +208,7 @@ public class Cache : GLib.Object
             GLib.FileInfo file_info;
             while ((file_info = enumerator.next_file (null)) != null) {
                 mod_time = file_info.get_modification_time ();
-                if (mod_time.tv_sec < now.tv_sec) {
+                if (mod_time.tv_sec < time.tv_sec) {
                     var file = File.new_for_path (cache_path + file_info.get_name ());
                     file.delete (null);
                     deleted_file_count++;
