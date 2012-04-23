@@ -88,17 +88,13 @@ public class Cache : GLib.Object
             v.image_url = extractor.get_url (VideoQuality.UNKNOWN, Language.UNKNOWN, v.page_url);
 
             // write to cache
-            var file_stream = file.create (FileCreateFlags.REPLACE_DESTINATION);
+            var file_stream = file.create (GLib.FileCreateFlags.REPLACE_DESTINATION);
             var data_stream = new DataOutputStream (file_stream);
-            data_stream.put_string (v.serialize());
+            data_stream.put_string (v.serialize ());
 
-            if (v.publication_date.tv_sec != 0) {
-                // set the last modification to the video offline date
-                GLib.FileInfo fi = file.query_info(FileAttribute.TIME_MODIFIED,
-                    GLib.FileQueryInfoFlags.NONE, null);
-                fi.set_modification_time(v.publication_date);
-                file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
-            }
+            // set the last modification to the video publication date
+            set_file_modification_date_to_publication_date (file, v.publication_date);
+
         } catch (ExtractionError e) {
             GLib.critical ("Image url extraction failed: %s", e.message);
             return false;
@@ -174,17 +170,8 @@ public class Cache : GLib.Object
         }
 
         /* set the last modification to the video publication date */
-        if (pub_date.tv_sec != 0) {
-            try {
-                GLib.File file = File.new_for_path (file_path);
-                GLib.FileInfo fi = file.query_info(FileAttribute.TIME_MODIFIED,
-                    GLib.FileQueryInfoFlags.NONE, null);
-                fi.set_modification_time(pub_date);
-                file.set_attributes_from_info(fi, GLib.FileQueryInfoFlags.NONE, null);
-            } catch (Error e) {
-                GLib.critical ("%s", e.message);
-            }
-        }
+        GLib.File file = File.new_for_path (file_path);
+        set_file_modification_date_to_publication_date (file, pub_date);
 
         return pb;
     }
@@ -196,14 +183,15 @@ public class Cache : GLib.Object
         GLib.TimeVal mod_time;
         time.get_current_time ();
         /* Subtract 7 days and 2 hours (because videos are not removed immediately) */
-        time.tv_sec -= 612000;
+        time.tv_sec -= (7*24*60*60 + 2*60*60);
 
         uint deleted_file_count = 0;
 
         var directory = File.new_for_path (cache_path);
         try {
-            var enumerator = directory.enumerate_children (FileAttribute.TIME_MODIFIED+
-                ","+FileAttribute.STANDARD_NAME, GLib.FileQueryInfoFlags.NONE, null);
+            var enumerator = directory.enumerate_children (
+                GLib.FileAttribute.TIME_MODIFIED + "," +
+                GLib.FileAttribute.STANDARD_NAME, GLib.FileQueryInfoFlags.NONE, null);
 
             GLib.FileInfo file_info;
             while ((file_info = enumerator.next_file (null)) != null) {
@@ -214,12 +202,27 @@ public class Cache : GLib.Object
                     deleted_file_count++;
                 }
             }
-            enumerator.close(null);
+            enumerator.close (null);
 
         } catch (Error e) {
             GLib.critical ("%s", e.message);
         }
         debug ("Cache: Deleted %u files.", deleted_file_count);
         return false;
+    }
+
+    private static void set_file_modification_date_to_publication_date (
+            GLib.File file, TimeVal pub_date)
+    {
+        if (pub_date.tv_sec != 0) {
+            try {
+                GLib.FileInfo fi = file.query_info (GLib.FileAttribute.TIME_MODIFIED,
+                        GLib.FileQueryInfoFlags.NONE, null);
+                fi.set_modification_time (pub_date);
+                file.set_attributes_from_info (fi, GLib.FileQueryInfoFlags.NONE, null);
+            } catch (Error e) {
+                GLib.critical ("%s", e.message);
+            }
+        }
     }
 }

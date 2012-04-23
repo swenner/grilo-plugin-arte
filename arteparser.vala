@@ -387,7 +387,7 @@ public class ArteXMLParser : ArteParser
                 if (current_video != null) {
                     if (current_video.offline_date.tv_sec != 0) {
                         // We only parsed the offline date, so we compute the publication date by subtracting 7 days
-                        current_video.publication_date.tv_sec = current_video.offline_date.tv_sec - 604800;
+                        current_video.publication_date.tv_sec = current_video.offline_date.tv_sec - 7*24*60*60;
                     }
                     videos.prepend (current_video);
                     current_video = null;
