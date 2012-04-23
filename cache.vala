@@ -177,7 +177,7 @@ public class Cache : GLib.Object
     }
 
     /* Delete outdated files (we set modification dates to relative videos publication dates). */
-    public bool delete_cruft () {
+    public void delete_cruft () {
         debug ("Cache: Delete outdated files.");
         GLib.TimeVal time = TimeVal ();
         GLib.TimeVal mod_time;
@@ -208,7 +208,6 @@ public class Cache : GLib.Object
             GLib.critical ("%s", e.message);
         }
         debug ("Cache: Deleted %u files.", deleted_file_count);
-        return false;
     }
 
     private static void set_file_modification_date_to_publication_date (
