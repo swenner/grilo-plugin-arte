@@ -33,7 +33,7 @@ using GLib;
 interface NetworkManagerDBus : GLib.Object
 {
     [DBus (name = "state")]
-    public abstract uint32 state () throws IOError;
+    //public abstract uint32 state () throws IOError;
     public signal void state_changed (uint32 state);
 }
 

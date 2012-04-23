@@ -292,7 +292,6 @@ public class ArteRSSParser : ArteParser
         default:
             GLib.warning("Conversion to ISO8601 failed. Unknown month: '%s'.", s[2]);
             return "";
-            break;
         }
 
         string day = s[1];
