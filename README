@@ -18,7 +18,7 @@ gsettings-desktop-schemas
 Network-Manager (optional)
 
 On Debian or Ubuntu:
-# aptitude install valac-0.14 libgtk3.0-dev libtotem-dev libpeas-dev \
+# aptitude install valac-0.16 libgtk3.0-dev libtotem-dev libpeas-dev \
 libsoup2.4-dev gettext gstreamer0.10-plugins-bad gsettings-desktop-schemas
 
 ---------------

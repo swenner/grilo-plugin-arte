@@ -1,3 +1,15 @@
+2012 May 1st - Totem Arte Plugin 3.1.0
+
+Changes since 3.0.1:
+ * Network-Manager integration
+ * Improved thumbnail cache handling
+ * Fix compilation with Vala 0.16
+ * Many bugfixes
+
+All contributors to this release:
+ * Simon Wenner <simon@wenner.ch>
+ * Nicolas Delvaux <contact@nicolas-delvaux.org>
+
 2012 January 22th - Totem Arte Plugin 3.0.1
 
 Changes since 3.0.0:
