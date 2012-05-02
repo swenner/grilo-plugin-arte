@@ -47,8 +47,9 @@ public enum Language
     GERMAN
 }
 
-public const string USER_AGENT =
-    "Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0";
+public string USER_AGENT;
+private const string USER_AGENT_TMPL =
+    "Mozilla/5.0 (X11; Linux x86_64; rv:%d.0) Gecko/20100101 Firefox/%d.0";
 public const string DCONF_ID = "org.gnome.Totem.arteplus7";
 public const string DCONF_HTTP_PROXY = "org.gnome.system.proxy.http";
 public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
@@ -131,6 +132,19 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
     public void activate ()
     {
         this.cs = new ConnectionStatus ();
+
+        /* Generate the user-agent */
+        TimeVal tv = TimeVal ();
+        tv.get_current_time ();
+        /* First, we need to compute the number of weeks since Epoch */
+        int weeks = (int) tv.tv_sec / ( 60 * 60 * 24 * 7 );
+        /* We know there is a new Firefox release each 6 weeks.
+           And we know Firefox 11.0 was released the 03/13/2012, which
+           corresponds to 2201 weeks after Epoch.
+           We add a 3 weeks margin and then we can compute the version number! */
+        int version = 11 + (weeks - 2201 + 3) / 6;
+        USER_AGENT = USER_AGENT_TMPL.printf(version, version);
+        debug (USER_AGENT);
 
         settings.changed.connect ((key) => { on_settings_changed (key); });
         proxy_settings.changed.connect ((key) => { on_settings_changed (key); });
