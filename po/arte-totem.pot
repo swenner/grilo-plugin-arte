@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-02 10:35+0200\n"
+"POT-Creation-Date: 2012-05-02 20:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,66 +17,76 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:148
+#: ../arteplus7.vala:157
 msgid "Reload feed"
 msgstr ""
 
-#: ../arteplus7.vala:152
+#: ../arteplus7.vala:161
 msgid "Clear the search text"
 msgstr ""
 
-#: ../arteplus7.vala:181
+#: ../arteplus7.vala:190
 msgid "Arte+7"
 msgstr ""
 
-#: ../arteplus7.vala:211
+#: ../arteplus7.vala:228
 msgid "French"
 msgstr ""
 
-#: ../arteplus7.vala:212
+#: ../arteplus7.vala:229
 msgid "German"
 msgstr ""
 
-#: ../arteplus7.vala:242
+#: ../arteplus7.vala:259
 msgid "_medium"
 msgstr ""
 
-#: ../arteplus7.vala:244
+#: ../arteplus7.vala:261
 msgid "_high"
 msgstr ""
 
-#: ../arteplus7.vala:274
+#: ../arteplus7.vala:291
 msgid "Language:"
 msgstr ""
 
-#: ../arteplus7.vala:279
+#: ../arteplus7.vala:296
 msgid "Video quality:"
 msgstr ""
 
-#: ../arteplus7.vala:376
+#. display offline message
+#: ../arteplus7.vala:313
+msgid "No internet connection."
+msgstr ""
+
+#. display loading message
+#: ../arteplus7.vala:330
+msgid "Loading..."
+msgstr ""
+
+#: ../arteplus7.vala:389
 msgid "Markup Parser Error"
 msgstr ""
 
-#: ../arteplus7.vala:377
+#: ../arteplus7.vala:390
 msgid "Sorry, the plugin could not parse the Arte video feed."
 msgstr ""
 
-#: ../arteplus7.vala:379
+#: ../arteplus7.vala:392
 msgid "Network problem"
 msgstr ""
 
-#: ../arteplus7.vala:380
+#: ../arteplus7.vala:393
 msgid ""
 "Sorry, the plugin could not download the Arte video feed.\n"
 "Please verify your network settings and (if any) your proxy settings."
 msgstr ""
 
 #. This video access is restricted
-#: ../arteplus7.vala:444
+#: ../arteplus7.vala:461
 msgid "This video access is restricted"
 msgstr ""
 
-#: ../arteplus7.vala:445
+#: ../arteplus7.vala:462
 msgid ""
 "It seems that, because of its content, this video can only be watched in a "
 "precise time interval.\n"
@@ -85,11 +95,11 @@ msgid ""
 msgstr ""
 
 #. The video is part of the XML/RSS feed but no stream is available yet
-#: ../arteplus7.vala:448
+#: ../arteplus7.vala:465
 msgid "This video is not available yet"
 msgstr ""
 
-#: ../arteplus7.vala:449
+#: ../arteplus7.vala:466
 msgid ""
 "Sorry, the plugin could not find any stream URL.\n"
 "It seems that this video is not available yet, even on the Arte web-player.\n"
@@ -99,17 +109,17 @@ msgstr ""
 
 #. Network problems
 #. ExtractionError.EXTRACTION_ERROR or an unspecified error
-#: ../arteplus7.vala:452 ../arteplus7.vala:456
+#: ../arteplus7.vala:469 ../arteplus7.vala:473
 msgid "Video URL Extraction Error"
 msgstr ""
 
-#: ../arteplus7.vala:453
+#: ../arteplus7.vala:470
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Please verify your network settings and (if any) your proxy settings."
 msgstr ""
 
-#: ../arteplus7.vala:457
+#: ../arteplus7.vala:474
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Perhaps this stream is not yet available, you may retry in a few minutes.\n"
@@ -118,37 +128,33 @@ msgid ""
 "Belgium, Germany, France and Switzerland."
 msgstr ""
 
-#: ../video-list-view.vala:85
-msgid "Loading..."
-msgstr ""
-
-#: ../video-list-view.vala:134
-msgid "Less than 1 minute until removal"
-msgstr ""
-
-#: ../video-list-view.vala:136
-#, c-format
-msgid "Less than %.0f minutes until removal"
-msgstr ""
-
 #: ../video-list-view.vala:139
-msgid "Less than 1 hour until removal"
+msgid "Less than 1 minute until removal"
 msgstr ""
 
 #: ../video-list-view.vala:141
 #, c-format
+msgid "Less than %.0f minutes until removal"
+msgstr ""
+
+#: ../video-list-view.vala:144
+msgid "Less than 1 hour until removal"
+msgstr ""
+
+#: ../video-list-view.vala:146
+#, c-format
 msgid "Less than %.0f hours until removal"
 msgstr ""
 
-#: ../video-list-view.vala:143
+#: ../video-list-view.vala:148
 msgid "1 day until removal"
 msgstr ""
 
-#: ../video-list-view.vala:145
+#: ../video-list-view.vala:150
 #, c-format
 msgid "%.0f days until removal"
 msgstr ""
 
-#: ../video-list-view.vala:294
+#: ../video-list-view.vala:281
 msgid "_Open in Web Browser"
 msgstr ""
