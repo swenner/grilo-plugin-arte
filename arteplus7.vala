@@ -87,7 +87,7 @@ public static Soup.SessionAsync create_session ()
 public void debug (string format, ...)
 {
 #if DEBUG_MESSAGES
-    var args = va_list();
+    var args = va_list ();
     GLib.logv ("TotemArte", GLib.LogLevelFlags.LEVEL_DEBUG, format, args);
 #endif
 }
@@ -106,21 +106,22 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
     private VideoQuality quality;
     private ConnectionStatus cs;
 
-    public ArtePlugin () {
+    public ArtePlugin ()
+    {
         /* constructor chain up hint */
         GLib.Object ();
-
-        /* Debug log handling */
-        GLib.Log.set_handler (null, GLib.LogLevelFlags.LEVEL_DEBUG, (domain, levels, msg) =>
-            {
-#if DEBUG_MESSAGES
-                GLib.Log.default_handler (domain, levels, msg);
-#endif
-            });
     }
 
     construct
     {
+        /* Debug log handling */
+#if DEBUG_MESSAGES
+        GLib.Log.set_handler ("TotemArte", GLib.LogLevelFlags.LEVEL_DEBUG,
+        (domain, levels, msg) => {
+                stdout.printf ("%s-DEBUG: %s\n", domain, msg);
+            });
+#endif
+
         this.settings = new GLib.Settings (DCONF_ID);
         this.proxy_settings = new GLib.Settings (DCONF_HTTP_PROXY);
         load_properties ();
@@ -216,7 +217,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
 
         /* refresh the feed if we were offline and it has not been loaded */
         this.cs.status_changed.connect ((is_online) => {
-            debug ("ConnectionStatus changed: is_online = %d", is_online);
+            debug ("ConnectionStatus changed: is_online = %d", (int)is_online);
             if (is_online && tree_view.get_size () < 2) {
                 // delay it by 3 seconds to avoid timing issues
                 GLib.Timeout.add_seconds (3, refresh_rss_feed);
