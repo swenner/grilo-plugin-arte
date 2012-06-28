@@ -143,7 +143,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
            And we know Firefox 11.0 was released the 03/13/2012, which
            corresponds to 2201 weeks after Epoch.
            We add a 3 weeks margin and then we can compute the version number! */
-        int version = 11 + (weeks - 2201 + 3) / 6;
+        int version = 11 + (weeks - (2201 + 3)) / 6;
         USER_AGENT = USER_AGENT_TMPL.printf(version, version);
         debug (USER_AGENT);
 
