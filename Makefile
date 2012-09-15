@@ -1,5 +1,5 @@
 DESTDIR=
-VERSION=3.1.1
+VERSION=3.1.2
 NAME=totem-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 VALAC=valac
