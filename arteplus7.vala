@@ -491,7 +491,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
             return;
         }
 
-        t.add_to_playlist_and_play (stream_url, title, false);
+        t.add_to_playlist_and_play (stream_url, title);
     }
 
     private void callback_refresh_rss_feed ()

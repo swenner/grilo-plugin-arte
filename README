@@ -7,7 +7,7 @@ Belgium and Switzerland.
 ---------------
 Dependencies:
 ---------------
-Totem >= 3.0
+Totem >= 3.6
 libpeas >= 1.2.0
 Vala >= 0.15.0
 Gtk+-3.0
