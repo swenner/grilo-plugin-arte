@@ -96,7 +96,7 @@ public class ConnectionStatus : GLib.Object
         this.is_online = true; // online by default
     }
 
-    void proxy_signal_cb (GLib.DBusProxy obj, string? sender_name, string signal_name, Variant parameters)
+    private void proxy_signal_cb (GLib.DBusProxy obj, string? sender_name, string signal_name, Variant parameters)
     {
         if (signal_name == "StateChanged")
         {
