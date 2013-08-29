@@ -51,7 +51,7 @@ public class VideoListView : Gtk.TreeView
         cache = c;
 
         /* setup cell style */
-        var renderer = new Totem.CellRendererVideo (false);
+        var renderer = new CellRendererVideo ();
         insert_column_with_attributes (0, "", renderer,
                 "thumbnail", Col.IMAGE,
                 "title", Col.NAME, null);

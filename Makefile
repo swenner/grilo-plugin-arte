@@ -12,6 +12,7 @@ VALA_SOURCE=\
 	cache.vala \
 	url-extractor.vala \
 	video.vala \
+	cell-renderer-video.vala \
 	video-list-view.vala \
 	connection-status.vala
 EXTRA_DIST=\
