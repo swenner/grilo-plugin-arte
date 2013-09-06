@@ -28,6 +28,7 @@
 
 using GLib;
 using Soup;
+using Json;
 
 public errordomain ExtractionError
 {
@@ -82,88 +83,58 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
     public string get_url (VideoQuality q, Language lang, string page_url)
             throws ExtractionError
     {
-        string regexp, url;
+        string regexp;
         debug ("Initial Page URL:\t\t'%s'", page_url);
 
-        /* Setup the language string */
-        string lang_str = "fr";
-        if (lang == Language.GERMAN)
-            lang_str = "de";
-
-        /* Setup quality string */
-        string quali_str = "hd";
-        if (q == VideoQuality.MEDIUM)
-            quali_str = "sd";
-
-        /* Get the Arte Flash player URI */
-        // Example:
-        // var url_player = "http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf";
-        regexp = "var url_player = \"(http://.*.swf)\";";
-        var flash_player_uri = extract_string_from_page (page_url, regexp);
-        debug ("Extract Flash player URI:\t'%s'", flash_player_uri);
-        if (flash_player_uri == null)
+        /* JSON uri */
+        regexp = "arte_vp_url=\"(http://.*.json)\">";
+        var json_uri = extract_string_from_page (page_url, regexp);
+        debug ("Extract JSON URI:\t'%s'", json_uri);
+        if (json_uri == null)
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
 
-        /* Get the Flash XML data */
-        // Example:
-        // vars_player.videorefFileUrl = "http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219416,view,asPlayerXml.xml";
-        regexp = "videorefFileUrl = \"(http://.*.xml)\";";
-        url = extract_string_from_page (page_url, regexp);
-        debug ("Extract Flash Videoref:\t'%s'", url);
 
-        if (url == null)
-            throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
+        /* download and parse the main JSON file */
+        var message = new Soup.Message ("GET", json_uri);
+        this.session.send_message (message);
 
-        /* Get the language specific flash XML data */
-        // Example:
-        // <video lang="de" ref="http://videos.arte.tv/de/do_delegate/videos/geheimnisvolle_pflanzen-3219418,view,asPlayerXml.xml"/>
-        // <video lang="fr" ref="http://videos.arte.tv/fr/do_delegate/videos/secrets_de_plantes-3219420,view,asPlayerXml.xml"/>
-        regexp = "video lang=\"" + lang_str + "\" ref=\"(http://.*.xml)\"";
-        url = extract_string_from_page (url, regexp);
-        debug ("Extract Flash Lang Videoref:\t'%s'", url);
+        string rtmp_uri = null;
 
-        if (url == null)
-            throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
+        // TODO detect if a video is only availabe after 23:00
 
-        /* Get the RTMP uri. */
-        // Example:
-        // <url quality="hd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_037778-021-B_PG_HQ_FR?h=7258f52f54eb0d320f6650e647432f03</url>
-        // <url quality="sd">rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_06_037778-021-B_PG_MQ_FR?h=76c529bce0f034e74dc92a14549d6a4e</url>
-        regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
-        var rtmp_uri = extract_string_from_page (url, regexp);
-        debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
+        try {
+            var parser = new Json.Parser ();
+            parser.load_from_data ((string) message.response_body.flatten ().data, -1);
 
-        /* sometimes only one quality level is available */
-        if (rtmp_uri == null) {
-            if (q == VideoQuality.HIGH) {
-                q = VideoQuality.MEDIUM;
-                quali_str = "sd";
-                GLib.warning ("No high quality stream available. Fallback to medium quality.");
-            } else if (q == VideoQuality.MEDIUM) {
-                q = VideoQuality.HIGH;
-                quali_str = "hd";
-                GLib.warning ("No medium quality stream available. Fallback to high quality.");
+            var root_object = parser.get_root ().get_object ();
+            var player_object = root_object.get_object_member ("videoJsonPlayer");
+            var streams_object = player_object.get_object_member ("VSR");
+            Json.Object video_object;
+
+            switch (q) {
+                case VideoQuality.HIGH:
+                    video_object = streams_object.get_object_member ("RTMP_SQ_1");
+                    break;
+                case VideoQuality.MEDIUM:
+                    video_object = streams_object.get_object_member ("RTMP_MQ_1"); // or "RTMP_EQ_1" ?
+                    break;
+                default: // TODO: LOW
+                    video_object = streams_object.get_object_member ("RTMP_LQ_1");
+                    break;
             }
-            regexp = "quality=\"" + quali_str + "\">(rtmp://.*)</url>";
-            rtmp_uri = extract_string_from_page (url, regexp);
-            debug ("Extract RTMP URI:\t\t'%s'", rtmp_uri);
 
-            if (rtmp_uri == null)
-                throw new ExtractionError.STREAM_NOT_READY ("This video is not available yet");
+            string streamer = video_object.get_string_member ("streamer");
+            string url = video_object.get_string_member ("url");
+            debug ("Streamer base:\t'%s'", streamer);
+            debug ("Streamer path:\t'%s'", url);
+
+            rtmp_uri = streamer + "mp4:" + url;
+
+        } catch (Error e) {
+            throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
         }
 
-        /* detect videos with temporal restrictions */
-        if (rtmp_uri.has_suffix ("/carton_23h_fr.mp4") || rtmp_uri.has_suffix ("/carton_23h_de.mp4"))
-            throw new ExtractionError.ACCESS_RESTRICTED ("This video is not available currently");
-
-        /* Build the stream URI
-         * To prevent regular disconnections (and so to keep the plugin usable),
-         * we need to pass the Flash player uri to GStreamer.
-         * We do that by appending it to the stream uri.
-         * (see the librtmp manual for more information) */
-        // Example:
-        // rtmp://artestras.fcod.llnwd.net/a3903/o35/MP4:geo/videothek/EUR_DE_FR/arteprod/A7_SGT_ENC_08_042143-002-A_PG_HQ_FR?h=d7878fae5c9726844d22da78e05f764e swfVfy=1 swfUrl=http://videos.arte.tv/blob/web/i18n/view/player_9-3188338-data-4807088.swf
-        string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + flash_player_uri;
+        string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=http://www.arte.tv/playerv2/jwplayer5/mediaplayer.5.7.1894.swf";
         debug ("Build stream URI:\t\t'%s'", stream_uri);
 
         return stream_uri;
