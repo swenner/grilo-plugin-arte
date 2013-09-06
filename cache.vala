@@ -83,7 +83,7 @@ public class Cache : GLib.Object
 
         // download it
         var extractor = new ImageUrlExtractor ();
-        debug ("Download missing image url: %s", v.title);
+        debug ("Extract missing image url: %s", v.title);
         try {
             v.image_url = extractor.get_url (VideoQuality.UNKNOWN, Language.UNKNOWN, v.page_url);
 

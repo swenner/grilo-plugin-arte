@@ -111,30 +111,34 @@ public class ArteRSSParser : ArteParser
     private string current_data = null;
     /* official RSS feeds by topic, contains duplicats, no image urls and offline dates */
     private const string[] feeds_fr = {
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/actualites/index--3188636,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/documentaire/index--3188646,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/decouverte/index--3188644,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/europe/index--3188648,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/geopolitique_histoire/index--3188654,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/societe/index--3188652,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/junior/index--3188656,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/cinema_fiction/index--3188642,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/arts_cultures_spectacles/index--3188640,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/culture_pop_alternative/index--3188638,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/toutes_les_videos/environnement_science/index--3188650,view,rss.xml"
+        "http://videos.arte.tv/fr/do_delegate/videos/index-3188626,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/arts_cultures_spectacles/index-3188640,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/culture_pop_alternative/index-3188638,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/documentaire/index-3188646,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/europe/index-3188648,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/junior/index-3188656,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/index--3188626,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/actualites/index-3188636,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/cinema_fiction/index-3188642,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/decouverte/index-3188644,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/environnement_science/index-3188650,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/geopolitique_histoire/index-3188654,view,rss.xml",
+        "http://videos.arte.tv/fr/do_delegate/videos/chaines/societe/index-3188652,view,rss.xml"
     };
     private const string[] feeds_de = {
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/aktuelles/index--3188636,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/dokus/index--3188646,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/entdeckung/index--3188644,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/europa/index--3188648,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/geopolitik_geschichte/index--3188654,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/gesellschaft/index--3188652,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/junior/index--3188656,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/kino_serien/index--3188642,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/kunst_kultur/index--3188640,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/popkultur_musik/index--3188638,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/alle_videos/umwelt_wissenschaft/index--3188650,view,rss.xml"
+        "http://videos.arte.tv/de/do_delegate/videos/index-3188626,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/aktuelles/index-3188636,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/entdeckung/index-3188644,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/geopolitik_geschichte/index-3188654,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/junior/index-3188656,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/kunst_kultur/index-3188640,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/umwelt_wissenschaft/index-3188650,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/index--3188626,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/dokus/index-3188646,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/europe/index-3188648,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/gesellschaft/index-3188652,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/kino_serien/index-3188642,view,rss.xml",
+        "http://videos.arte.tv/de/do_delegate/videos/themen/popkultur_musik/index-3188638,view,rss.xml"
     };
     private const uint feed_count = 11;
     private uint feed_idx = 0;
