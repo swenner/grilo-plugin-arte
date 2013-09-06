@@ -28,10 +28,11 @@
 
 using GLib;
 using Soup;
+using Json;
 
 public abstract class ArteParser : GLib.Object
 {
-    public bool has_data { get; protected set; default = false; }
+    public bool has_data { get; protected set; default = false; } // more data available
     protected string xml_fr;
     protected string xml_de;
     protected GLib.SList<Video> videos;
@@ -55,7 +56,7 @@ public abstract class ArteParser : GLib.Object
         return has_data;
     }
 
-    public unowned GLib.SList<Video> parse (Language lang) throws MarkupError, IOError
+    public virtual unowned GLib.SList<Video> parse (Language lang) throws MarkupError, IOError
     {
         videos = new GLib.SList<Video> ();
 
@@ -102,6 +103,93 @@ public abstract class ArteParser : GLib.Object
     protected string sanitise_markup (string str)
     {
         return str.replace("&", "&amp;");
+    }
+}
+
+public class ArteJSONParser : ArteParser
+{
+    private string json_url_fr = "http://www.arte.tv/guide/fr/plus7.json";
+    private string json_url_de = "http://www.arte.tv/guide/de/plus7.json";
+
+    public ArteJSONParser ()
+    {
+        reset ();
+    }
+
+    public override void reset ()
+    {
+        has_data = true;
+    }
+
+    public override uint get_error_threshold ()
+    {
+        return 1; // no errors are tolerated
+    }
+
+    public override unowned GLib.SList<Video> parse (Language lang) throws MarkupError, IOError
+    {
+        videos = new GLib.SList<Video> ();
+
+        Soup.Message msg;
+        if (lang == Language.GERMAN) {
+            msg = new Soup.Message ("GET", json_url_de);
+        } else {
+            msg = new Soup.Message ("GET", json_url_fr);
+        }
+
+        Soup.SessionAsync session = create_session ();
+
+        session.send_message (msg);
+
+        if (msg.status_code != Soup.KnownStatusCode.OK) {
+            throw new IOError.HOST_NOT_FOUND ("videos.arte.tv could not be accessed.");
+        }
+
+        var parser = new Json.Parser ();
+
+        try {
+            parser.load_from_data ((string) msg.response_body.flatten ().data, -1);
+        } catch (GLib.Error e) {
+            throw new GLib.MarkupError.PARSE ("Json parsing failed: '%s'", e.message);
+        }
+
+        var root_object = parser.get_root ().get_object ();
+        var video_array = root_object.get_array_member ("videos");
+
+        foreach (var video in video_array.get_elements ()) {
+            var v = video.get_object ();
+            var current_video = new Video();
+
+            current_video.title = v.get_string_member ("title");
+            current_video.page_url = "http://www.arte.tv" + v.get_string_member ("url");
+            current_video.image_url = v.get_string_member ("image_url");
+            current_video.desc = v.get_string_member ("desc");
+            // TODO current_video.publication_date
+
+            string end_time_str = v.get_string_member ("video_rights_until");
+
+            try {
+                var regex = new Regex ("([0-9]+):([0-9]+)");
+                MatchInfo match;
+                regex.match(end_time_str, 0, out match);
+                string hours_str = match.fetch(1);
+                string minutes_str = match.fetch(2);
+                int hours = int.parse(hours_str);
+                int minutes = int.parse(minutes_str);
+
+                current_video.offline_date = GLib.TimeVal ();
+                current_video.offline_date.get_current_time ();
+                current_video.offline_date.tv_sec += ((hours * 60 * 60 + minutes * 60));
+            } catch (GLib.RegexError e) {
+                 GLib.warning ("Offline date parsing failed.");
+            }
+
+            videos.append (current_video);
+        }
+
+        has_data = false;
+
+        return videos;
     }
 }
 

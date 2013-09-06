@@ -98,7 +98,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
     private Totem.Object t;
     private Gtk.Entry search_entry; /* search field with buttons inside */
     private VideoListView tree_view; /* list of movie thumbnails */
-    private ArteParser parsers[2]; /* array of parsers */
+    private ArteParser parsers[3]; /* array of parsers */
     private GLib.Settings settings;
     private GLib.Settings proxy_settings;
     private Cache cache; /* image thumbnail cache */
@@ -153,8 +153,9 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         t = object as Totem.Object;
         cache = new Cache (Environment.get_user_cache_dir ()
              + CACHE_PATH_SUFFIX);
-        parsers[0] = new ArteXMLParser ();
-        parsers[1] = new ArteRSSParser ();
+        parsers[0] = new ArteJSONParser ();
+        parsers[1] = new ArteXMLParser ();
+        parsers[2] = new ArteRSSParser ();
         tree_view = new VideoListView (cache);
 
         tree_view.video_selected.connect (callback_video_selected);
