@@ -169,7 +169,7 @@ public class ArteJSONParser : ArteParser
             string end_time_str = v.get_string_member ("video_rights_until");
 
             try {
-                var regex = new Regex ("([0-9]+):([0-9]+)");
+                var regex = new Regex ("([0-9]+)[:h]([0-9]+)");
                 MatchInfo match;
                 regex.match(end_time_str, 0, out match);
                 string hours_str = match.fetch(1);
