@@ -115,11 +115,11 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
                 case VideoQuality.LOW:
                     video_object = streams_object.get_object_member ("RTMP_LQ_1");
                     break;
-                case VideoQuality.MEDIUM:
-                    video_object = streams_object.get_object_member ("RTMP_MQ_1"); // or "RTMP_EQ_1" ?
-                    break;
-                default: // HIGH is default
+                case VideoQuality.HIGH:
                     video_object = streams_object.get_object_member ("RTMP_SQ_1");
+                    break;
+                default: // MEDIUM is the default
+                    video_object = streams_object.get_object_member ("RTMP_MQ_1"); // or "RTMP_EQ_1" ?
                     break;
             }
 
