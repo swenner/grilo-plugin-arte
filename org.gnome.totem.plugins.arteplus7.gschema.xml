@@ -4,6 +4,7 @@
     <value value="0" nick="Unknown"/>
     <value value="1" nick="Medium"/>
     <value value="2" nick="High"/>
+    <value value="3" nick="Low"/>
   </enum>
   <enum id="org.gnome.Totem.arteplus7.language">
     <value value="0" nick="Unknown"/>
@@ -12,7 +13,7 @@
   </enum>
   <schema id="org.gnome.Totem.arteplus7" path="/org/gnome/Totem/arteplus7/">
     <key name="quality" enum="org.gnome.Totem.arteplus7.quality">
-      <default>'High'</default>
+      <default>'Medium'</default>
       <summary>Quality</summary>
       <description>The video stream quality.</description>
     </key>

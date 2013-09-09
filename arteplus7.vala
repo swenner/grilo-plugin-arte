@@ -37,7 +37,8 @@ public enum VideoQuality
 {
     UNKNOWN = 0,
     MEDIUM,
-    HIGH
+    HIGH,
+    LOW
 }
 
 public enum Language
@@ -105,6 +106,8 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
     private Language language;
     private VideoQuality quality;
     private ConnectionStatus cs;
+
+    private delegate void VoidFunction ();
 
     public ArtePlugin ()
     {
@@ -272,30 +275,49 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
             }
         });
 
-        var quali_radio_medium = new Gtk.RadioButton.with_mnemonic (null, _("_medium"));
+        var quali_radio_low = new Gtk.RadioButton.with_mnemonic (null, _("_low"));
+        var quali_radio_medium = new Gtk.RadioButton.with_mnemonic_from_widget (
+                quali_radio_low, _("_medium"));
         var quali_radio_high = new Gtk.RadioButton.with_mnemonic_from_widget (
                 quali_radio_medium, _("_high"));
-        if (quality == VideoQuality.MEDIUM)
-            quali_radio_medium.set_active (true);
-        else
-            quali_radio_high.set_active (true);
+        switch (quality) {
+            case VideoQuality.LOW:
+                quali_radio_low.set_active (true);
+                break;
+            case VideoQuality.MEDIUM:
+                quali_radio_medium.set_active (true);
+                break;
+            default:
+                quali_radio_high.set_active (true);
+                break;
+        }
 
-        quali_radio_medium.toggled.connect (() => {
-            VideoQuality last = quality;
-            if (quali_radio_medium.get_active ())
-                quality = VideoQuality.MEDIUM;
+        /* reusable lambda function */
+        VoidFunction quality_toggle_clicked = () => {
+            VideoQuality last = this.quality;
+            if (quali_radio_low.get_active ())
+                this.quality = VideoQuality.LOW;
+            else if (quali_radio_medium.get_active ())
+                this.quality = VideoQuality.MEDIUM;
             else
-                quality = VideoQuality.HIGH;
+                this.quality = VideoQuality.HIGH;
 
-            if (last != quality) {
-                if (!settings.set_enum ("quality", (int) quality))
+            if (last != this.quality) {
+                if (!settings.set_enum ("quality", (int) this.quality))
                     GLib.warning ("Storing the quality setting failed.");
             }
-        });
+        };
+
+        quali_radio_low.toggled.connect (() => { quality_toggle_clicked(); });
+        quali_radio_medium.toggled.connect (() => { quality_toggle_clicked(); });
+        quali_radio_high.toggled.connect (() => { quality_toggle_clicked(); });
 
         settings.changed["quality"].connect (() => {
             var q = settings.get_enum ("quality");
-            if (q == VideoQuality.MEDIUM) {
+            if (q == VideoQuality.LOW) {
+                quality = VideoQuality.LOW;
+                quali_radio_low.set_active (true);
+            } else if (q == VideoQuality.MEDIUM) {
                 quality = VideoQuality.MEDIUM;
                 quali_radio_medium.set_active (true);
             } else {
@@ -312,6 +334,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         var quali_label = new Gtk.Label (_("Video quality:"));
         var quali_box = new Box (Gtk.Orientation.HORIZONTAL, 20);
         quali_box.pack_start (quali_label, false, true, 0);
+        quali_box.pack_start (quali_radio_low, false, true, 0);
         quali_box.pack_start (quali_radio_medium, false, true, 0);
         quali_box.pack_start (quali_radio_high, true, true, 0);
 
