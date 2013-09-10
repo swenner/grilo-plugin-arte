@@ -134,7 +134,26 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
         }
 
-        string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=http://www.arte.tv/playerv2/jwplayer5/mediaplayer.5.7.1894.swf";
+
+        // Try to figure out the player URI
+        string player_uri;
+        try {
+            regexp = "content=\"(http.*.swf)\\?";
+            var embeded_uri = "http://player.arte.tv/v2/index.php?json_url=" + json_uri + "&config=arte_tvguide";
+            player_uri = extract_string_from_page (embeded_uri, regexp);
+            debug ("Extract player URI:\t'%s'", player_uri);
+            if (player_uri == null) {
+                throw new ExtractionError.EXTRACTION_FAILED ("Player URL Extraction Error");
+            }
+        } catch (Error e) {
+            // Do not abort and try to play the video with a known old player URI.
+            // The server does not seems to always check the player validity, so it may work anyway.
+            debug ("Failed to extract the flash player URI! Trying to fallback...");
+            player_uri = "http://www.arte.tv/playerv2/jwplayer5/mediaplayer.5.7.1894.swf";
+        }
+
+
+        string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + player_uri;
         debug ("Build stream URI:\t\t'%s'", stream_uri);
 
         return stream_uri;
