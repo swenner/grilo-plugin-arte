@@ -326,7 +326,10 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
             }
         });
 
-        var langs_label = new Gtk.Label (_("Language:"));
+        var langs_label = new Gtk.Label.with_mnemonic (_("_Language:"));
+        langs_label.set_mnemonic_widget (langs);
+        langs.mnemonic_activate.connect (() => { langs.popup(); return true; });
+
         var langs_box = new Box (Gtk.Orientation.HORIZONTAL, 20);
         langs_box.pack_start (langs_label, false, true, 0);
         langs_box.pack_start (langs, true, true, 0);
