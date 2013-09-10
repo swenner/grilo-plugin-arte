@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-02 20:26+0200\n"
+"POT-Creation-Date: 2013-09-10 23:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,76 +17,80 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:157
+#: ../arteplus7.vala:176
 msgid "Reload feed"
 msgstr ""
 
-#: ../arteplus7.vala:161
+#: ../arteplus7.vala:180
 msgid "Clear the search text"
 msgstr ""
 
-#: ../arteplus7.vala:190
+#: ../arteplus7.vala:209
 msgid "Arte+7"
 msgstr ""
 
-#: ../arteplus7.vala:228
+#: ../arteplus7.vala:247
 msgid "French"
 msgstr ""
 
-#: ../arteplus7.vala:229
+#: ../arteplus7.vala:248
 msgid "German"
 msgstr ""
 
-#: ../arteplus7.vala:259
+#: ../arteplus7.vala:278
+msgid "_low"
+msgstr ""
+
+#: ../arteplus7.vala:280
 msgid "_medium"
 msgstr ""
 
-#: ../arteplus7.vala:261
+#: ../arteplus7.vala:282
 msgid "_high"
 msgstr ""
 
-#: ../arteplus7.vala:291
-msgid "Language:"
+#: ../arteplus7.vala:329
+msgid "_Language:"
 msgstr ""
 
-#: ../arteplus7.vala:296
+#: ../arteplus7.vala:337
 msgid "Video quality:"
 msgstr ""
 
 #. display offline message
-#: ../arteplus7.vala:313
+#: ../arteplus7.vala:355
 msgid "No internet connection."
 msgstr ""
 
 #. display loading message
-#: ../arteplus7.vala:330
+#: ../arteplus7.vala:372
 msgid "Loading..."
 msgstr ""
 
-#: ../arteplus7.vala:389
+#: ../arteplus7.vala:431
 msgid "Markup Parser Error"
 msgstr ""
 
-#: ../arteplus7.vala:390
+#: ../arteplus7.vala:432
 msgid "Sorry, the plugin could not parse the Arte video feed."
 msgstr ""
 
-#: ../arteplus7.vala:392
+#: ../arteplus7.vala:434
 msgid "Network problem"
 msgstr ""
 
-#: ../arteplus7.vala:393
+#: ../arteplus7.vala:435
 msgid ""
 "Sorry, the plugin could not download the Arte video feed.\n"
 "Please verify your network settings and (if any) your proxy settings."
 msgstr ""
 
 #. This video access is restricted
-#: ../arteplus7.vala:461
+#: ../arteplus7.vala:503
 msgid "This video access is restricted"
 msgstr ""
 
-#: ../arteplus7.vala:462
+#: ../arteplus7.vala:504
 msgid ""
 "It seems that, because of its content, this video can only be watched in a "
 "precise time interval.\n"
@@ -95,11 +99,11 @@ msgid ""
 msgstr ""
 
 #. The video is part of the XML/RSS feed but no stream is available yet
-#: ../arteplus7.vala:465
+#: ../arteplus7.vala:507
 msgid "This video is not available yet"
 msgstr ""
 
-#: ../arteplus7.vala:466
+#: ../arteplus7.vala:508
 msgid ""
 "Sorry, the plugin could not find any stream URL.\n"
 "It seems that this video is not available yet, even on the Arte web-player.\n"
@@ -109,17 +113,17 @@ msgstr ""
 
 #. Network problems
 #. ExtractionError.EXTRACTION_ERROR or an unspecified error
-#: ../arteplus7.vala:469 ../arteplus7.vala:473
+#: ../arteplus7.vala:511 ../arteplus7.vala:515
 msgid "Video URL Extraction Error"
 msgstr ""
 
-#: ../arteplus7.vala:470
+#: ../arteplus7.vala:512
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Please verify your network settings and (if any) your proxy settings."
 msgstr ""
 
-#: ../arteplus7.vala:474
+#: ../arteplus7.vala:516
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Perhaps this stream is not yet available, you may retry in a few minutes.\n"
