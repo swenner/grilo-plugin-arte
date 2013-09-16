@@ -87,7 +87,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         debug ("Initial Page URL:\t\t'%s'", page_url);
 
         /* JSON uri */
-        regexp = "arte_vp_url=\"(http://.*.json)\">";
+        regexp = "arte_vp_url=\"(https?://.*.json)\">";
         var json_uri = extract_string_from_page (page_url, regexp);
         debug ("Extract JSON URI:\t'%s'", json_uri);
         if (json_uri == null)
