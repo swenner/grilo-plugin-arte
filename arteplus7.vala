@@ -275,7 +275,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
             }
         });
 
-        var quali_radio_low = new Gtk.RadioButton.with_mnemonic (null, _("_low"));
+        var quali_radio_low = new Gtk.RadioButton.with_mnemonic (null, _("l_ow"));
         var quali_radio_medium = new Gtk.RadioButton.with_mnemonic_from_widget (
                 quali_radio_low, _("_medium"));
         var quali_radio_high = new Gtk.RadioButton.with_mnemonic_from_widget (
