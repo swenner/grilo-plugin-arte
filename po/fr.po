@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 3.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-10 23:31+0200\n"
+"POT-Creation-Date: 2013-09-20 19:28+0200\n"
 "PO-Revision-Date: 2013-09-10 22:44+0200\n"
 "Last-Translator: Nicolas Delvaux <contact@nicolas-delvaux.org>\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgid "German"
 msgstr "Allemand"
 
 #: ../arteplus7.vala:278
-msgid "_low"
+msgid "l_ow"
 msgstr "_basse"
 
 #: ../arteplus7.vala:280
@@ -180,6 +180,3 @@ msgstr "%.0f jours avant suppression"
 #: ../video-list-view.vala:281
 msgid "_Open in Web Browser"
 msgstr "_Ouvrir dans le navigateur Web"
-
-#~ msgid "Arte+7 Plugin Properties"
-#~ msgstr "Préférences du greffon Arte+7"
