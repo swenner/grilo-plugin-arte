@@ -1,3 +1,9 @@
+2013 September 22th - Totem Arte Plugin 3.2.1
+
+Changes since 3.2.0:
+ * Fixed the extraction of https video links
+ * Fixed preferences mnemonics in English
+
 2013 September 10th - Totem Arte Plugin 3.2.0
 
 Changes since 3.1.3:
