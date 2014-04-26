@@ -139,7 +139,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         string player_uri;
         try {
             regexp = "content=\"(http.*.swf)\\?";
-            var embeded_uri = "http://player.arte.tv/v2/index.php?json_url=" + json_uri + "&config=arte_tvguide";
+            var embeded_uri = "http://www.arte.tv/player/v2/index.php?json_url=" + json_uri + "&config=arte_tvguide";
             player_uri = extract_string_from_page (embeded_uri, regexp);
             debug ("Extract player URI:\t'%s'", player_uri);
             if (player_uri == null) {
