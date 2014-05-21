@@ -1,31 +1,8 @@
 #include <grilo.h>
-/*
-gboolean
-grl_foo_plugin_init (GrlRegistry *registry,
-                     GrlPlugin *plugin,
-                     GList *configs)
-{
-    gchar *api_key;
-    GrlConfig *config;
 
-    config = GRL_CONFIG (configs->data);
+extern gboolean
+grl_arteplus7_plugin_init (GrlRegistry *registry,
+        GrlPlugin *plugin,
+        GList *configs);
 
-    api_key = grl_config_get_api_key (config);
-    if (!api_key) {
-    GRL_INFO ("Missing API Key, cannot load plugin");
-    return FALSE;
-    }
-
-    GrlFooSource *source = grl_foo_source_new (api_key);
-    grl_registry_register_source (registry,
-                                plugin,
-                                GRL_SOURCE (source),
-                                NULL);
-    g_free (api_key);
-
-    g_message("Arteplus7 loaded!");
-    return TRUE;
-}
-*/
-
-//GRL_PLUGIN_REGISTER (grl_arteplus7_plugin_init, NULL, "grl-arteplus7");
+GRL_PLUGIN_REGISTER (grl_arteplus7_plugin_init, NULL, "grl-arteplus7");
