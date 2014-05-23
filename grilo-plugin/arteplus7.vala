@@ -10,6 +10,8 @@ class GrlArteSource : Grl.Source
         source_id = "grl-arteplus7";
         source_name = "Arte+7";
         source_desc = "Arte+7 media provider";
+        supported_media = Grl.MediaType.VIDEO;
+        // TODO source_icon
 
         /* TODO broken?
         keys = Grl.MetadataKey.list_new(Grl.MetadataKey.ID,
@@ -36,19 +38,26 @@ class GrlArteSource : Grl.Source
     // TODO are some operations slow?
     //public override unowned GLib.List<weak Grl.KeyID?> slow_keys ()
 
-    // TODO ? missing in the vapi
-    public override void browse (Grl.Media? container, GLib.List<Grl.KeyID?> keys,
-            Grl.OperationOptions options, Grl.SourceResultCb callback)
+    // TODO browse is shadowed by  browse (Grl.Media? container, ...
+    public override void browse (Grl.SourceBrowseSpec bs)
     {
-        // TODO
-    }
+        GLib.message("Browse streams...");
 
-    // TODO ? missing in the vapi
-    public override void search (string text, GLib.List<Grl.KeyID?> keys,
-            Grl.OperationOptions options, Grl.SourceResultCb callback)
+        // loop over all videos
+        Grl.Media media = new Grl.MediaVideo ();
+        //bs.container = media;
+        media.set_title ("Test Video 1");
+        //media.set_source ("arte source");
+        //bs.callback (bs.source, bs.operation_id, media, -1, bs.user_data, null);
+        // TODO GRL_SOURCE_REMAINING_UNKNOWN is missing in vapi (-1)
+    }
+/*
+    // TODO search is shadowed by search (string text, ...
+    public override void search (Grl.SourceSearchSpec ss)
     {
         // TODO
     }
+*/
 }
 
 public bool grl_arteplus7_plugin_init (Grl.Registry registry, Grl.Plugin plugin, 
