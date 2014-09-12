@@ -98,7 +98,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         var message = new Soup.Message ("GET", json_uri);
         this.session.send_message (message);
 
-        string rtmp_uri = null;
+        string uri = null;
 
         // TODO detect if a video is only availabe after 23:00
 
@@ -111,24 +111,43 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
             var streams_object = player_object.get_object_member ("VSR");
             Json.Object video_object;
 
+            var is_rtmp = false;
+
             switch (q) {
                 case VideoQuality.LOW:
+                    // As of 09/2014, LQ was only available with RTMP
                     video_object = streams_object.get_object_member ("RTMP_LQ_1");
+                    is_rtmp = true;
                     break;
                 case VideoQuality.HIGH:
-                    video_object = streams_object.get_object_member ("RTMP_SQ_1");
+                    video_object = streams_object.get_object_member ("HTTP_MP4_SQ_1");
+                    if (video_object == null) {
+                        video_object = streams_object.get_object_member ("RTMP_SQ_1");
+                        is_rtmp = true;
+                    }
                     break;
                 default: // MEDIUM is the default
-                    video_object = streams_object.get_object_member ("RTMP_MQ_1"); // or "RTMP_EQ_1" ?
+                    video_object = streams_object.get_object_member ("HTTP_MP4_MQ_1"); // or "EQ_1"?
+                    if (video_object == null) {
+                        video_object = streams_object.get_object_member ("RTMP_MQ_1");
+                        is_rtmp = true;
+                    }
                     break;
             }
 
-            string streamer = video_object.get_string_member ("streamer");
+            if (!is_rtmp) {
+                uri = video_object.get_string_member ("url");
+                debug ("Extracted video uri:\t'%s'", uri);
+                return uri;
+            }
+
             string url = video_object.get_string_member ("url");
+            string streamer = video_object.get_string_member ("streamer");
+
             debug ("Streamer base:\t'%s'", streamer);
             debug ("Streamer path:\t'%s'", url);
 
-            rtmp_uri = streamer + "mp4:" + url;
+            uri = streamer + "mp4:" + url;
 
         } catch (Error e) {
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
@@ -153,7 +172,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
         }
 
 
-        string stream_uri = rtmp_uri + " swfVfy=1 swfUrl=" + player_uri;
+        string stream_uri = uri + " swfVfy=1 swfUrl=" + player_uri;
         debug ("Build stream URI:\t\t'%s'", stream_uri);
 
         return stream_uri;
