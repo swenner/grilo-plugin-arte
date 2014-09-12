@@ -7,76 +7,80 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 3.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-20 19:28+0200\n"
+"POT-Creation-Date: 2014-09-13 01:25+0200\n"
 "PO-Revision-Date: 2013-09-10 22:44+0200\n"
 "Last-Translator: Nicolas Delvaux <contact@nicolas-delvaux.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:176
+#: ../arteplus7.vala:178
 msgid "Reload feed"
 msgstr "Recharger la liste des vidéos"
 
-#: ../arteplus7.vala:180
+#: ../arteplus7.vala:182
 msgid "Clear the search text"
 msgstr "Effacer le texte recherché"
 
-#: ../arteplus7.vala:209
+#: ../arteplus7.vala:211
 msgid "Arte+7"
 msgstr "Arte+7"
 
-#: ../arteplus7.vala:247
+#: ../arteplus7.vala:249
 msgid "French"
 msgstr "Français"
 
-#: ../arteplus7.vala:248
+#: ../arteplus7.vala:250
 msgid "German"
 msgstr "Allemand"
 
-#: ../arteplus7.vala:278
-msgid "l_ow"
-msgstr "_basse"
-
 #: ../arteplus7.vala:280
-msgid "_medium"
-msgstr "_moyenne"
+msgid "l_ow (220p)"
+msgstr "_basse (220p)"
 
 #: ../arteplus7.vala:282
-msgid "_high"
-msgstr "_haute"
+msgid "_medium (400p)"
+msgstr "_moyenne (400p)"
 
-#: ../arteplus7.vala:329
+#: ../arteplus7.vala:284
+msgid "_high (400p, better encoding)"
+msgstr "_haute (400p, meilleur encodage)"
+
+#: ../arteplus7.vala:286
+msgid "H_D (720p)"
+msgstr "H_D (720p)"
+
+#: ../arteplus7.vala:342
 msgid "_Language:"
 msgstr "_Langage :"
 
-#: ../arteplus7.vala:337
+#: ../arteplus7.vala:350
 msgid "Video quality:"
 msgstr "Qualité vidéo :"
 
 #. display offline message
-#: ../arteplus7.vala:355
+#: ../arteplus7.vala:369
 msgid "No internet connection."
 msgstr "Pas de connexion Internet."
 
 #. display loading message
-#: ../arteplus7.vala:372
+#: ../arteplus7.vala:386
 msgid "Loading..."
 msgstr "Chargement..."
 
-#: ../arteplus7.vala:431
+#: ../arteplus7.vala:445
 msgid "Markup Parser Error"
 msgstr "Erreur de l'analyseur syntaxique"
 
-#: ../arteplus7.vala:432
+#: ../arteplus7.vala:446
 msgid "Sorry, the plugin could not parse the Arte video feed."
 msgstr "Désolé, le greffon n'a pas pu analyser le flux vidéo Arte."
 
-#: ../arteplus7.vala:434
+#: ../arteplus7.vala:448
 msgid "Network problem"
 msgstr "Problème réseau"
 
-#: ../arteplus7.vala:435
+#: ../arteplus7.vala:449
 msgid ""
 "Sorry, the plugin could not download the Arte video feed.\n"
 "Please verify your network settings and (if any) your proxy settings."
@@ -86,11 +90,11 @@ msgstr ""
 "paramètres de votre proxy."
 
 #. This video access is restricted
-#: ../arteplus7.vala:503
+#: ../arteplus7.vala:517
 msgid "This video access is restricted"
 msgstr "L'accès à cette vidéo est restreint"
 
-#: ../arteplus7.vala:504
+#: ../arteplus7.vala:518
 msgid ""
 "It seems that, because of its content, this video can only be watched in a "
 "precise time interval.\n"
@@ -103,11 +107,11 @@ msgstr ""
 "Vous pouvez réessayer plus tard, par exemple entre 23h et 5h."
 
 #. The video is part of the XML/RSS feed but no stream is available yet
-#: ../arteplus7.vala:507
+#: ../arteplus7.vala:521
 msgid "This video is not available yet"
 msgstr "Cette vidéo n'est pas encore disponible"
 
-#: ../arteplus7.vala:508
+#: ../arteplus7.vala:522
 msgid ""
 "Sorry, the plugin could not find any stream URL.\n"
 "It seems that this video is not available yet, even on the Arte web-player.\n"
@@ -122,11 +126,11 @@ msgstr ""
 
 #. Network problems
 #. ExtractionError.EXTRACTION_ERROR or an unspecified error
-#: ../arteplus7.vala:511 ../arteplus7.vala:515
+#: ../arteplus7.vala:525 ../arteplus7.vala:529
 msgid "Video URL Extraction Error"
 msgstr "Erreur d'extraction de l'URL de la vidéo"
 
-#: ../arteplus7.vala:512
+#: ../arteplus7.vala:526
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Please verify your network settings and (if any) your proxy settings."
@@ -135,7 +139,7 @@ msgstr ""
 "Veuillez vérifier les paramètres de votre connexion et (si besoin) les "
 "paramètres de votre proxy."
 
-#: ../arteplus7.vala:516
+#: ../arteplus7.vala:530
 msgid ""
 "Sorry, the plugin could not extract a valid stream URL.\n"
 "Perhaps this stream is not yet available, you may retry in a few minutes.\n"
