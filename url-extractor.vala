@@ -120,6 +120,13 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
                     is_rtmp = true;
                     break;
                 case VideoQuality.HIGH:
+                    video_object = streams_object.get_object_member ("HTTP_MP4_EQ_1");
+                    if (video_object == null) {
+                        video_object = streams_object.get_object_member ("RTMP_EQ_1");
+                        is_rtmp = true;
+                    }
+                    break;
+                case VideoQuality.HD:
                     video_object = streams_object.get_object_member ("HTTP_MP4_SQ_1");
                     if (video_object == null) {
                         video_object = streams_object.get_object_member ("RTMP_SQ_1");
@@ -127,7 +134,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
                     }
                     break;
                 default: // MEDIUM is the default
-                    video_object = streams_object.get_object_member ("HTTP_MP4_MQ_1"); // or "EQ_1"?
+                    video_object = streams_object.get_object_member ("HTTP_MP4_MQ_1");
                     if (video_object == null) {
                         video_object = streams_object.get_object_member ("RTMP_MQ_1");
                         is_rtmp = true;

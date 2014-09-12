@@ -35,10 +35,12 @@ using PeasGtk;
 
 public enum VideoQuality
 {
+    // The strange ordering is for keeping compatibility with saved settings
     UNKNOWN = 0,
-    MEDIUM,
-    HIGH,
-    LOW
+    MEDIUM, // 400p
+    HD, // 720p
+    LOW, // 220p
+    HIGH // 400p, much better audio/video bitrate than medium
 }
 
 public enum Language
@@ -275,11 +277,13 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
             }
         });
 
-        var quali_radio_low = new Gtk.RadioButton.with_mnemonic (null, _("l_ow"));
+        var quali_radio_low = new Gtk.RadioButton.with_mnemonic (null, _("l_ow (220p)"));
         var quali_radio_medium = new Gtk.RadioButton.with_mnemonic_from_widget (
-                quali_radio_low, _("_medium"));
+                quali_radio_low, _("_medium (400p)"));
         var quali_radio_high = new Gtk.RadioButton.with_mnemonic_from_widget (
-                quali_radio_medium, _("_high"));
+                quali_radio_medium, _("_high (400p, better encoding)"));
+        var quali_radio_hd = new Gtk.RadioButton.with_mnemonic_from_widget (
+                quali_radio_high, _("H_D (720p)"));
         switch (quality) {
             case VideoQuality.LOW:
                 quali_radio_low.set_active (true);
@@ -287,8 +291,11 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
             case VideoQuality.MEDIUM:
                 quali_radio_medium.set_active (true);
                 break;
-            default:
+            case VideoQuality.HIGH:
                 quali_radio_high.set_active (true);
+                break;
+            default:
+                quali_radio_hd.set_active (true);
                 break;
         }
 
@@ -299,8 +306,10 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
                 this.quality = VideoQuality.LOW;
             else if (quali_radio_medium.get_active ())
                 this.quality = VideoQuality.MEDIUM;
-            else
+            else if (quali_radio_high.get_active ())
                 this.quality = VideoQuality.HIGH;
+            else
+                this.quality = VideoQuality.HD;
 
             if (last != this.quality) {
                 if (!settings.set_enum ("quality", (int) this.quality))
@@ -311,6 +320,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         quali_radio_low.toggled.connect (() => { quality_toggle_clicked(); });
         quali_radio_medium.toggled.connect (() => { quality_toggle_clicked(); });
         quali_radio_high.toggled.connect (() => { quality_toggle_clicked(); });
+        quali_radio_hd.toggled.connect (() => { quality_toggle_clicked(); });
 
         settings.changed["quality"].connect (() => {
             var q = settings.get_enum ("quality");
@@ -320,9 +330,12 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
             } else if (q == VideoQuality.MEDIUM) {
                 quality = VideoQuality.MEDIUM;
                 quali_radio_medium.set_active (true);
-            } else {
+            } else if (q == VideoQuality.HIGH) {
                 quality = VideoQuality.HIGH;
                 quali_radio_high.set_active (true);
+            } else {
+                quality = VideoQuality.HD;
+                quali_radio_hd.set_active (true);
             }
         });
 
@@ -339,7 +352,8 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         quali_box.pack_start (quali_label, false, true, 0);
         quali_box.pack_start (quali_radio_low, false, true, 0);
         quali_box.pack_start (quali_radio_medium, false, true, 0);
-        quali_box.pack_start (quali_radio_high, true, true, 0);
+        quali_box.pack_start (quali_radio_high, false, true, 0);
+        quali_box.pack_start (quali_radio_hd, true, true, 0);
 
         var vbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 20);
         vbox.pack_start (langs_box, false, true, 0);
@@ -476,7 +490,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         }
 
         if (quality == VideoQuality.UNKNOWN) {
-            quality = VideoQuality.HIGH; // default quality
+            quality = VideoQuality.HD; // default quality
             if (!settings.set_enum ("quality", (int) quality))
                 GLib.warning ("Storing the quality setting failed.");
         }

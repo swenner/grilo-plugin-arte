@@ -3,8 +3,9 @@
   <enum id="org.gnome.Totem.arteplus7.quality">
     <value value="0" nick="Unknown"/>
     <value value="1" nick="Medium"/>
-    <value value="2" nick="High"/>
+    <value value="2" nick="HD"/>
     <value value="3" nick="Low"/>
+    <value value="4" nick="High"/>
   </enum>
   <enum id="org.gnome.Totem.arteplus7.language">
     <value value="0" nick="Unknown"/>
