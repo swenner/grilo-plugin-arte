@@ -1,3 +1,9 @@
+2014 October 6th - Totem Arte Plugin 3.2.2
+
+Changes since 3.2.1:
+ * Fixed JSON URI extraction
+ * Updated stream names
+
 2013 September 22th - Totem Arte Plugin 3.2.1
 
 Changes since 3.2.0:
