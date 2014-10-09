@@ -191,13 +191,12 @@ public class ImageUrlExtractor : IndirectUrlExtractor, UrlExtractor
     public string get_url (VideoQuality q, Language lang, string page_url)
             throws ExtractionError
     {
-        // takes a video page url and returns the image url
-        // Example: <link rel="image_src" href="http://videos.arte.tv/image/web/i18n/view/ai_wei_wei_jpg_1-4008448-imageData-4966655,h,102,w,180.jpg"/>
+        // Takes a video page url and returns the image url
+        // Example: <meta content='http://www.arte.tv/papi/tvguide/images/1286686/W940H530/051448-000-A_venezianische_04-1415022308224.jpg' property='og:image'>
         string regexp, image_url;
 
-        regexp = "<link rel=\"image_src\" href=\"(http://.*.jpg)\"/>";
+        regexp = "<meta content=['\"](https?://.*.jpg)['\"] property=['\"]og:image['\"]>";
         image_url = extract_string_from_page (page_url, regexp);
-
         if (image_url == null)
             throw new ExtractionError.EXTRACTION_FAILED ("Image URL Extraction Error");
 
