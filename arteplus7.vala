@@ -387,7 +387,8 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
         /* remove all existing videos */
         tree_view.clear ();
 
-        // download and parse the XML feed, the default feed
+        // download and parse feeds
+        // try parsers one by one until enough videos are extracted
         for (int i=0; i<parsers.length; i++)
         {
             var p = parsers[i];
@@ -422,7 +423,7 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
                     break;
             }
 
-            // the RSS feeds have duplicates and no image urls
+            // the RSS feeds have duplicates
             if (p.has_duplicates ())
                 tree_view.check_and_remove_duplicates ();
 
