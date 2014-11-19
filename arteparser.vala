@@ -48,7 +48,6 @@ public abstract class ArteParser : GLib.Object
     public ArteParser () {}
     public virtual void reset () {}
     public virtual bool has_duplicates () { return false; }
-    public virtual bool has_image_urls () { return true; }
     public virtual uint get_error_threshold () { return 0; }
 
     public virtual bool advance ()
@@ -222,7 +221,6 @@ public class ArteRSSParser : ArteParser
     }
 
     public override bool has_duplicates () { return true; }
-    public override bool has_image_urls () { return true; }
     public override uint get_error_threshold ()
     {
         return (uint)(feed_count * 0.5);
