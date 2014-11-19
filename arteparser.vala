@@ -197,38 +197,14 @@ public class ArteRSSParser : ArteParser
 {
     private Video current_video = null;
     private string current_data = null;
-    /* official RSS feeds by topic, contains duplicats, no image urls and offline dates */
+    /* official RSS feeds, may contain duplicates */
     private const string[] feeds_fr = {
-        "http://videos.arte.tv/fr/do_delegate/videos/index-3188626,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/arts_cultures_spectacles/index-3188640,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/culture_pop_alternative/index-3188638,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/documentaire/index-3188646,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/europe/index-3188648,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/junior/index-3188656,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/index--3188626,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/actualites/index-3188636,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/cinema_fiction/index-3188642,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/decouverte/index-3188644,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/environnement_science/index-3188650,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/geopolitique_histoire/index-3188654,view,rss.xml",
-        "http://videos.arte.tv/fr/do_delegate/videos/chaines/societe/index-3188652,view,rss.xml"
+        "http://www.arte.tv/papi/tvguide-flow/feeds/videos/fr.xml?type=ARTE_PLUS_SEVEN"
     };
     private const string[] feeds_de = {
-        "http://videos.arte.tv/de/do_delegate/videos/index-3188626,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/aktuelles/index-3188636,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/entdeckung/index-3188644,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/geopolitik_geschichte/index-3188654,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/junior/index-3188656,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/kunst_kultur/index-3188640,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/umwelt_wissenschaft/index-3188650,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/index--3188626,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/dokus/index-3188646,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/europe/index-3188648,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/gesellschaft/index-3188652,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/kino_serien/index-3188642,view,rss.xml",
-        "http://videos.arte.tv/de/do_delegate/videos/themen/popkultur_musik/index-3188638,view,rss.xml"
+        "http://www.arte.tv/papi/tvguide-flow/feeds/videos/de.xml?type=ARTE_PLUS_SEVEN"
     };
-    private const uint feed_count = 11;
+    private const uint feed_count = feeds_fr.length;
     private uint feed_idx = 0;
 
     public ArteRSSParser ()
@@ -246,7 +222,7 @@ public class ArteRSSParser : ArteParser
     }
 
     public override bool has_duplicates () { return true; }
-    public override bool has_image_urls () { return false; }
+    public override bool has_image_urls () { return true; }
     public override uint get_error_threshold ()
     {
         return (uint)(feed_count * 0.5);
@@ -278,6 +254,16 @@ public class ArteRSSParser : ArteParser
             case "item":
                 current_video = new Video();
                 break;
+            case "media:thumbnail":
+                if (current_video != null) {
+                    for (int i = 0; i < attribute_names.length; i++) {
+                        if (attribute_names[i] == "url") {
+                            current_video.image_url = attribute_values[i];
+                            break;
+                        }
+                    }
+                }
+                break;
             default:
                 current_data = elem;
                 break;
@@ -304,104 +290,46 @@ public class ArteRSSParser : ArteParser
             string text,
             size_t text_len) throws MarkupError
     {
-        if (current_video != null) {
+        if (current_video != null && text_len > 0) {
+            var my_text = text;
+            if (text.has_suffix("]]>")) {
+                // FIXME Why is the end of the CDATA tag kept?
+                // We do use MarkupParseFlags.TREAT_CDATA_AS_TEXT...
+                my_text = text.slice(0, -3);
+            }
             switch (current_data) {
                 case "title":
-                    current_video.title = text;
+                    current_video.title = my_text;
                     break;
                 case "link":
-                    current_video.page_url = text;
+                    current_video.page_url = my_text;
                     break;
                 case "description":
-                    current_video.desc = sanitise_markup(text);
+                    current_video.desc = sanitise_markup(my_text);
                     break;
-                case "pubDate":
-                    // date is present, but it does not conform to ISO 8601
-                    // example fr:
-                    // Sun, 22 Apr 2012 11:46:27 +0200
-                    // example de:
-                    // Sun, 22 Apr 2012 09:07:19 +0200
-                    string iso_date = rss_date_to_iso8601 (text);
-
-                    if (!current_video.publication_date.from_iso8601 (iso_date)) {
-                        GLib.warning ("Publication date '%s' parsing failed.", text);
+                case "dcterms:valid":
+                    MatchInfo match;
+                    // example value:
+                    // start=2014-11-13T06:44+00:00;end=2014-11-20T06:44+00:00;scheme=W3C-DTF
+                    try {
+                        var regex = new Regex ("start=([0-9T\\-:+]+);end=([0-9T\\-:+]+);");
+                        regex.match(my_text, 0, out match);
+                    } catch (GLib.RegexError e) {
+                        GLib.warning ("Date parsing failed.");
+                        break;
+                    }
+                    // Results are already in the ISO8601 format, but GLib requires seconds...
+                    var pub_date = match.fetch(1).replace("+00:00", ":00+00:00");;
+                    var off_date = match.fetch(2).replace("+00:00", ":00+00:00");
+                    if (!current_video.publication_date.from_iso8601(pub_date)) {
+                        GLib.warning ("Publication date '%s' parsing failed.", pub_date);
+                    }
+                    if (!current_video.offline_date.from_iso8601(off_date)) {
+                        GLib.warning ("Offline date '%s' parsing failed.", off_date);
                     }
                     break;
             }
         }
-    }
-
-    private static string rss_date_to_iso8601 (string date)
-    {
-        // in: Sun, 22 Apr 2012 11:46:27 +0200
-        // out: 2008-02-01T09:00:22+05:00
-        string[] s = date.split(" ");
-
-        if (s.length != 6) {
-            GLib.warning ("Conversion to ISO8601 failed.");
-            return "";
-        }
-
-        string month;
-        switch (s[2])
-        {
-        case "Jan":
-            month = "01";
-            break;
-        case "Feb":
-            month = "02";
-            break;
-        case "Mar":
-            month = "03";
-            break;
-        case "Apr":
-            month = "04";
-            break;
-        case "May":
-            month = "05";
-            break;
-        case "Jun":
-            month = "06";
-            break;
-        case "Jul":
-            month = "07";
-            break;
-        case "Aug":
-            month = "08";
-            break;
-        case "Sep":
-            month = "09";
-            break;
-        case "Oct":
-            month = "10";
-            break;
-        case "Nov":
-            month = "11";
-            break;
-        case "Dec":
-            month = "12";
-            break;
-        default:
-            GLib.warning("Conversion to ISO8601 failed. Unknown month: '%s'.", s[2]);
-            return "";
-        }
-
-        string day = s[1];
-        if (day.length < 2) {
-            day = "0" + day;
-        }
-
-        var builder = new StringBuilder ();
-        builder.append (s[3]);
-        builder.append ("-");
-        builder.append (month);
-        builder.append ("-");
-        builder.append (day);
-        builder.append ("T");
-        builder.append (s[4]);
-        builder.append ("+0%c:00".printf(s[5][2]));
-
-        return builder.str;
     }
 }
 
