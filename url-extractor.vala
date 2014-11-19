@@ -154,7 +154,7 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
             debug ("Streamer base:\t'%s'", streamer);
             debug ("Streamer path:\t'%s'", url);
 
-            uri = streamer + "mp4:" + url;
+            uri = streamer + url;
 
         } catch (Error e) {
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
