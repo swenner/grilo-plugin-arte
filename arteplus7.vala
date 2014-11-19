@@ -425,8 +425,9 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
             // the RSS feeds have duplicates and no image urls
             if (p.has_duplicates ())
                 tree_view.check_and_remove_duplicates ();
-            if (!p.has_image_urls ())
-                tree_view.check_and_download_missing_image_urls ();
+
+            // try to recover if we failed to parse some thumbnails URI
+            tree_view.check_and_download_missing_image_urls ();
 
             // leave the loop if we got enought videos
             if (parse_errors < error_threshold && network_errors < error_threshold)
