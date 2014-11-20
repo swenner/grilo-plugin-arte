@@ -9,7 +9,7 @@ Dependencies:
 ---------------
 Totem >= 3.6
 libpeas >= 1.2.0
-Vala >= 0.15.0
+Valac >= 0.22.0
 Gtk+-3.0
 libsoup2.4
 libglib >= 2.25.15
