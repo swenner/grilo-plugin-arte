@@ -277,8 +277,10 @@ public class VideoListView : Gtk.TreeView
     private void show_popup_menu (Gdk.EventButton? event)
     {
         var menu = new Gtk.Menu ();
-        var menu_web = new ImageMenuItem.from_stock (Gtk.Stock.JUMP_TO, null);
-        menu_web.set_label (_("_Open in Web Browser"));
+        var menu_web = new ImageMenuItem.with_mnemonic (_("_Open in Web Browser"));
+        var image = new Gtk.Image.from_icon_name ("go-jump", Gtk.IconSize.MENU);
+        menu_web.always_show_image = true;
+        menu_web.set_image (image);
         menu_web.activate.connect (callback_open_in_web_browser);
 
         menu.attach (menu_web, 0, 1, 0, 1);

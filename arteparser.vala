@@ -70,11 +70,11 @@ public abstract class ArteParser : GLib.Object
             msg = new Soup.Message ("GET", xml_fr);
         }
 
-        Soup.SessionAsync session = create_session ();
+        Soup.Session session = create_session ();
 
         session.send_message (msg);
 
-        if (msg.status_code != Soup.KnownStatusCode.OK) {
+        if (msg.status_code != Soup.Status.OK) {
             throw new IOError.HOST_NOT_FOUND ("videos.arte.tv could not be accessed.");
         }
 
@@ -136,11 +136,11 @@ public class ArteJSONParser : ArteParser
             msg = new Soup.Message ("GET", json_url_fr);
         }
 
-        Soup.SessionAsync session = create_session ();
+        Soup.Session session = create_session ();
 
         session.send_message (msg);
 
-        if (msg.status_code != Soup.KnownStatusCode.OK) {
+        if (msg.status_code != Soup.Status.OK) {
             throw new IOError.HOST_NOT_FOUND ("videos.arte.tv could not be accessed.");
         }
 

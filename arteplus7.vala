@@ -63,11 +63,11 @@ public Soup.URI proxy_uri;
 public string proxy_username;
 public string proxy_password;
 
-public static Soup.SessionAsync create_session ()
+public static Soup.Session create_session ()
 {
-    Soup.SessionAsync session;
+    Soup.Session session;
     if (use_proxy) {
-        session = new Soup.SessionAsync.with_options (
+        session = new Soup.Session.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT,
                 Soup.SESSION_PROXY_URI, proxy_uri, null);
 
@@ -80,7 +80,7 @@ public static Soup.SessionAsync create_session ()
             }
         });
     } else {
-        session = new Soup.SessionAsync.with_options (
+        session = new Soup.Session.with_options (
                 Soup.SESSION_USER_AGENT, USER_AGENT, null);
     }
     session.timeout = 10; /* 10 seconds timeout, until we give up and show an error message */
@@ -171,12 +171,12 @@ class ArtePlugin : Peas.Activatable, PeasGtk.Configurable, Peas.ExtensionBase
 
         /* add a search entry with a refresh and a cleanup icon */
         search_entry = new Gtk.Entry ();
-        search_entry.set_icon_from_stock (Gtk.EntryIconPosition.PRIMARY,
-                Gtk.Stock.REFRESH);
+        search_entry.set_icon_from_icon_name (Gtk.EntryIconPosition.PRIMARY,
+                "view-refresh");
         search_entry.set_icon_tooltip_text (Gtk.EntryIconPosition.PRIMARY,
                 _("Reload feed"));
-        search_entry.set_icon_from_stock (Gtk.EntryIconPosition.SECONDARY,
-                Gtk.Stock.CLEAR);
+        search_entry.set_icon_from_icon_name (Gtk.EntryIconPosition.SECONDARY,
+                "edit-clear");
         search_entry.set_icon_tooltip_text (Gtk.EntryIconPosition.SECONDARY,
                 _("Clear the search text"));
         search_entry.set_icon_sensitive (Gtk.EntryIconPosition.SECONDARY, false);

@@ -32,7 +32,7 @@ using Soup;
 
 public class Cache : GLib.Object
 {
-    private Soup.SessionAsync session;
+    private Soup.Session session;
     public string cache_path {get; set;}
     public Gdk.Pixbuf default_thumbnail {get; private set;}
 

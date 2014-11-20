@@ -46,7 +46,7 @@ public interface UrlExtractor : GLib.Object
 
 public class IndirectUrlExtractor : GLib.Object
 {
-    protected Soup.SessionAsync session;
+    protected Soup.Session session;
 
     public IndirectUrlExtractor()
     {
