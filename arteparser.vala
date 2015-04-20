@@ -160,7 +160,11 @@ public class ArteJSONParser : ArteParser
             var current_video = new Video();
 
             current_video.title = v.get_string_member ("title");
-            current_video.page_url = "http://www.arte.tv" + v.get_string_member ("url");
+            current_video.page_url = v.get_string_member ("url");
+            if (!current_video.page_url.has_prefix("http://")) {
+                // this URL used to be relative, check just in case
+                current_video.page_url = "http://www.arte.tv" + current_video.page_url;
+            }
             current_video.image_url = v.get_string_member ("image_url");
             current_video.desc = v.get_string_member ("desc");
             // TODO current_video.publication_date
