@@ -1,3 +1,10 @@
+2015 April 23th - Totem Arte Plugin 3.2.3
+
+Changes since 3.2.2:
+ * Fixed page URL construction bug
+ * Fixed RTMP stream playback
+ * Fixed image URL extraction
+
 2014 October 6th - Totem Arte Plugin 3.2.2
 
 Changes since 3.2.1:
