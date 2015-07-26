@@ -27,7 +27,7 @@
  */
 
 using GLib;
-using Gtk;
+using Gdk;
 using Soup;
 
 public class Cache : GLib.Object
@@ -109,6 +109,7 @@ public class Cache : GLib.Object
     public Gdk.Pixbuf load_pixbuf (string? url)
     {
         if (url == null) {
+            GLib.critical ("No image url set. Returning default image.");
             return default_thumbnail;
         }
 
@@ -129,12 +130,14 @@ public class Cache : GLib.Object
         }
 
         /* otherwise, use the default thumbnail */
+        GLib.critical ("No image found. Returning default image.");
         return default_thumbnail;
     }
 
     public Gdk.Pixbuf download_pixbuf (string? url, TimeVal pub_date)
     {
         if (url == null) {
+            GLib.critical ("No image url set. Returning default image.");
             return default_thumbnail;
         }
 
@@ -147,6 +150,7 @@ public class Cache : GLib.Object
         session.send_message (msg);
 
         if (msg.response_body.data == null) {
+            GLib.critical ("Image download failed. Returning default image.");
             return default_thumbnail;
         }
 
