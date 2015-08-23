@@ -246,6 +246,10 @@ class GrlArteSource : Grl.Source
                         media.set_title (v.title);
                         media.set_site (v.page_url);
                         media.set_description(v.desc);
+
+                        // Uncomment this line to make Totem work (slowly) for now
+                        //media.set_url(get_stream_url(v.page_url, quality, language));
+
                         // TODO dates
                         //media.set_source ("arte source");
                         
