@@ -48,6 +48,7 @@ public enum Language
 
 public const string BOX_LANGUAGE_FRENCH = "fr";
 public const string BOX_LANGUAGE_GERMAN = "de";
+public const string BOX_LANGUAGE_VIDEO = "video";
 
 public string USER_AGENT;
 private const string USER_AGENT_TMPL =

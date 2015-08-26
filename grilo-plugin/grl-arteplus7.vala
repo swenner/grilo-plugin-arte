@@ -166,6 +166,45 @@ class GrlArteSource : Grl.Source
         bs.callback (bs.source, bs.operation_id, lang_box, 0, null);
     }
 
+    private void browse_quality (Grl.SourceBrowseSpec bs)
+    {
+        var url = get_stream_url(bs.container.get_site(), VideoQuality.LOW, language);
+        Grl.Media qvid = new Grl.MediaVideo ();
+        qvid.set_title (_("low (220p)"));
+        qvid.set_site (bs.container.get_site ());
+        qvid.set_description (bs.container.get_description ());
+        qvid.set_thumbnail (bs.container.get_thumbnail ());
+        qvid.set_url (url);
+        bs.callback (bs.source, bs.operation_id, qvid, 3, null);
+
+        url = get_stream_url(bs.container.get_site(), VideoQuality.MEDIUM, language);
+        qvid = new Grl.MediaVideo ();
+        qvid.set_title (_("medium (400p)"));
+        qvid.set_site (bs.container.get_site ());
+        qvid.set_description (bs.container.get_description ());
+        qvid.set_thumbnail (bs.container.get_thumbnail ());
+        qvid.set_url (url);
+        bs.callback (bs.source, bs.operation_id, qvid, 2, null);
+
+        url = get_stream_url(bs.container.get_site(), VideoQuality.HIGH, language);
+        qvid = new Grl.MediaVideo ();
+        qvid.set_title (_("high (400p, better encoding)"));
+        qvid.set_site (bs.container.get_site ());
+        qvid.set_description (bs.container.get_description ());
+        qvid.set_thumbnail (bs.container.get_thumbnail ());
+        qvid.set_url (url);
+        bs.callback (bs.source, bs.operation_id, qvid, 1, null);
+
+        url = get_stream_url(bs.container.get_site(), VideoQuality.HD, language);
+        qvid = new Grl.MediaVideo ();
+        qvid.set_title (_("HD (720p)"));
+        qvid.set_site (bs.container.get_site ());
+        qvid.set_description (bs.container.get_description ());
+        qvid.set_thumbnail (bs.container.get_thumbnail ());
+        qvid.set_url (url);
+        bs.callback (bs.source, bs.operation_id, qvid, 0, null);
+    }
+
     public override void browse (Grl.SourceBrowseSpec bs)
     {
         debug ("Browse streams...");
@@ -181,6 +220,9 @@ class GrlArteSource : Grl.Source
         case BOX_LANGUAGE_GERMAN:
             language = Language.GERMAN;
             refresh_rss_feed (bs);
+            break;
+        case BOX_LANGUAGE_VIDEO:
+            browse_quality (bs);
             break;
         }
     }
@@ -264,7 +306,8 @@ class GrlArteSource : Grl.Source
 
                     uint remaining = videos.length();
                     foreach (Video v in videos) {
-                        Grl.Media media = new Grl.MediaVideo ();
+                        Grl.Media media = new Grl.MediaBox ();
+                        media.set_id (BOX_LANGUAGE_VIDEO);
                         media.set_title (v.title);
                         media.set_site (v.page_url);
                         media.set_description(v.desc);
