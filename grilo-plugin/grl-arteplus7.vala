@@ -152,14 +152,34 @@ class GrlArteSource : Grl.Source
         return slow_keys_;
     }
 
+    private void browse_language (Grl.SourceBrowseSpec bs)
+    {
+        Grl.Media lang_box = new Grl.MediaBox ();
+        lang_box.set_title (_("French"));
+        lang_box.set_id (BOX_LANGUAGE_FRENCH);
+        bs.callback (bs.source, bs.operation_id, lang_box, 1, null);
+        lang_box = new Grl.MediaBox ();
+        lang_box.set_title (_("German"));
+        lang_box.set_id (BOX_LANGUAGE_GERMAN);
+        bs.callback (bs.source, bs.operation_id, lang_box, 0, null);
+    }
+
     public override void browse (Grl.SourceBrowseSpec bs)
     {
         debug ("Browse streams...");
-        
-        if (refresh_rss_feed (bs)) {
-            debug ("Browse streams finished.");
-        } else {
-            debug ("Browse streams failed.");
+
+        switch (bs.container.get_id ()) {
+        case null:
+            browse_language (bs);
+            break;
+        case BOX_LANGUAGE_FRENCH:
+            language = Language.FRENCH;
+            refresh_rss_feed (bs);
+            break;
+        case BOX_LANGUAGE_GERMAN:
+            language = Language.GERMAN;
+            refresh_rss_feed (bs);
+            break;
         }
     }
 
@@ -197,7 +217,7 @@ class GrlArteSource : Grl.Source
         debug ("Resolve metadata finished");
     }
 
-    private bool refresh_rss_feed (Grl.SourceBrowseSpec bs)
+    private void refresh_rss_feed (Grl.SourceBrowseSpec bs)
     {
         if (!this.cs.is_online) {
             // display offline message
@@ -206,7 +226,7 @@ class GrlArteSource : Grl.Source
             // invalidate all existing videos
             // TODO tree_view.clear ();
 
-            return false;
+            debug ("Browse streams failed.");
         }
 
         uint parse_errors = 0;
@@ -328,7 +348,7 @@ class GrlArteSource : Grl.Source
         //search_entry.set_sensitive (true);
         //search_entry.grab_focus ();
 
-        return true; // was false
+        debug ("Browse streams finished.");
     }
     
     private string get_stream_url (string page_url, VideoQuality q, Language lang)

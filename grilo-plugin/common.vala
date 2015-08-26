@@ -46,6 +46,9 @@ public enum Language
     GERMAN
 }
 
+public const string BOX_LANGUAGE_FRENCH = "fr";
+public const string BOX_LANGUAGE_GERMAN = "de";
+
 public string USER_AGENT;
 private const string USER_AGENT_TMPL =
     "Mozilla/5.0 (X11; Linux x86_64; rv:%d.0) Gecko/20100101 Firefox/%d.0";
