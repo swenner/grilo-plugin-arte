@@ -41,6 +41,7 @@ class GrlArteSource : Grl.Source
     private Language language;
     private VideoQuality quality;
     private ConnectionStatus cs;
+    private UrlExtractor extractor;
     
     construct {
         /* Debug log handling */
@@ -55,6 +56,7 @@ class GrlArteSource : Grl.Source
         load_properties ();
         
         this.cs = new ConnectionStatus ();
+        this.extractor = new RTMPStreamUrlExtractor ();
         
         /* Generate the user-agent */
         TimeVal tv = TimeVal ();
@@ -354,7 +356,6 @@ class GrlArteSource : Grl.Source
     private string get_stream_url (string page_url, VideoQuality q, Language lang)
         throws ExtractionError
     {
-        var extractor = new RTMPStreamUrlExtractor ();
         return extractor.get_url (q, lang, page_url);
     }
 }
