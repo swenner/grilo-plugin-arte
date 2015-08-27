@@ -80,38 +80,56 @@ public class IndirectUrlExtractor : GLib.Object
 
 public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
 {
-    public string get_url (VideoQuality q, Language lang, string page_url)
-            throws ExtractionError
+    // These properties act as a rudimentary cache
+    private string last_page_url = null;
+    private string json_uri = null;
+    private Json.Object streams_object = null;
+    private string player_uri = null;
+
+    private Json.Object get_url_json (Language lang, string page_url)
+        throws ExtractionError
     {
         string regexp;
-        debug ("Initial Page URL:\t\t'%s'", page_url);
-
         /* JSON uri */
         regexp = "arte_vp_url=['\"](https?://.*.json)['\"].*>";
-        var json_uri = extract_string_from_page (page_url, regexp);
+        json_uri = extract_string_from_page (page_url, regexp);
         debug ("Extract JSON URI:\t'%s'", json_uri);
-        if (json_uri == null)
+        if (json_uri == null) {
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
-
+        }
 
         /* download and parse the main JSON file */
         var message = new Soup.Message ("GET", json_uri);
         this.session.send_message (message);
 
-        string uri = null;
-
         // TODO detect if a video is only availabe after 23:00
 
+        var parser = new Json.Parser ();
         try {
-            var parser = new Json.Parser ();
             parser.load_from_data ((string) message.response_body.flatten ().data, -1);
+        } catch (Error e) {
+            throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
+        }
 
-            var root_object = parser.get_root ().get_object ();
-            var player_object = root_object.get_object_member ("videoJsonPlayer");
-            var streams_object = player_object.get_object_member ("VSR");
-            Json.Object video_object;
+        var root_object = parser.get_root ().get_object ();
+        var player_object = root_object.get_object_member ("videoJsonPlayer");
+        return player_object.get_object_member ("VSR");
+    }
 
-            var is_rtmp = false;
+    public string get_url (VideoQuality q, Language lang, string page_url)
+            throws ExtractionError
+    {
+        debug ("Initial Page URL:\t\t'%s'", page_url);
+        string uri = null;
+        Json.Object video_object;
+        var is_rtmp = false;
+
+        try {
+            if (last_page_url != page_url) {
+                streams_object = get_url_json (lang, page_url);
+                last_page_url = page_url;
+                player_uri = null;
+            }
 
             switch (q) {
                 case VideoQuality.LOW:
@@ -160,24 +178,23 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
             throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
         }
 
-
-        // Try to figure out the player URI
-        string player_uri;
-        try {
-            regexp = "content=\"(http.*.swf)\\?";
-            var embeded_uri = "http://www.arte.tv/player/v2/index.php?json_url=" + json_uri + "&config=arte_tvguide";
-            player_uri = extract_string_from_page (embeded_uri, regexp);
-            debug ("Extract player URI:\t'%s'", player_uri);
-            if (player_uri == null) {
-                throw new ExtractionError.EXTRACTION_FAILED ("Player URL Extraction Error");
+        if (player_uri == null) {
+            // Try to figure out the player URI
+            try {
+                var regexp = "content=\"(http.*.swf)\\?";
+                var embeded_uri = "http://www.arte.tv/player/v2/index.php?json_url=" + json_uri + "&config=arte_tvguide";
+                player_uri = extract_string_from_page (embeded_uri, regexp);
+                debug ("Extract player URI:\t'%s'", player_uri);
+                if (player_uri == null) {
+                    throw new ExtractionError.EXTRACTION_FAILED ("Player URL Extraction Error");
+                }
+            } catch (Error e) {
+                // Do not abort and try to play the video with a known old player URI.
+                // The server does not seems to always check the player validity, so it may work anyway.
+                debug ("Failed to extract the flash player URI! Trying to fallback...");
+                player_uri = "http://www.arte.tv/playerv2/jwplayer5/mediaplayer.5.7.1894.swf";
             }
-        } catch (Error e) {
-            // Do not abort and try to play the video with a known old player URI.
-            // The server does not seems to always check the player validity, so it may work anyway.
-            debug ("Failed to extract the flash player URI! Trying to fallback...");
-            player_uri = "http://www.arte.tv/playerv2/jwplayer5/mediaplayer.5.7.1894.swf";
         }
-
 
         string stream_uri = uri + " swfVfy=1 swfUrl=" + player_uri;
         debug ("Build stream URI:\t\t'%s'", stream_uri);
