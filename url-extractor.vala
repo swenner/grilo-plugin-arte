@@ -142,9 +142,11 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
 
             switch (q) {
                 case VideoQuality.LOW:
-                    // As of 09/2014, LQ was only available with RTMP
-                    video_object = streams_object.get_object_member ("RTMP_LQ_1");
-                    is_rtmp = true;
+                    video_object = streams_object.get_object_member ("HTTP_MP4_MQ_1");
+                    if (video_object == null) {
+                        video_object = streams_object.get_object_member ("RTMP_MQ_1");
+                        is_rtmp = true;
+                    }
                     break;
                 case VideoQuality.HIGH:
                     video_object = streams_object.get_object_member ("HTTP_MP4_EQ_1");
@@ -161,9 +163,9 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
                     }
                     break;
                 default: // MEDIUM is the default
-                    video_object = streams_object.get_object_member ("HTTP_MP4_MQ_1");
+                    video_object = streams_object.get_object_member ("HTTP_MP4_HQ_1");
                     if (video_object == null) {
-                        video_object = streams_object.get_object_member ("RTMP_MQ_1");
+                        video_object = streams_object.get_object_member ("RTMP_HQ_1");
                         is_rtmp = true;
                     }
                     break;
