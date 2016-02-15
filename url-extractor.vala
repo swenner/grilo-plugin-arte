@@ -89,14 +89,23 @@ public class RTMPStreamUrlExtractor : IndirectUrlExtractor, UrlExtractor
     private Json.Object get_url_json (Language lang, string page_url)
         throws ExtractionError
     {
-        string regexp;
-        /* JSON uri */
-        regexp = "arte_vp_url=['\"](https?://.*.json)['\"].*>";
-        json_uri = extract_string_from_page (page_url, regexp);
-        debug ("Extract JSON URI:\t'%s'", json_uri);
-        if (json_uri == null) {
-            throw new ExtractionError.EXTRACTION_FAILED ("Video URL Extraction Error");
+        /* Extract the video ID directly from page_url */
+        /* Example: http://www.arte.tv/guide/fr/063676-003-A/yourope -> fr/063676-003-A */
+        string video_id;
+        try {
+            MatchInfo match;
+            var regex = new Regex (".*/(../.*)/");
+            regex.match (page_url, 0, out match);
+            video_id = match.fetch(1);
+            debug ("Video ID:\t'%s'", video_id);
+        } catch (RegexError e) {
+            GLib.warning ("%s", e.message);
+            throw new ExtractionError.EXTRACTION_FAILED ("Unable to extract the video ID");
         }
+
+        /* JSON uri */
+        json_uri = "https://api.arte.tv/api/player/v1/config/" + video_id + "?platform=ARTEPLUS7";
+        debug ("Constructed JSON URI:\t'%s'", json_uri);
 
         /* download and parse the main JSON file */
         var message = new Soup.Message ("GET", json_uri);
