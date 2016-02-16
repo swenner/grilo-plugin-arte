@@ -125,17 +125,6 @@ class GrlArteSource : Grl.Source
             }
         }
 
-        if (language == Language.UNKNOWN) { /* Try to guess user prefer language at first run */
-            var env_lang = Environment.get_variable ("LANG");
-            if (env_lang != null && env_lang.substring (0,2) == "de") {
-                language = Language.GERMAN;
-            } else {
-                language = Language.FRENCH; /* Otherwise, French is the default language */
-            }
-            if (!settings.set_enum ("language", (int) language))
-                GLib.warning ("Storing the language setting failed.");
-        }
-
         if (quality == VideoQuality.UNKNOWN) {
             quality = VideoQuality.HD; // default quality
             if (!settings.set_enum ("quality", (int) quality))
@@ -211,14 +200,25 @@ class GrlArteSource : Grl.Source
 
         switch (bs.container.get_id ()) {
         case null:
+            if (language == Language.UNKNOWN) {
+                browse_language (bs);
+            } else {
+                refresh_rss_feed (bs);
+            }
+            break;
+        case BOX_LANGUAGE_RESET:
             browse_language (bs);
             break;
         case BOX_LANGUAGE_FRENCH:
             language = Language.FRENCH;
+            if (!settings.set_enum ("language", (int) language))
+                GLib.warning ("Storing the quality setting failed.");
             refresh_rss_feed (bs);
             break;
         case BOX_LANGUAGE_GERMAN:
             language = Language.GERMAN;
+            if (!settings.set_enum ("language", (int) language))
+                GLib.warning ("Storing the quality setting failed.");
             refresh_rss_feed (bs);
             break;
         case BOX_LANGUAGE_VIDEO:
@@ -305,8 +305,13 @@ class GrlArteSource : Grl.Source
                     unowned GLib.SList<Video> videos = p.parse (language);
 
                     uint remaining = videos.length();
+                    // Create the "Change language" box
+                    Grl.Media media = new Grl.MediaBox ();
+                    media.set_id (BOX_LANGUAGE_RESET);
+                    media.set_title (_("↻ Change the language"));
+                    bs.callback (bs.source, bs.operation_id, media, remaining + 1, null);
                     foreach (Video v in videos) {
-                        Grl.Media media = new Grl.MediaBox ();
+                        media = new Grl.MediaBox ();
                         media.set_id (BOX_LANGUAGE_VIDEO);
                         media.set_title (v.title);
                         media.set_site (v.page_url);
