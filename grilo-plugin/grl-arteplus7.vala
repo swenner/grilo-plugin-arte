@@ -34,7 +34,7 @@ class GrlArteSource : Grl.Source
     private GLib.List<weak Grl.KeyID ?> supported_keys_;
     private GLib.List<weak Grl.KeyID ?> slow_keys_;
     
-    private ArteParser parsers[2]; /* array of parsers */
+    private ArteParser parsers[1]; /* array of parsers */
     private GLib.Settings settings;
     private GLib.Settings proxy_settings;
     private Cache cache; /* image thumbnail cache */
@@ -73,8 +73,7 @@ class GrlArteSource : Grl.Source
         
         cache = new Cache (Environment.get_user_cache_dir ()
             + CACHE_PATH_SUFFIX);
-        parsers[0] = new ArteJSONParser ();
-        parsers[1] = new ArteRSSParser ();
+        parsers[0] = new ArteRSSParser ();
     }
 
     public GrlArteSource ()
