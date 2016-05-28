@@ -366,11 +366,6 @@ class GrlArteSource : Grl.Source
                     break;
             }
 
-            // the RSS feeds have duplicates
-            if (p.has_duplicates ()) {
-                // TODO tree_view.check_and_remove_duplicates ();
-            }
-
             // try to recover if we failed to parse some thumbnails URI
             // TODO tree_view.check_and_download_missing_image_urls ();
 

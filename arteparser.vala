@@ -109,7 +109,7 @@ public class ArteRSSParser : ArteParser
 {
     private Video current_video = null;
     private string current_data = null;
-    /* official RSS feeds, may contain duplicates */
+    /* official RSS feeds */
     private const string[] feeds_fr = {
         "http://www.arte.tv/papi/tvguide-flow/feeds/videos/fr.xml?type=ARTE_PLUS_SEVEN"
     };
@@ -133,7 +133,7 @@ public class ArteRSSParser : ArteParser
         feed_idx = 0;
     }
 
-    public override bool has_duplicates () { return true; }
+    public override bool has_duplicates () { return false; }
     public override uint get_error_threshold ()
     {
         return (uint)(feed_count * 0.5);
