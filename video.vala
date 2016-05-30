@@ -42,6 +42,7 @@ public class Video : Serializable, GLib.Object
     public string desc = null;
     public GLib.TimeVal publication_date;
     public GLib.TimeVal offline_date;
+    public GLib.HashTable<string, string> urls = null;
 
     private string uuid = null;
     const string VERSION = "1.0"; // serialization file version
@@ -51,6 +52,7 @@ public class Video : Serializable, GLib.Object
     {
          publication_date.tv_sec = 0;
          offline_date.tv_sec = 0;
+         urls = new GLib.HashTable<string, string> (str_hash, str_equal);
     }
 
     public void print ()

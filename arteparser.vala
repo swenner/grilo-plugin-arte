@@ -175,6 +175,23 @@ public class ArteRSSParser : ArteParser
                     }
                 }
                 break;
+            case "media:content":
+                if (current_video != null) {
+                    string url = null;
+                    string bitrate = null;
+                    for (int i = 0; i < attribute_names.length; i++) {
+                        if (attribute_names[i] == "url") {
+                            url = attribute_values[i];
+                        } else if (attribute_names[i] == "bitrate") {
+                            bitrate = attribute_values[i];
+                        }
+                        continue;
+                    }
+                    if (url != null && bitrate != null) {
+                        current_video.urls.insert(bitrate, url);
+                    }
+                }
+                break;
             default:
                 current_data = elem;
                 break;
