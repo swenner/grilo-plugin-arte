@@ -101,6 +101,14 @@ class GrlArteSource : Grl.Source
         // LICENSE
     }
 
+    private void set_language (Language new_language)
+    {
+        language = new_language;
+        if (!settings.set_enum ("language", (int) new_language)) {
+            GLib.warning ("Storing the language setting failed.");
+        }
+    }
+
     private void set_quality (VideoQuality new_quality)
     {
         quality = new_quality;
@@ -199,15 +207,11 @@ class GrlArteSource : Grl.Source
             browse_language (bs);
             break;
         case BOX_LANGUAGE_FRENCH:
-            language = Language.FRENCH;
-            if (!settings.set_enum ("language", (int) language))
-                GLib.warning ("Storing the quality setting failed.");
+            set_language (Language.FRENCH);
             browse_quality (bs);
             break;
         case BOX_LANGUAGE_GERMAN:
-            language = Language.GERMAN;
-            if (!settings.set_enum ("language", (int) language))
-                GLib.warning ("Storing the quality setting failed.");
+            set_language (Language.GERMAN);
             browse_quality (bs);
             break;
         case BOX_QUALITY_LOW:
