@@ -318,8 +318,21 @@ class GrlArteSource : Grl.Source
                         media.set_site (v.page_url);
                         media.set_description(v.desc);
 
-                        // Uncomment this line to make Totem work (slowly) for now
-                        media.set_url(get_stream_url(v.page_url, quality, language));
+                        if (quality == VideoQuality.LOW) {
+                            media.set_url(v.urls.get("300"));
+                        } else if (quality == VideoQuality.MEDIUM) {
+                            media.set_url(v.urls.get("800"));
+                        } else if (quality == VideoQuality.HIGH) {
+                            media.set_url(v.urls.get("1500"));
+                        } else {
+                            media.set_url(v.urls.get("2200"));
+                        }
+
+                        if (media.get_url () == null) {
+                            GLib.warning ("Fallback to the old extraction method for %s.",
+                                          media.get_title ());
+                            media.set_url(get_stream_url(v.page_url, quality, language));
+                        }
 
                         // TODO dates
                         //media.set_source ("arte source");
