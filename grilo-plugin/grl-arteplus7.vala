@@ -100,6 +100,14 @@ class GrlArteSource : Grl.Source
         // EXTERNAL_URL
         // LICENSE
     }
+
+    private void set_quality (VideoQuality new_quality)
+    {
+        quality = new_quality;
+        if (!settings.set_enum ("quality", (int) new_quality)) {
+            GLib.warning ("Storing the quality setting failed.");
+        }
+    }
     
     /* loads properties from dconf */
     private void load_properties ()
@@ -125,9 +133,7 @@ class GrlArteSource : Grl.Source
         }
 
         if (quality == VideoQuality.UNKNOWN) {
-            quality = VideoQuality.HD; // default quality
-            if (!settings.set_enum ("quality", (int) quality))
-                GLib.warning ("Storing the quality setting failed.");
+            set_quality (VideoQuality.HD);
         }
     }
 
@@ -156,41 +162,25 @@ class GrlArteSource : Grl.Source
 
     private void browse_quality (Grl.SourceBrowseSpec bs)
     {
-        var url = get_stream_url(bs.container.get_site(), VideoQuality.LOW, language);
-        Grl.Media qvid = new Grl.MediaVideo ();
-        qvid.set_title (_("low (220p)"));
-        qvid.set_site (bs.container.get_site ());
-        qvid.set_description (bs.container.get_description ());
-        qvid.set_thumbnail (bs.container.get_thumbnail ());
-        qvid.set_url (url);
-        bs.callback (bs.source, bs.operation_id, qvid, 3, null);
+        Grl.Media q_box = new Grl.MediaBox ();
+        q_box.set_title (_("low (220p)"));
+        q_box.set_id (BOX_QUALITY_LOW);
+        bs.callback (bs.source, bs.operation_id, q_box, 3, null);
 
-        url = get_stream_url(bs.container.get_site(), VideoQuality.MEDIUM, language);
-        qvid = new Grl.MediaVideo ();
-        qvid.set_title (_("medium (400p)"));
-        qvid.set_site (bs.container.get_site ());
-        qvid.set_description (bs.container.get_description ());
-        qvid.set_thumbnail (bs.container.get_thumbnail ());
-        qvid.set_url (url);
-        bs.callback (bs.source, bs.operation_id, qvid, 2, null);
+        q_box = new Grl.MediaBox ();
+        q_box.set_title (_("medium (400p)"));
+        q_box.set_id (BOX_QUALITY_MEDIUM);
+        bs.callback (bs.source, bs.operation_id, q_box, 2, null);
 
-        url = get_stream_url(bs.container.get_site(), VideoQuality.HIGH, language);
-        qvid = new Grl.MediaVideo ();
-        qvid.set_title (_("high (400p, better encoding)"));
-        qvid.set_site (bs.container.get_site ());
-        qvid.set_description (bs.container.get_description ());
-        qvid.set_thumbnail (bs.container.get_thumbnail ());
-        qvid.set_url (url);
-        bs.callback (bs.source, bs.operation_id, qvid, 1, null);
+        q_box = new Grl.MediaBox ();
+        q_box.set_title (_("high (400p, better encoding)"));
+        q_box.set_id (BOX_QUALITY_HIGH);
+        bs.callback (bs.source, bs.operation_id, q_box, 1, null);
 
-        url = get_stream_url(bs.container.get_site(), VideoQuality.HD, language);
-        qvid = new Grl.MediaVideo ();
-        qvid.set_title (_("HD (720p)"));
-        qvid.set_site (bs.container.get_site ());
-        qvid.set_description (bs.container.get_description ());
-        qvid.set_thumbnail (bs.container.get_thumbnail ());
-        qvid.set_url (url);
-        bs.callback (bs.source, bs.operation_id, qvid, 0, null);
+        q_box = new Grl.MediaBox ();
+        q_box.set_title (_("HD (720p)"));
+        q_box.set_id (BOX_QUALITY_HD);
+        bs.callback (bs.source, bs.operation_id, q_box, 0, null);
     }
 
     public override void browse (Grl.SourceBrowseSpec bs)
@@ -205,23 +195,36 @@ class GrlArteSource : Grl.Source
                 refresh_rss_feed (bs);
             }
             break;
-        case BOX_LANGUAGE_RESET:
+        case BOX_SETTINGS_RESET:
             browse_language (bs);
             break;
         case BOX_LANGUAGE_FRENCH:
             language = Language.FRENCH;
             if (!settings.set_enum ("language", (int) language))
                 GLib.warning ("Storing the quality setting failed.");
-            refresh_rss_feed (bs);
+            browse_quality (bs);
             break;
         case BOX_LANGUAGE_GERMAN:
             language = Language.GERMAN;
             if (!settings.set_enum ("language", (int) language))
                 GLib.warning ("Storing the quality setting failed.");
+            browse_quality (bs);
+            break;
+        case BOX_QUALITY_LOW:
+            set_quality (VideoQuality.LOW);
             refresh_rss_feed (bs);
             break;
-        case BOX_LANGUAGE_VIDEO:
-            browse_quality (bs);
+        case BOX_QUALITY_MEDIUM:
+            set_quality (VideoQuality.MEDIUM);
+            refresh_rss_feed (bs);
+            break;
+        case BOX_QUALITY_HIGH:
+            set_quality (VideoQuality.HIGH);
+            refresh_rss_feed (bs);
+            break;
+        case BOX_QUALITY_HD:
+            set_quality (VideoQuality.HD);
+            refresh_rss_feed (bs);
             break;
         }
     }
@@ -306,18 +309,17 @@ class GrlArteSource : Grl.Source
                     uint remaining = videos.length();
                     // Create the "Change language" box
                     Grl.Media media = new Grl.MediaBox ();
-                    media.set_id (BOX_LANGUAGE_RESET);
-                    media.set_title (_("↻ Change the language"));
+                    media.set_id (BOX_SETTINGS_RESET);
+                    media.set_title (_("↻ Change settings"));
                     bs.callback (bs.source, bs.operation_id, media, remaining + 1, null);
                     foreach (Video v in videos) {
-                        media = new Grl.MediaBox ();
-                        media.set_id (BOX_LANGUAGE_VIDEO);
+                        media = new Grl.MediaVideo ();
                         media.set_title (v.title);
                         media.set_site (v.page_url);
                         media.set_description(v.desc);
 
                         // Uncomment this line to make Totem work (slowly) for now
-                        //media.set_url(get_stream_url(v.page_url, quality, language));
+                        media.set_url(get_stream_url(v.page_url, quality, language));
 
                         // TODO dates
                         //media.set_source ("arte source");

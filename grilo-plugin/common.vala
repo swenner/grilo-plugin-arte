@@ -48,8 +48,11 @@ public enum Language
 
 public const string BOX_LANGUAGE_FRENCH = "fr";
 public const string BOX_LANGUAGE_GERMAN = "de";
-public const string BOX_LANGUAGE_VIDEO = "video";
-public const string BOX_LANGUAGE_RESET = "reset";
+public const string BOX_QUALITY_LOW = "low";
+public const string BOX_QUALITY_MEDIUM = "medium";
+public const string BOX_QUALITY_HIGH = "high";
+public const string BOX_QUALITY_HD = "hd";
+public const string BOX_SETTINGS_RESET = "reset";
 
 public string USER_AGENT;
 private const string USER_AGENT_TMPL =
