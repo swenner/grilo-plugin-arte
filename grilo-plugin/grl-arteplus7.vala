@@ -139,10 +139,6 @@ class GrlArteSource : Grl.Source
                 proxy_password = proxy_settings.get_string ("authentication-password");
             }
         }
-
-        if (quality == VideoQuality.UNKNOWN) {
-            set_quality (VideoQuality.HD);
-        }
     }
 
     // TODO '?' is missing in the vapi
@@ -197,7 +193,7 @@ class GrlArteSource : Grl.Source
 
         switch (bs.container.get_id ()) {
         case null:
-            if (language == Language.UNKNOWN) {
+            if (language == Language.UNKNOWN || quality == VideoQuality.UNKNOWN) {
                 browse_language (bs);
             } else {
                 refresh_rss_feed (bs);
