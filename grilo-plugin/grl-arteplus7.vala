@@ -77,7 +77,7 @@ class GrlArteSource : Grl.Source
         source_desc = "Arte+7 video provider";
         supported_media = Grl.MediaType.VIDEO;
         source_tags = {"tv", "net:internet", "country:fr", "country:de"};
-        // TODO source_icon
+        source_icon = new FileIcon(File.new_for_path (ICON));
 
         supported_keys_ = Grl.MetadataKey.list_new(Grl.MetadataKey.ID,
                 Grl.MetadataKey.TITLE,

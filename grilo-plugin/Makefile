@@ -22,10 +22,10 @@ all:
 	$(VALAC) --library=arteplus7 $(VALA_SOURCE) $(VALA_DEPS) $(VALA_ARGS) -o libgrlarteplus7.so --Xcc=-I/usr/include/grilo-0.2 grilo-0.2.vapi
 
 install:
-	mkdir -p $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2 $(DESTDIR)/usr/share/totem/plugins/arteplus7
+	mkdir -p $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2 $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7
 	cp -f grl-arteplus7.xml $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/
 	cp -f libgrlarteplus7.so $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/
-	cp -f ../arteplus7-default.png $(DESTDIR)/usr/share/totem/plugins/arteplus7
+	cp -f ../arteplus7.png $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7/
 
 	mkdir -p $(DESTDIR)/usr/share/glib-2.0/schemas
 	cp -f ../org.gnome.totem.plugins.arteplus7.gschema.xml $(DESTDIR)/usr/share/glib-2.0/schemas
@@ -36,7 +36,7 @@ endif
 uninstall:
 	rm $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/grl-arteplus7.xml $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/libgrlarteplus7.so
 	rm $(DESTDIR)/usr/share/glib-2.0/schemas/org.gnome.totem.plugins.arteplus7.gschema.xml
-	rm -r $(DESTDIR)/usr/share/totem/plugins/arteplus7
+	rm -r $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7/
 	glib-compile-schemas $(DESTDIR)/usr/share/glib-2.0/schemas/
 
 clean:
