@@ -40,7 +40,6 @@ class GrlArteSource : Grl.Source
     private Cache cache; /* image thumbnail cache */
     private Language language;
     private VideoQuality quality;
-    private ConnectionStatus cs;
     private UrlExtractor extractor;
     
     construct {
@@ -55,7 +54,6 @@ class GrlArteSource : Grl.Source
         this.proxy_settings = new GLib.Settings (DCONF_HTTP_PROXY);
         load_properties ();
         
-        this.cs = new ConnectionStatus ();
         this.extractor = new RTMPStreamUrlExtractor ();
         
         /* Generate the user-agent */
@@ -82,6 +80,7 @@ class GrlArteSource : Grl.Source
         source_name = "Arte+7";
         source_desc = "Arte+7 video provider";
         supported_media = Grl.MediaType.VIDEO;
+        source_tags = {"tv", "net:internet", "country:fr", "country:de"};
         // TODO source_icon
 
         supported_keys_ = Grl.MetadataKey.list_new(Grl.MetadataKey.ID,
@@ -235,16 +234,6 @@ class GrlArteSource : Grl.Source
 
     private void refresh_rss_feed (Grl.SourceBrowseSpec bs)
     {
-        if (!this.cs.is_online) {
-            // display offline message
-            // TODO tree_view.display_message (_("No internet connection."));
-
-            // invalidate all existing videos
-            // TODO tree_view.clear ();
-
-            debug ("Browse streams failed.");
-        }
-
         uint parse_errors = 0;
         uint network_errors = 0;
         uint error_threshold = 0;
@@ -252,12 +241,6 @@ class GrlArteSource : Grl.Source
         //search_entry.set_sensitive (false);
 
         debug ("Refreshing Video Feed...");
-
-        /* display loading message */
-        // TODO tree_view.display_message (_("Loading..."));
-
-        /* remove all existing videos */
-        // TODO tree_view.clear ();
 
         // download and parse feeds
         // try parsers one by one until enough videos are extracted
