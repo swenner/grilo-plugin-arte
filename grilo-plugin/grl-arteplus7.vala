@@ -273,7 +273,14 @@ class GrlArteSource : Grl.Source
                         if (media.get_url () == null) {
                             GLib.warning ("Fallback to the old extraction method for %s.",
                                           media.get_title ());
-                            media.set_url(get_stream_url(v.page_url, quality, language));
+                            try {
+                                media.set_url(get_stream_url(v.page_url, quality, language));
+                            } catch (ExtractionError e) {
+                                GLib.warning ("No playback url found for %s, skipping.",
+                                              media.get_title ());
+                                remaining -= 1;
+                                continue;
+                            }
                         }
 
                         // TODO dates
