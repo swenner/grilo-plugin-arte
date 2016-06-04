@@ -90,10 +90,6 @@ class GrlArteSource : Grl.Source
                 Grl.MetadataKey.THUMBNAIL,
                 Grl.MetadataKey.DESCRIPTION,
                 Grl.MetadataKey.SITE);
-                
-        slow_keys_ = Grl.MetadataKey.list_new(
-                Grl.MetadataKey.URL,
-                Grl.MetadataKey.THUMBNAIL);
 
         // TODO
         // CREATION_DATE, PUBLICATION_DATE
@@ -235,32 +231,6 @@ class GrlArteSource : Grl.Source
         // TODO implement
         ss.callback(ss.source, ss.operation_id, null, 0, null);
         debug ("Search finished");
-    }
-
-    public override void resolve (Grl.SourceResolveSpec rs)
-    {
-        debug ("Resolve metadata...");
-        // FIXME k's type should be Grl.KeyID not void*
-        foreach (var k in rs.keys) {
-            if ((Grl.KeyID)k == Grl.MetadataKey.URL) {
-                debug ("Resolve URL...");
-                // get the stream url
-                string stream_url = null;
-                try {
-                    string page_url = rs.media.get_site ();
-                    stream_url = get_stream_url (page_url, quality, language);
-                    rs.media.set_url (stream_url);
-                } catch (ExtractionError e) {
-                    debug ("Stream URL extraction failed.");
-                    // TODO error handling (pop-up?)
-                }
-            }
-            
-            // TODO resolve thumbnail data here too?
-        }
-        
-        rs.callback(rs.source, rs.operation_id, rs.media, null);
-        debug ("Resolve metadata finished");
     }
 
     private void refresh_rss_feed (Grl.SourceBrowseSpec bs)
