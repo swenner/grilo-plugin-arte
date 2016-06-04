@@ -216,13 +216,14 @@ class GrlArteSource : Grl.Source
         }
     }
 
-    public override void search (Grl.SourceSearchSpec ss)
+    /*public override void search (Grl.SourceSearchSpec ss)
     {
         debug ("Search...");
         // TODO implement
         ss.callback(ss.source, ss.operation_id, null, 0, null);
         debug ("Search finished");
     }
+    */
 
     private void refresh_rss_feed (Grl.SourceBrowseSpec bs)
     {
