@@ -84,6 +84,7 @@ class GrlArteSource : Grl.Source
                 Grl.MetadataKey.URL,
                 Grl.MetadataKey.THUMBNAIL,
                 Grl.MetadataKey.DESCRIPTION,
+                Grl.MetadataKey.DURATION,
                 Grl.MetadataKey.SITE);
 
         // TODO
@@ -257,6 +258,9 @@ class GrlArteSource : Grl.Source
                     foreach (Video v in videos) {
                         media = new Grl.MediaVideo ();
                         media.set_title (v.title);
+                        if (v.duration > 0) {
+                            media.set_duration (v.duration);
+                        }
                         media.set_site (v.page_url);
                         media.set_description(v.desc);
 

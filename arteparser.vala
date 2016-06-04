@@ -179,16 +179,23 @@ public class ArteRSSParser : ArteParser
                 if (current_video != null) {
                     string url = null;
                     string bitrate = null;
+                    string duration = null;
                     for (int i = 0; i < attribute_names.length; i++) {
                         if (attribute_names[i] == "url") {
                             url = attribute_values[i];
                         } else if (attribute_names[i] == "bitrate") {
                             bitrate = attribute_values[i];
+                        } else if (attribute_names[i] == "duration") {
+                            duration = attribute_values[i];
                         }
                         continue;
                     }
                     if (url != null && bitrate != null) {
                         current_video.urls.insert(bitrate, url);
+                    }
+                    if (duration != null) {
+                        // The parsed duration is in minutes. We want seconds.
+                        current_video.duration = int.parse (duration) * 60;
                     }
                 }
                 break;

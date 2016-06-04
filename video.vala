@@ -43,6 +43,7 @@ public class Video : Serializable, GLib.Object
     public GLib.TimeVal publication_date;
     public GLib.TimeVal offline_date;
     public GLib.HashTable<string, string> urls = null;
+    public int duration = 0;
 
     private string uuid = null;
     const string VERSION = "1.0"; // serialization file version
