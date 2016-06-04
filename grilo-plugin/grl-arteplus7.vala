@@ -32,12 +32,10 @@ using GLib;
 class GrlArteSource : Grl.Source
 {
     private GLib.List<weak Grl.KeyID ?> supported_keys_;
-    private GLib.List<weak Grl.KeyID ?> slow_keys_;
     
     private ArteParser parsers[1]; /* array of parsers */
     private GLib.Settings settings;
     private GLib.Settings proxy_settings;
-    private Cache cache; /* image thumbnail cache */
     private Language language;
     private VideoQuality quality;
     private UrlExtractor extractor;
@@ -68,9 +66,7 @@ class GrlArteSource : Grl.Source
         int version = 11 + (weeks - (2201 + 3)) / 6;
         USER_AGENT = USER_AGENT_TMPL.printf(version, version);
         debug (USER_AGENT);
-        
-        cache = new Cache (Environment.get_user_cache_dir ()
-            + CACHE_PATH_SUFFIX);
+
         parsers[0] = new ArteRSSParser ();
     }
 
@@ -140,11 +136,6 @@ class GrlArteSource : Grl.Source
     public override unowned GLib.List<weak Grl.KeyID?> supported_keys ()
     {
         return supported_keys_;
-    }
-
-    public override unowned GLib.List<weak Grl.KeyID?> slow_keys ()
-    {
-        return slow_keys_;
     }
 
     private void browse_language (Grl.SourceBrowseSpec bs)
@@ -238,8 +229,6 @@ class GrlArteSource : Grl.Source
         uint network_errors = 0;
         uint error_threshold = 0;
 
-        //search_entry.set_sensitive (false);
-
         debug ("Refreshing Video Feed...");
 
         // download and parse feeds
@@ -288,31 +277,8 @@ class GrlArteSource : Grl.Source
                         }
 
                         // TODO dates
-                        //media.set_source ("arte source");
-                        
-                        // get image url
-                        if (v.image_url == null) {
-                            cache.get_video (ref v);
-                        }
-
-                        // thumnails without our cache (totem has a cache too)
                         media.set_thumbnail (v.image_url);
 
-/* TODO should we use our cache?
-                        string image_url = v.image_url;//.normalize();
-                        Gdk.Pixbuf pb = cache.load_pixbuf (image_url);
-                        
-                        // FIXME this case never happens because of the default thumb
-                        if (true || pb == null) {
-                            debug ("image missing.\n");
-                            pb = cache.download_pixbuf (v.image_url, v.publication_date);
-                        }
-                        
-                        if (pb != null) {
-                            debug ("image file added.\n");
-                            media.set_thumbnail_binary(pb.get_pixels(), pb.get_byte_length());
-                        }
-*/
                         bs.callback (bs.source, bs.operation_id, media, remaining, null);
                         remaining -= 1;
                     }
@@ -334,32 +300,10 @@ class GrlArteSource : Grl.Source
                     break;
             }
 
-            // try to recover if we failed to parse some thumbnails URI
-            // TODO tree_view.check_and_download_missing_image_urls ();
-
             // leave the loop if we got enought videos
             if (parse_errors < error_threshold && network_errors < error_threshold)
                 break;
         }
-
-        /* while parsing we only used images from the cache */
-        // TODO tree_view.check_and_download_missing_thumbnails ();
-
-        // TODO debug ("Video Feed loaded, video count: %u", tree_view.get_size ());
-
-        // show user visible error messages
-        if (parse_errors > error_threshold)
-        {
-            //TODO t.action_error (_("Markup Parser Error"),
-            //        _("Sorry, the plugin could not parse the Arte video feed."));
-        } else if (network_errors > error_threshold) {
-            //TODO t.action_error (_("Network problem"),
-            //        _("Sorry, the plugin could not download the Arte video feed.\nPlease verify your network settings and (if any) your proxy settings."));
-        }
-
-        //search_entry.set_sensitive (true);
-        //search_entry.grab_focus ();
-
         debug ("Browse streams finished.");
     }
     

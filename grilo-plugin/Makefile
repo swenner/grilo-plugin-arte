@@ -11,7 +11,6 @@ CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"totem-arte\"" -X -std=c9
 VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g
 VALA_SOURCE=\
 	../arteparser.vala \
-	../cache.vala \
 	../url-extractor.vala \
 	../video.vala \
 	../connection-status.vala \

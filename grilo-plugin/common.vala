@@ -59,8 +59,6 @@ private const string USER_AGENT_TMPL =
     "Mozilla/5.0 (X11; Linux x86_64; rv:%d.0) Gecko/20100101 Firefox/%d.0";
 public const string DCONF_ID = "org.gnome.Totem.arteplus7";
 public const string DCONF_HTTP_PROXY = "org.gnome.system.proxy.http";
-public const string CACHE_PATH_SUFFIX = "/totem/plugins/arteplus7/";
-public const int THUMBNAIL_WIDTH = 160;
 public const string DEFAULT_THUMBNAIL = "/usr/share/totem/plugins/arteplus7/arteplus7-default.png";
 public bool use_proxy = false;
 public Soup.URI proxy_uri;
