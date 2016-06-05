@@ -6,9 +6,9 @@ VALAC=valac
 
 # vala bindings are missing in Debian Jessie, ok in Stretch and Ubuntu >= 16.04
 #VALA_DEPS=--pkg grilo-0.2 --pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0
-#CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"totem-arte\""
+#CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\""
 VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0
-CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"totem-arte\"" -X -std=c99 --Xcc=-I/usr/include/grilo-0.2 grilo-0.2.vapi
+CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\"" -X -std=c99 --Xcc=-I/usr/include/grilo-0.2 grilo-0.2.vapi
 
 VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g
 VALA_SOURCE=\
@@ -43,8 +43,8 @@ ifeq ($(DISABLE_SCHEMAS_COMPILE),)
 endif
 	mkdir -p $(DESTDIR)/usr/share/locale/de/LC_MESSAGES
 	mkdir -p $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES
-	cp -f po/de.mo $(DESTDIR)/usr/share/locale/de/LC_MESSAGES/totem-arte.mo
-	cp -f po/fr.mo $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/totem-arte.mo
+	cp -f po/de.mo $(DESTDIR)/usr/share/locale/de/LC_MESSAGES/grilo-arte.mo
+	cp -f po/fr.mo $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/grilo-arte.mo
 
 uninstall:
 	rm $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/grl-arteplus7.xml $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/libgrlarteplus7.so
@@ -53,8 +53,8 @@ uninstall:
 ifeq ($(DISABLE_SCHEMAS_COMPILE),)
 	glib-compile-schemas $(DESTDIR)/usr/share/glib-2.0/schemas/
 endif
-	rm $(DESTDIR)/usr/share/locale/de/LC_MESSAGES/totem-arte.mo
-	rm $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/totem-arte.mo
+	rm $(DESTDIR)/usr/share/locale/de/LC_MESSAGES/grilo-arte.mo
+	rm $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/grilo-arte.mo
 
 clean:
 	rm -f libgrlarteplus7.so
@@ -68,6 +68,6 @@ dist:
 	mkdir $(PACKAGE)/po
 	cp -f $(VALA_SOURCE) $(PACKAGE)/
 	cp -f $(EXTRA_DIST) $(PACKAGE)/
-	cp -f po/POTFILES.in po/POTFILES.skip po/arte-totem.pot po/de.po po/fr.po $(PACKAGE)/po/
+	cp -f po/POTFILES.in po/POTFILES.skip po/grilo-arte.pot po/de.po po/fr.po $(PACKAGE)/po/
 	tar -pczf $(PACKAGE).tar.gz $(PACKAGE)/
 	rm -rf $(PACKAGE)
