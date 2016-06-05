@@ -25,15 +25,17 @@ EXTRA_DIST=\
 	org.gnome.totem.plugins.arteplus7.gschema.xml \
 	Makefile README AUTHORS COPYING NEWS ChangeLog
 
+# This directory can be arch-specific. Let's autodetect it.
+GRILO_PLUGIN_DIR=$(DESTDIR)/$(shell pkg-config --variable=plugindir grilo-0.2)
+
 all:
 	$(VALAC) --library=arteplus7 $(VALA_SOURCE) $(VALA_DEPS) $(VALA_ARGS) -o libgrlarteplus7.so
 	msgfmt --output-file=po/de.mo po/de.po
 	msgfmt --output-file=po/fr.mo po/fr.po
 
 install:
-	mkdir -p $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2 $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7
-	cp -f grl-arteplus7.xml $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/
-	cp -f libgrlarteplus7.so $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/
+	mkdir -p $(GRILO_PLUGIN_DIR) $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7
+	cp -f grl-arteplus7.xml libgrlarteplus7.so $(GRILO_PLUGIN_DIR)
 	cp -f arteplus7.png $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7/
 
 	mkdir -p $(DESTDIR)/usr/share/glib-2.0/schemas
@@ -47,7 +49,7 @@ endif
 	cp -f po/fr.mo $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/grilo-arte.mo
 
 uninstall:
-	rm $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/grl-arteplus7.xml $(DESTDIR)/usr/lib/x86_64-linux-gnu/grilo-0.2/libgrlarteplus7.so
+	rm $(GRILO_PLUGIN_DIR)/grl-arteplus7.xml $(GRILO_PLUGIN_DIR)/libgrlarteplus7.so
 	rm $(DESTDIR)/usr/share/glib-2.0/schemas/org.gnome.totem.plugins.arteplus7.gschema.xml
 	rm -r $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7/
 ifeq ($(DISABLE_SCHEMAS_COMPILE),)

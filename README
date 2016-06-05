@@ -11,6 +11,7 @@ Build dependencies:
 
 valac
 gettext
+pkg-config
 libsoup2.4
 libgrilo-0.2
 libjson-glib
