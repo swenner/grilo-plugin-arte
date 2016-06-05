@@ -154,22 +154,22 @@ class GrlArteSource : Grl.Source
     private void browse_quality (Grl.SourceBrowseSpec bs)
     {
         Grl.Media q_box = new Grl.MediaBox ();
-        q_box.set_title (_("low (220p)"));
+        q_box.set_title (_("Low quality (220p)"));
         q_box.set_id (BOX_QUALITY_LOW);
         bs.callback (bs.source, bs.operation_id, q_box, 3, null);
 
         q_box = new Grl.MediaBox ();
-        q_box.set_title (_("medium (400p)"));
+        q_box.set_title (_("Medium quality (400p)"));
         q_box.set_id (BOX_QUALITY_MEDIUM);
         bs.callback (bs.source, bs.operation_id, q_box, 2, null);
 
         q_box = new Grl.MediaBox ();
-        q_box.set_title (_("high (400p, better encoding)"));
+        q_box.set_title (_("High quality (400p, better encoding)"));
         q_box.set_id (BOX_QUALITY_HIGH);
         bs.callback (bs.source, bs.operation_id, q_box, 1, null);
 
         q_box = new Grl.MediaBox ();
-        q_box.set_title (_("HD (720p)"));
+        q_box.set_title (_("Best quality (720p)"));
         q_box.set_id (BOX_QUALITY_HD);
         bs.callback (bs.source, bs.operation_id, q_box, 0, null);
     }
