@@ -68,6 +68,6 @@ dist:
 	mkdir $(PACKAGE)/po
 	cp -f $(VALA_SOURCE) $(PACKAGE)/
 	cp -f $(EXTRA_DIST) $(PACKAGE)/
-	cp -f po/POTFILES.in po/POTFILES.skip po/grilo-arte.pot po/de.po po/fr.po $(PACKAGE)/po/
+	cp -f po/POTFILES.in po/grilo-arte.pot po/de.po po/fr.po $(PACKAGE)/po/
 	tar -pczf $(PACKAGE).tar.gz $(PACKAGE)/
 	rm -rf $(PACKAGE)

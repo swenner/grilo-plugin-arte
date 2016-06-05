@@ -8,161 +8,39 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-13 01:25+0200\n"
+"POT-Creation-Date: 2016-06-05 11:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../arteplus7.vala:178
-msgid "Reload feed"
-msgstr ""
-
-#: ../arteplus7.vala:182
-msgid "Clear the search text"
-msgstr ""
-
-#: ../arteplus7.vala:211
-msgid "Arte+7"
-msgstr ""
-
-#: ../arteplus7.vala:249
+#: grl-arteplus7.vala:145
 msgid "French"
 msgstr ""
 
-#: ../arteplus7.vala:250
+#: grl-arteplus7.vala:149
 msgid "German"
 msgstr ""
 
-#: ../arteplus7.vala:280
-msgid "l_ow (220p)"
+#: grl-arteplus7.vala:157
+msgid "Low quality (220p)"
 msgstr ""
 
-#: ../arteplus7.vala:282
-msgid "_medium (400p)"
+#: grl-arteplus7.vala:162
+msgid "Medium quality (400p)"
 msgstr ""
 
-#: ../arteplus7.vala:284
-msgid "_high (400p, better encoding)"
+#: grl-arteplus7.vala:167
+msgid "High quality (400p, better encoding)"
 msgstr ""
 
-#: ../arteplus7.vala:286
-msgid "H_D (720p)"
+#: grl-arteplus7.vala:172
+msgid "Best quality (720p)"
 msgstr ""
 
-#: ../arteplus7.vala:342
-msgid "_Language:"
-msgstr ""
-
-#: ../arteplus7.vala:350
-msgid "Video quality:"
-msgstr ""
-
-#. display offline message
-#: ../arteplus7.vala:369
-msgid "No internet connection."
-msgstr ""
-
-#. display loading message
-#: ../arteplus7.vala:386
-msgid "Loading..."
-msgstr ""
-
-#: ../arteplus7.vala:445
-msgid "Markup Parser Error"
-msgstr ""
-
-#: ../arteplus7.vala:446
-msgid "Sorry, the plugin could not parse the Arte video feed."
-msgstr ""
-
-#: ../arteplus7.vala:448
-msgid "Network problem"
-msgstr ""
-
-#: ../arteplus7.vala:449
-msgid ""
-"Sorry, the plugin could not download the Arte video feed.\n"
-"Please verify your network settings and (if any) your proxy settings."
-msgstr ""
-
-#. This video access is restricted
-#: ../arteplus7.vala:517
-msgid "This video access is restricted"
-msgstr ""
-
-#: ../arteplus7.vala:518
-msgid ""
-"It seems that, because of its content, this video can only be watched in a "
-"precise time interval.\n"
-"\n"
-"You may retry later, for example between 11 PM and 5 AM."
-msgstr ""
-
-#. The video is part of the XML/RSS feed but no stream is available yet
-#: ../arteplus7.vala:521
-msgid "This video is not available yet"
-msgstr ""
-
-#: ../arteplus7.vala:522
-msgid ""
-"Sorry, the plugin could not find any stream URL.\n"
-"It seems that this video is not available yet, even on the Arte web-player.\n"
-"\n"
-"Please retry later."
-msgstr ""
-
-#. Network problems
-#. ExtractionError.EXTRACTION_ERROR or an unspecified error
-#: ../arteplus7.vala:525 ../arteplus7.vala:529
-msgid "Video URL Extraction Error"
-msgstr ""
-
-#: ../arteplus7.vala:526
-msgid ""
-"Sorry, the plugin could not extract a valid stream URL.\n"
-"Please verify your network settings and (if any) your proxy settings."
-msgstr ""
-
-#: ../arteplus7.vala:530
-msgid ""
-"Sorry, the plugin could not extract a valid stream URL.\n"
-"Perhaps this stream is not yet available, you may retry in a few minutes.\n"
-"\n"
-"Be aware that this service is only available for IPs within Austria, "
-"Belgium, Germany, France and Switzerland."
-msgstr ""
-
-#: ../video-list-view.vala:139
-msgid "Less than 1 minute until removal"
-msgstr ""
-
-#: ../video-list-view.vala:141
-#, c-format
-msgid "Less than %.0f minutes until removal"
-msgstr ""
-
-#: ../video-list-view.vala:144
-msgid "Less than 1 hour until removal"
-msgstr ""
-
-#: ../video-list-view.vala:146
-#, c-format
-msgid "Less than %.0f hours until removal"
-msgstr ""
-
-#: ../video-list-view.vala:148
-msgid "1 day until removal"
-msgstr ""
-
-#: ../video-list-view.vala:150
-#, c-format
-msgid "%.0f days until removal"
-msgstr ""
-
-#: ../video-list-view.vala:281
-msgid "_Open in Web Browser"
+#: grl-arteplus7.vala:257
+msgid "↻ Change settings"
 msgstr ""
