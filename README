@@ -1,32 +1,30 @@
-The Arte Totem plugin allows you to watch video streams from the Franco-German
-TV Channel Arte. http://plus7.arte.tv/
+This plugin allows you to watch replay video streams from the Franco-German
+TV Channel Arte. http://arte.tv/
+It works with any player compatible with Grilo, like GNOME's Videos (Totem).
 
 Sadly, this service is only available for IPs within Austria, France, Germany,
 Belgium and Switzerland.
 
----------------
-Dependencies:
----------------
-Totem >= 3.6
-libpeas >= 1.2.0
-Valac >= 0.22.0
-Gtk+-3.0
+-------------------
+Build dependencies:
+-------------------
+
+valac
+gettext
 libsoup2.4
-libglib >= 2.25.15
+libgrilo-0.2
 libjson-glib
-gstreamer-plugins-bad >= 0.10.20
 gsettings-desktop-schemas
-Network-Manager (optional)
 
-On Debian or Ubuntu:
-# aptitude install valac-0.16 libgtk-3-dev libtotem-dev libpeas-dev \
-libsoup2.4-dev gettext gstreamer0.10-plugins-bad gsettings-desktop-schemas \
-libjson-glib-dev
+On Debian >= Jessie or Ubuntu >= 16.04:
+# apt install valac gcc make libgrilo-0.2-dev libsoup2.4-dev \
+gettext libjson-glib-dev
 
----------------
+-------------
 Installation:
----------------
-Install the plugin (with root access) to $(DESTDIR)/usr/lib/totem/plugins/
+-------------
+
+Build and install the plugin with these commands:
 
 $ make
 $ sudo make install
