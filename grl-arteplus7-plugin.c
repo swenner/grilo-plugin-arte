@@ -33,4 +33,21 @@ grl_arteplus7_plugin_init (GrlRegistry *registry,
         GrlPlugin *plugin,
         GList *configs);
 
+
+// FIXME the define is not get defined here
+#ifdef GRILO_VERSION_3
+GRL_PLUGIN_DEFINE (0, //GRL_MAJOR,
+                   3, //GRL_MINOR,
+                   "grlarteplus7",
+                   "Arte+7",
+                   "A plugin to watch video streams from the Franco-German TV Channel Arte.",
+                   "Simon Wenner, Nicolas Delvaux",
+                   "1.0.0",
+                   "LGPL",
+                   "https://github.com/swenner/totem-plugin-arte/",
+                   grl_arteplus7_plugin_init,
+                   NULL,
+                   NULL);
+#else
 GRL_PLUGIN_REGISTER (grl_arteplus7_plugin_init, NULL, "grl-arteplus7");
+#endif

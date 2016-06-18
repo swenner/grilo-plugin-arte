@@ -21,6 +21,10 @@ On Debian >= Jessie or Ubuntu >= 16.04:
 # apt install valac gcc make libgrilo-0.2-dev libsoup2.4-dev \
 gettext libjson-glib-dev
 
+On Debian Stretch
+# apt install valac gcc make libgrilo-0.3-dev libsoup2.4-dev \
+gettext libjson-glib-dev
+
 -------------
 Installation:
 -------------

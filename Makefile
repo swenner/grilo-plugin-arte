@@ -4,13 +4,22 @@ NAME=grilo-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 VALAC=valac
 
-# vala bindings are missing in Debian Jessie, ok in Stretch and Ubuntu >= 16.04
-#VALA_DEPS=--pkg grilo-0.2 --pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0
-#CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\""
-VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0
-CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\"" -X -std=c99 --Xcc=-I/usr/include/grilo-0.2 grilo-0.2.vapi
+GRILO_VERSION=2
 
 VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g
+ifeq ($(GRILO_VERSION),2)
+    # vala bindings are missing in Debian Jessie, ok in Stretch and Ubuntu >= 16.04
+    #VALA_DEPS=--pkg grilo-0.2 --pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0
+    #CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\""
+    VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0
+    CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\"" -X -std=c99 --Xcc=-I/usr/include/grilo-0.2 grilo-0.2.vapi
+else
+    # Grilo Version 0.3
+    VALA_ARGS+= -D GRILO_VERSION_3
+    VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0 --pkg grilo-0.3
+    CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\"" -X -std=c99
+endif
+
 VALA_SOURCE=\
 	arteparser.vala \
 	url-extractor.vala \
@@ -26,7 +35,7 @@ EXTRA_DIST=\
 	Makefile README AUTHORS COPYING NEWS ChangeLog
 
 # This directory can be arch-specific. Let's autodetect it.
-GRILO_PLUGIN_DIR=$(DESTDIR)/$(shell pkg-config --variable=plugindir grilo-0.2)
+GRILO_PLUGIN_DIR=$(DESTDIR)/$(shell pkg-config --variable=plugindir grilo-0.$(GRILO_VERSION))
 
 all:
 	$(VALAC) --library=arteplus7 $(VALA_SOURCE) $(VALA_DEPS) $(VALA_ARGS) -o libgrlarteplus7.so
@@ -35,7 +44,10 @@ all:
 
 install:
 	mkdir -p $(GRILO_PLUGIN_DIR) $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7
-	cp -f grl-arteplus7.xml libgrlarteplus7.so $(GRILO_PLUGIN_DIR)
+ifeq ($(GRILO_VERSION),2)
+	cp -f grl-arteplus7.xml $(GRILO_PLUGIN_DIR)
+endif
+	cp -f libgrlarteplus7.so $(GRILO_PLUGIN_DIR)
 	cp -f arteplus7.png $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7/
 
 	mkdir -p $(DESTDIR)/usr/share/glib-2.0/schemas

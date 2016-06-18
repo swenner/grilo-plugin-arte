@@ -29,6 +29,25 @@
 using Grl;
 using GLib;
 
+Grl.Media construct_media_container ()
+{
+#if GRILO_VERSION_3
+    return new Grl.Media.container_new ();
+#else
+    return new Grl.MediaBox ();
+#endif
+}
+
+Grl.Media construct_media_video ()
+{
+#if GRILO_VERSION_3
+    return new Grl.Media.video_new ();
+#else
+    return new Grl.MediaVideo ();
+#endif
+}
+
+
 class GrlArteSource : Grl.Source
 {
     private GLib.List<weak Grl.KeyID ?> supported_keys_;
@@ -75,7 +94,11 @@ class GrlArteSource : Grl.Source
         source_id = "grl-arteplus7";
         source_name = "Arte+7";
         source_desc = "Arte+7 video provider";
+#if GRILO_VERSION_3
+        supported_media = Grl.SupportedMedia.VIDEO;
+#else
         supported_media = Grl.MediaType.VIDEO;
+#endif
         source_tags = {"tv", "net:internet", "country:fr", "country:de"};
         source_icon = new FileIcon(File.new_for_path (ICON));
 
@@ -133,7 +156,7 @@ class GrlArteSource : Grl.Source
         }
     }
 
-    // TODO '?' is missing in the vapi
+    // TODO '?' is missing in the vapi, fixed in 0.3
     public override unowned GLib.List<weak Grl.KeyID?> supported_keys ()
     {
         return supported_keys_;
@@ -141,11 +164,11 @@ class GrlArteSource : Grl.Source
 
     private void browse_language (Grl.SourceBrowseSpec bs)
     {
-        Grl.Media lang_box = new Grl.MediaBox ();
+        Grl.Media lang_box = construct_media_container ();
         lang_box.set_title (_("French"));
         lang_box.set_id (BOX_LANGUAGE_FRENCH);
         bs.callback (bs.source, bs.operation_id, lang_box, 1, null);
-        lang_box = new Grl.MediaBox ();
+        lang_box = construct_media_container ();
         lang_box.set_title (_("German"));
         lang_box.set_id (BOX_LANGUAGE_GERMAN);
         bs.callback (bs.source, bs.operation_id, lang_box, 0, null);
@@ -153,22 +176,22 @@ class GrlArteSource : Grl.Source
 
     private void browse_quality (Grl.SourceBrowseSpec bs)
     {
-        Grl.Media q_box = new Grl.MediaBox ();
+        Grl.Media q_box = construct_media_container ();
         q_box.set_title (_("Low quality (220p)"));
         q_box.set_id (BOX_QUALITY_LOW);
         bs.callback (bs.source, bs.operation_id, q_box, 3, null);
 
-        q_box = new Grl.MediaBox ();
+        q_box = construct_media_container ();
         q_box.set_title (_("Medium quality (400p)"));
         q_box.set_id (BOX_QUALITY_MEDIUM);
         bs.callback (bs.source, bs.operation_id, q_box, 2, null);
 
-        q_box = new Grl.MediaBox ();
+        q_box = construct_media_container ();
         q_box.set_title (_("High quality (400p, better encoding)"));
         q_box.set_id (BOX_QUALITY_HIGH);
         bs.callback (bs.source, bs.operation_id, q_box, 1, null);
 
-        q_box = new Grl.MediaBox ();
+        q_box = construct_media_container ();
         q_box.set_title (_("Best quality (720p)"));
         q_box.set_id (BOX_QUALITY_HD);
         bs.callback (bs.source, bs.operation_id, q_box, 0, null);
@@ -252,12 +275,12 @@ class GrlArteSource : Grl.Source
 
                     uint remaining = videos.length();
                     // Create the "Change language" box
-                    Grl.Media media = new Grl.MediaBox ();
+                    Grl.Media media = construct_media_container ();
                     media.set_id (BOX_SETTINGS_RESET);
                     media.set_title (_("↻ Change settings"));
                     bs.callback (bs.source, bs.operation_id, media, remaining + 1, null);
                     foreach (Video v in videos) {
-                        media = new Grl.MediaVideo ();
+                        media = construct_media_video ();
                         media.set_title (v.title);
                         if (v.duration > 0) {
                             media.set_duration (v.duration);
