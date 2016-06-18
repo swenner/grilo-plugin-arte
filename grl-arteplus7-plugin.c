@@ -34,7 +34,6 @@ grl_arteplus7_plugin_init (GrlRegistry *registry,
         GList *configs);
 
 
-// FIXME the define is not get defined here
 #ifdef GRILO_VERSION_3
 GRL_PLUGIN_DEFINE (0, //GRL_MAJOR,
                    3, //GRL_MINOR,

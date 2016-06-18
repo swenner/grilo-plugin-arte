@@ -6,19 +6,21 @@ VALAC=valac
 
 GRILO_VERSION=2
 
-VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g
+# vala bindings are missing in Debian Jessie, ok in Stretch and Ubuntu >= 16.04
+#VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0 --pkg grilo-0.2
+VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0
+CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\"" -X -std=c99
+VALA_ARGS_EXTRA=
 ifeq ($(GRILO_VERSION),2)
-    # vala bindings are missing in Debian Jessie, ok in Stretch and Ubuntu >= 16.04
-    #VALA_DEPS=--pkg grilo-0.2 --pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0
-    #CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\""
-    VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0
-    CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\"" -X -std=c99 --Xcc=-I/usr/include/grilo-0.2 grilo-0.2.vapi
+    CC_ARGS+= --Xcc=-I/usr/include/grilo-0.2 grilo-0.2.vapi
 else
     # Grilo Version 0.3
-    VALA_ARGS+= -D GRILO_VERSION_3
-    VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0 --pkg grilo-0.3
-    CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\"" -X -std=c99
+    VALA_DEPS+= --pkg grilo-0.3
+    CC_ARGS+= -X -DGRILO_VERSION_3
+    VALA_ARGS_EXTRA= -D GRILO_VERSION_3
 endif
+
+VALA_ARGS=-D DEBUG_MESSAGES $(CC_ARGS) -g $(VALA_ARGS_EXTRA)
 
 VALA_SOURCE=\
 	arteparser.vala \
