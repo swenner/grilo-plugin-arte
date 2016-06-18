@@ -4,7 +4,9 @@ NAME=grilo-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 VALAC=valac
 
-GRILO_VERSION=2
+ifneq ($(GRILO_VERSION),3)
+    GRILO_VERSION=2
+endif
 
 # vala bindings are missing in Debian Jessie, ok in Stretch and Ubuntu >= 16.04
 #VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0 --pkg grilo-0.2
