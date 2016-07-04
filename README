@@ -31,12 +31,6 @@ Installation:
 
 Build and install the plugin with these commands:
 
-For Grilo 0.2:
 $ make
 $ sudo make install
-
-Or Grilo 0.3:
-$ make GRILO_VERSION=3
-$ sudo make GRILO_VERSION=3 install
-
 

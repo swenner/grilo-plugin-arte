@@ -1,15 +1,21 @@
 DESTDIR=
+GRILO_VERSION=
 VERSION=1.0.0
 NAME=grilo-plugin-arte
 PACKAGE=$(NAME)-$(VERSION)
 VALAC=valac
 
-ifneq ($(GRILO_VERSION),3)
-    GRILO_VERSION=2
+# Detect and use the higher Grilo version available, if not set on the CLI
+ifeq ($(GRILO_VERSION),)
+    ifeq ($(shell pkg-config --exists grilo-0.3; echo $$?),0)
+        GRILO_VERSION=3
+    else
+        GRILO_VERSION=2
+    endif
 endif
 
 # vala bindings are missing in Debian Jessie, ok in Stretch and Ubuntu >= 16.04
-#VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0 --pkg grilo-0.2
+#VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0 --pkg grilo-0.$(GRILO_VERSION)
 VALA_DEPS=--pkg libsoup-2.4 --pkg gio-2.0 --pkg json-glib-1.0 --pkg gmodule-2.0
 CC_ARGS=-X -fPIC -X -shared --Xcc="-D GETTEXT_PACKAGE=\"grilo-arte\"" -X -std=c99 -X -Wno-discarded-qualifiers
 VALA_ARGS_EXTRA=
