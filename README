@@ -37,6 +37,6 @@ $ sudo make install
 
 Or Grilo 0.3:
 $ make GRILO_VERSION=3
-$ sudo make install
+$ sudo make GRILO_VERSION=3 install
 
 
