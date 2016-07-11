@@ -5,6 +5,6 @@
     <description>A plugin to watch video streams from the Franco-German TV Channel Arte.</description>
     <author>Simon Wenner</author>
     <license>LGPL</license>
-    <site>https://github.com/swenner/totem-plugin-arte/</site>
+    <site>https://github.com/swenner/grilo-plugin-arte</site>
   </info>
 </plugin>

@@ -43,7 +43,7 @@ GRL_PLUGIN_DEFINE (0, //GRL_MAJOR,
                    "Simon Wenner, Nicolas Delvaux",
                    "1.0.0",
                    "LGPL",
-                   "https://github.com/swenner/totem-plugin-arte/",
+                   "https://github.com/swenner/grilo-plugin-arte",
                    grl_arteplus7_plugin_init,
                    NULL,
                    NULL);
