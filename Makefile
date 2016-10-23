@@ -71,7 +71,7 @@ endif
 	cp -f po/fr.mo $(DESTDIR)/usr/share/locale/fr/LC_MESSAGES/grilo-arte.mo
 
 uninstall:
-	rm $(GRILO_PLUGIN_DIR)/grl-arteplus7.xml $(GRILO_PLUGIN_DIR)/libgrlarteplus7.so
+	rm -f $(GRILO_PLUGIN_DIR)/grl-arteplus7.xml $(GRILO_PLUGIN_DIR)/libgrlarteplus7.so
 	rm $(DESTDIR)/usr/share/glib-2.0/schemas/org.gnome.totem.plugins.arteplus7.gschema.xml
 	rm -r $(DESTDIR)/usr/share/grilo-plugins/grl-arteplus7/
 ifeq ($(DISABLE_SCHEMAS_COMPILE),)
