@@ -13,15 +13,15 @@ valac
 gettext
 pkg-config
 libsoup2.4
-libgrilo-0.2
+libgrilo-0.2 or libgrilo-0.3
 libjson-glib
 gsettings-desktop-schemas
 
-On Debian >= Jessie or Ubuntu >= 16.04:
+On Debian Jessie or Ubuntu 16.04:
 # apt install valac gcc make libgrilo-0.2-dev libsoup2.4-dev \
 gettext libjson-glib-dev
 
-On Debian Stretch
+On Debian Stretch or Ubuntu >= 16.10
 # apt install valac gcc make libgrilo-0.3-dev libsoup2.4-dev \
 gettext libjson-glib-dev
 
