@@ -58,6 +58,15 @@ class GrlArteSource : Grl.Source
     private Language language;
     private VideoQuality quality;
     private UrlExtractor extractor;
+
+   /* A common SourceSpec to ease code reuse between browse() and search() */
+    private struct SourceArteSpec {
+        weak Grl.Source source;
+        uint operation_id;
+        weak Grl.Media container;
+        weak string text;
+        weak Grl.SourceResultCb callback;
+    }
     
     construct {
         /* Debug log handling */
