@@ -171,79 +171,91 @@ class GrlArteSource : Grl.Source
         return supported_keys_;
     }
 
-    private void browse_language (Grl.SourceBrowseSpec bs)
+    private void browse_language (SourceArteSpec ars)
     {
         Grl.Media lang_box = construct_media_container ();
         lang_box.set_title (_("French"));
         lang_box.set_id (BOX_LANGUAGE_FRENCH);
-        bs.callback (bs.source, bs.operation_id, lang_box, 1, null);
+        ars.callback (ars.source, ars.operation_id, lang_box, 1, null);
         lang_box = construct_media_container ();
         lang_box.set_title (_("German"));
         lang_box.set_id (BOX_LANGUAGE_GERMAN);
-        bs.callback (bs.source, bs.operation_id, lang_box, 0, null);
+        ars.callback (ars.source, ars.operation_id, lang_box, 0, null);
     }
 
-    private void browse_quality (Grl.SourceBrowseSpec bs)
+    private void browse_quality (SourceArteSpec ars)
     {
         Grl.Media q_box = construct_media_container ();
         q_box.set_title (_("Low quality (220p)"));
         q_box.set_id (BOX_QUALITY_LOW);
-        bs.callback (bs.source, bs.operation_id, q_box, 3, null);
+        ars.callback (ars.source, ars.operation_id, q_box, 3, null);
 
         q_box = construct_media_container ();
         q_box.set_title (_("Medium quality (400p)"));
         q_box.set_id (BOX_QUALITY_MEDIUM);
-        bs.callback (bs.source, bs.operation_id, q_box, 2, null);
+        ars.callback (ars.source, ars.operation_id, q_box, 2, null);
 
         q_box = construct_media_container ();
         q_box.set_title (_("High quality (400p, better encoding)"));
         q_box.set_id (BOX_QUALITY_HIGH);
-        bs.callback (bs.source, bs.operation_id, q_box, 1, null);
+        ars.callback (ars.source, ars.operation_id, q_box, 1, null);
 
         q_box = construct_media_container ();
         q_box.set_title (_("Best quality (720p)"));
         q_box.set_id (BOX_QUALITY_HD);
-        bs.callback (bs.source, bs.operation_id, q_box, 0, null);
+        ars.callback (ars.source, ars.operation_id, q_box, 0, null);
     }
 
     public override void browse (Grl.SourceBrowseSpec bs)
     {
         debug ("Browse streams...");
 
-        switch (bs.container.get_id ()) {
+        SourceArteSpec ars = SourceArteSpec () {
+            source = bs.source,
+            operation_id = bs.operation_id,
+            container = bs.container,
+            text = null,
+            callback = bs.callback
+        };
+        arte_browse (ars);
+    }
+
+    private void arte_browse (SourceArteSpec ars)
+    {
+        switch (ars.container.get_id ()) {
         case null:
             if (language == Language.UNKNOWN || quality == VideoQuality.UNKNOWN) {
-                browse_language (bs);
+                browse_language (ars);
             } else {
-                refresh_rss_feed (bs);
+                refresh_rss_feed (ars);
             }
             break;
         case BOX_SETTINGS_RESET:
-            browse_language (bs);
+            browse_language (ars);
             break;
         case BOX_LANGUAGE_FRENCH:
             set_language (Language.FRENCH);
-            browse_quality (bs);
+            browse_quality (ars);
             break;
         case BOX_LANGUAGE_GERMAN:
             set_language (Language.GERMAN);
-            browse_quality (bs);
+            browse_quality (ars);
             break;
         case BOX_QUALITY_LOW:
             set_quality (VideoQuality.LOW);
-            refresh_rss_feed (bs);
+            refresh_rss_feed (ars);
             break;
         case BOX_QUALITY_MEDIUM:
             set_quality (VideoQuality.MEDIUM);
-            refresh_rss_feed (bs);
+            refresh_rss_feed (ars);
             break;
         case BOX_QUALITY_HIGH:
             set_quality (VideoQuality.HIGH);
-            refresh_rss_feed (bs);
+            refresh_rss_feed (ars);
             break;
         case BOX_QUALITY_HD:
             set_quality (VideoQuality.HD);
-            refresh_rss_feed (bs);
+            refresh_rss_feed (ars);
             break;
         }
     }
@@ -257,7 +269,7 @@ class GrlArteSource : Grl.Source
     }
     */
 
-    private void refresh_rss_feed (Grl.SourceBrowseSpec bs)
+    private void refresh_rss_feed (SourceArteSpec ars)
     {
         uint parse_errors = 0;
         uint network_errors = 0;
@@ -287,7 +299,7 @@ class GrlArteSource : Grl.Source
                     Grl.Media media = construct_media_container ();
                     media.set_id (BOX_SETTINGS_RESET);
                     media.set_title (_("↻ Change settings"));
-                    bs.callback (bs.source, bs.operation_id, media, remaining + 1, null);
+                    ars.callback (ars.source, ars.operation_id, media, remaining + 1, null);
                     foreach (Video v in videos) {
                         media = construct_media_video ();
                         media.set_title (v.title);
@@ -323,10 +335,10 @@ class GrlArteSource : Grl.Source
                         // TODO dates
                         media.set_thumbnail (v.image_url);
 
-                        bs.callback (bs.source, bs.operation_id, media, remaining, null);
+                        ars.callback (ars.source, ars.operation_id, media, remaining, null);
                         remaining -= 1;
                     }
-                    bs.callback (bs.source, bs.operation_id, null, 0, null);
+                    ars.callback (ars.source, ars.operation_id, null, 0, null);
 
                 } catch (MarkupError e) {
                     parse_errors++;
