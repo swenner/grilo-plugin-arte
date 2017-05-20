@@ -294,14 +294,19 @@ class GrlArteSource : Grl.Source
                     if (ars.text != null) {
                         p.filter = ars.text;
                     }
+                    Grl.Media media = null;
                     unowned GLib.SList<Video> videos = p.parse (language);
-
                     uint remaining = videos.length();
-                    // Create the "Change language" box
-                    Grl.Media media = construct_media_container ();
-                    media.set_id (BOX_SETTINGS_RESET);
-                    media.set_title (_("↻ Change settings"));
-                    ars.callback (ars.source, ars.operation_id, media, remaining + 1, null);
+                    debug ("Parsed: %u\n", remaining);
+
+                    // Create the settings box, if we are not in search mode
+                    if (ars.container != null) {
+                        media = construct_media_container ();
+                        media.set_id (BOX_SETTINGS_RESET);
+                        media.set_title (_("↻ Change settings"));
+                        ars.callback (ars.source, ars.operation_id, media, remaining + 1, null);
+                    }
+
                     foreach (Video v in videos) {
                         media = construct_media_video ();
                         media.set_title (v.title);
