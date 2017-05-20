@@ -33,6 +33,7 @@ using Json;
 public abstract class ArteParser : GLib.Object
 {
     public bool has_data { get; protected set; default = false; } // more data available
+    public string filter { get; set; }
     protected string xml_fr;
     protected string xml_de;
     protected GLib.SList<Video> videos;
@@ -103,6 +104,14 @@ public abstract class ArteParser : GLib.Object
     {
         return str.replace("&", "&amp;");
     }
+
+    protected bool match_filter (string str)
+    {
+        if (filter == null) {
+            return true;
+        }
+        return str.down ().contains (filter.down ());
+    }
 }
 
 public class ArteRSSParser : ArteParser
@@ -131,6 +140,7 @@ public class ArteRSSParser : ArteParser
     {
         has_data = true;
         feed_idx = 0;
+        filter = null;
     }
 
     public override bool has_duplicates () { return false; }
@@ -211,7 +221,9 @@ public class ArteRSSParser : ArteParser
         switch (elem) {
             case "item":
                 if (current_video != null) {
-                    videos.append (current_video);
+                    if (match_filter (current_video.title)) {
+                        videos.append (current_video);
+                    }
                     current_video = null;
                 }
                 break;
