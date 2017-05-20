@@ -260,14 +260,20 @@ class GrlArteSource : Grl.Source
         }
     }
 
-    /*public override void search (Grl.SourceSearchSpec ss)
+    public override void search (Grl.SourceSearchSpec ss)
     {
-        debug ("Search...");
-        // TODO implement
-        ss.callback(ss.source, ss.operation_id, null, 0, null);
+        debug ("Searching '%s'...", ss.text);
+
+        SourceArteSpec ars = SourceArteSpec () {
+            source = ss.source,
+            operation_id = ss.operation_id,
+            container = null,
+            text = ss.text,
+            callback = ss.callback
+        };
+        arte_browse (ars);
         debug ("Search finished");
     }
-    */
 
     private void refresh_rss_feed (SourceArteSpec ars)
     {
