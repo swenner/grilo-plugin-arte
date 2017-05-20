@@ -291,7 +291,9 @@ class GrlArteSource : Grl.Source
             while (p.has_data)
             {
                 try {
-                    // parse
+                    if (ars.text != null) {
+                        p.filter = ars.text;
+                    }
                     unowned GLib.SList<Video> videos = p.parse (language);
 
                     uint remaining = videos.length();
