@@ -165,8 +165,7 @@ class GrlArteSource : Grl.Source
         }
     }
 
-    // TODO '?' is missing in the vapi, fixed in 0.3
-    public override unowned GLib.List<weak Grl.KeyID?> supported_keys ()
+    public override unowned GLib.List<weak Grl.KeyID> supported_keys ()
     {
         return supported_keys_;
     }
