@@ -50,7 +50,7 @@ Grl.Media construct_media_video ()
 
 class GrlArteSource : Grl.Source
 {
-    private GLib.List<weak Grl.KeyID ?> supported_keys_;
+    private GLib.List<weak Grl.KeyID> supported_keys_;
     
     private ArteParser parsers[1]; /* array of parsers */
     private GLib.Settings settings;
